@@ -1,0 +1,52 @@
+﻿@model OnlineSchool.Contract.Lessons.LessonModel
+
+@{
+    var lessonName = Model.Name;
+    var lessonId = Model.Id;
+}
+
+<h6 class="page-title"> Lesson: @lessonName </h6>
+
+<div class="row mx-0 p-0">
+    <div class="col-12 m-0 p-0 py-4">
+        @(Html.Kendo().Grid<OnlineSchool.Contract.Lessons.LessonMaterialModel>()
+            .Name("lesson-materials-grid")
+            .HtmlAttributes(new { id = "lesson-materials-grid" })
+            .NoRecords()
+            .Columns(columns => {
+                columns.Bound(p => p.Id).Visible(false);
+                columns.Bound(p => p.Material.FileName).Title("File name").Width(250)
+                    .ClientTemplate(@"" +
+                        "<a class='text-primary' target='_blank' href='/TeacherSubject/DownloadLessonMaterial/#=Id#'  title='Download'>" +
+                            "<span style='white-space: nowrap;'>" +
+                                "<i class='fas fa-file-download'></i>  #=Material.FileName# </a>" +
+                            "</span>" +
+                         "");
+                columns.Bound(p => p.Material.MimeType).Title("File type").Width(120);
+                columns.Bound(p => p.Material.FileSize).Title("File size").Width(120).ClientTemplate("#=formatBytes(Material.FileSize)#");
+            })
+            .Sortable()
+            .Resizable(c => c.Columns(true))
+            .Reorderable(c => c.Columns(true))
+            .Pageable(pg =>
+            {
+                pg.Refresh(true);
+                pg.PageSizes(true);
+                pg.ButtonCount(5);
+            })
+            .Scrollable()
+            .Editable(editable => editable.Mode(GridEditMode.InLine))
+            .DataSource(ds => ds
+                .Ajax()
+                .PageSize(4)
+                .Model(model =>
+                {
+                    model.Id(p => p.Id);
+                })
+                .Read(read => read.Action("GetLessonMaterials", "TeacherSubject", new { id = lessonId }).Type(HttpVerbs.Get))
+            )
+            .Deferred()
+        )
+    </div>
+</div>
+

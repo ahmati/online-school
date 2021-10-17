@@ -1,0 +1,15 @@
+:root {
+    --vh: 100vh;
+
+    --header-height: 20px;
+
+    --slide-drawer-zIndex: 101;
+
+    --meeting-initialization-overlay-zIndex: 200;
+    
+    --meeting-controls-zIndex: 50;
+    --meeting-controls-height: 50px;
+
+    --gray-color: #999;
+    --blue-color: #3276b1;
+}

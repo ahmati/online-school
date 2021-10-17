@@ -1,0 +1,242 @@
+﻿@using X.PagedList.Mvc.Core;
+@using OnlineSchool.Contract.Courses
+
+@model X.PagedList.IPagedList<OnlineSchool.Contract.Courses.CourseModel>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/details.css" />
+    <link rel="stylesheet" href="~/css/animations.css" />
+}
+
+<div class="section top-image" style="height: 315px;">
+    <div class="section align-bottom">
+        <div class="container">
+            <div class="section" style="height: 220px;"></div>
+            <div class="detail-section-50 float-left">
+                <strong class="first-font color-white font-size-60 jumbotron-title"> @SharedResources.Courses </strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section section-grey">
+    <div class="container">
+        <div class="grid">
+            <a class="link" asp-area="" asp-controller="Home" asp-action="Index"> Home </a>
+            <img class="next-icon" alt="" src="~/images/next.png" />
+            <a class="link" href="#"> @SharedResources.Courses </a>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="container">
+
+        <div class="section py-3">
+            <form asp-controller="Course" asp-action="Index" method="get">
+                <div class="sb-example-1 w-100">
+                    <div class="search">
+                        <input type="text" name="search" value="@Context.Request.Query["search"]" class="searchTerm" placeholder="Search for a course">
+                        <button type="submit" class="searchButton">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <span class="float-right mt-2 font-weight-lighter">
+                Showing @(Model.Count == 0 ? 0 : (1 + ((Model.PageNumber - 1) * Model.PageSize)))-@(Model.Count() + (Model.PageNumber - 1) * Model.PageSize) results of @Model.TotalItemCount
+            </span>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3">
+                @foreach (var course in Model)
+                {
+                    var duration = course.Sessions.Sum(s => ((int)(s.EndTime - s.StartTime).TotalHours));
+
+                    <div class="col my-4">
+                        <div class="section border shadow-sm">
+
+                            <div class="section position-relative">
+                                @if (course.ImagePath != null)
+                                {
+                                    <img class="section" alt="" src="~/uploads/courses/@course.Id/@course.ImagePath" />
+                                }
+                                else
+                                {
+                                    <img class="section" alt="" src="~/images/image4.jpeg" />
+                                }
+
+                                <div class="bg-alpha-gradient position-absolute w-100 h-100">
+
+                                    <div class="position-absolute bottom w-100 text-white font-size-13 p-2">
+                                        <span class="float-left">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            @course.StartDate.ToString("dd MMM yyyy") - @course.EndDate.ToString("dd MMM yyyy")
+                                        </span>
+                                        <span class="float-right">
+                                            <i class="far fa-clock"></i> @duration Hours
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="section p-3 ring-container">
+                                @if (course.IsLive)
+                                {
+                                    <div class="ringring"></div>
+                                    <div class="circle" title=@SharedResources.LiveEvent></div>
+                                }
+                                <h3>@course.TeacherSubject.Subject.Name </h3>
+                                <div class="section" style="height: 20px;"></div>
+                                @{ var description = course.TeacherSubject.Subject.Description.Length > 100 ? course.TeacherSubject.Subject.Description.Substring(0, 97) + "..." : course.TeacherSubject.Subject.Description; }
+                                <p style="height: 72px;"> @description </p>
+                            </div>
+
+                            <div class="section border-box padding-20 border-top-1-solid-grey background-grey">
+
+                                <div class="width-33 float-left">
+                                    <div class="table m-0 float-left align-middle">
+                                        <img alt="" class="table-cell align-middle border-radius-100" width="25" height="25" src="~/uploads/teachers/@course.TeacherSubject.Teacher.Id/@course.TeacherSubject.Teacher.ImagePath" />
+                                        <p class="table-cell align-middle font-size-15">
+                                            <a href="/Teacher/@course.TeacherSubject.Teacher.Id/Details"> @course.TeacherSubject.Teacher.Name </a>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="width-33 float-left">
+                                    <div class="table m-0 float-left">
+                                        <img alt="" class="margin-left-10 table-cell align-middle" width="25" height="25" src="~/images/icon-availability.png" />
+                                        <p class="table-cell align-middle font-size-15">
+                                            <a href="/Course/@course.Id/Details"> 27 Seats </a>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="width-33 float-left text-align-right color-white">
+                                    <a class="btn btn-sm my-btn-primary" href="/Course/@course.Id/Details"> Details </a>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="row col-12 m-0 alert alert-warning border shadow-sm" role="alert">
+                <span>
+                    <i class="fa fa-info"></i>
+                    No courses available currently.
+                </span>
+            </div>
+        }
+
+        @Html.PagedListPager(Model, page => Url.Action("Index", new { page, search = Context.Request.Query["search"] }))
+
+    </div>
+</div>
+
+<style>
+    .jumbotron-title {
+        text-shadow: -3px 3px 7px black;
+    }
+
+    p a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+        p a:hover {
+            text-decoration: none;
+            color: inherit;
+        }
+
+    div a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+        div a:hover {
+            text-decoration: none;
+            color: inherit;
+        }
+
+    .pagination-container {
+        text-align: center;
+    }
+
+        .pagination-container li {
+            display: inline-block;
+            padding: 10px;
+            font-size: 20px;
+            line-height: 20px;
+            color: #a3a3a3;
+            font-family: 'Montserrat',sans-serif;
+        }
+
+        .pagination-container a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+            .pagination-container a:hover {
+                text-decoration: none;
+                color: inherit;
+            }
+
+    .pagination {
+        display: flow-root;
+    }
+
+    .pagination-container .active {
+        color: #727475;
+    }
+
+    input, textarea {
+        outline: 0;
+        border: 1px solid #f1f1f1;
+        padding: 10px 20px;
+        float: left;
+        width: 100%;
+        box-sizing: border-box;
+    }
+</style>
+
+<!-- Search form styles -->
+<style>
+    .sb-example-1 .search {
+        width: 100%;
+        position: relative;
+        display: flex;
+    }
+
+    .sb-example-1 .searchTerm {
+        width: 100%;
+        border: 3px solid var(--blueColor);
+        border-right: none;
+        padding: 5px;
+        border-radius: 5px 0 0 5px;
+        outline: none;
+    }
+
+        .sb-example-1 .searchTerm:focus {
+            color: var(--blueColor);
+        }
+
+    .sb-example-1 .searchButton {
+        width: 40px;
+        height: 50px;
+        border: 1px solid var(--blueColor);
+        background: var(--blueColor);
+        text-align: center;
+        color: #fff;
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+        font-size: 20px;
+    }
+</style>

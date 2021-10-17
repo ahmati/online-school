@@ -1,0 +1,65 @@
+﻿@addTagHelper *, Kendo.Mvc
+@{
+    var culture = CultureInfo.CurrentCulture.ToString();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Nuova Vita</title>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/fonts/css/fontawesome.min.css" />
+    <link rel="stylesheet" href="~/fonts/css/all.min.css" />
+    <!-- Our styles -->
+    <link rel="stylesheet" href="~/css/shared/variables.css" />
+    <link rel="stylesheet" href="~/css/shared/general.css" />
+    <link rel="stylesheet" href="~/css/form-styles.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <!-- Telerik Bootstrap v4 theme -->
+    <link href="~/lib/kendo-ui/css/kendo.bootstrap-v4.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="~/css/kendo-overrides.css" />
+    <!-- In-view styles -->
+    @RenderSection("Styles", required: false)
+
+</head>
+
+<body>
+    <partial name="Header/_Header" />
+
+    <div class="main-container">
+        @RenderBody()
+        <partial name="_Footer" />
+    </div>
+
+    <span id="popupNotification"></span>
+
+    <!-- jQuery -->
+    @*<script src="~/js/jquery.js"></script>*@
+    <!-- Kendo scripts -->
+    <script src="~/lib/kendo-ui/js/jquery.min.js"></script>
+    <script src="~/lib/kendo-ui/js/jszip.min.js"></script>
+    <script src="~/lib/kendo-ui/js/kendo.all.min.js"></script>
+    <script src="~/lib/kendo-ui/js/kendo.aspnetmvc.min.js"></script>
+    <script src="@Url.Content("~/lib/kendo-ui/js/cultures/kendo.culture." + culture + ".min.js")"></script>
+    <script>
+        kendo.culture("@culture");
+    </script>
+    <!-- Bootstrap (js) -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert -->
+    <script src="~/lib/SweetAlert/sweetalert.min.js"></script>
+    <!-- Constants -->
+    <script src="~/js/constants.js"></script>
+    <!-- Utils (confirmation, notifications etc.) -->
+    <script src="~/js/utils.js"></script>
+    <!-- Our scripts -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false)
+    @Html.Kendo().DeferredScripts()
+</body>
+</html>

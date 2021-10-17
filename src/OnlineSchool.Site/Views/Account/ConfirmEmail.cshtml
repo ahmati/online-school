@@ -1,0 +1,47 @@
+﻿@{ 
+    ViewData["Title"] = SharedResources.ConfirmEmail;
+}
+
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+
+            @if (ViewData["MessageSuccess"] != null)
+            {
+                <div class="mb-4 alert alert-success alert-dismissible fade show" role="alert">
+                    @ViewData["MessageSuccess"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+            @if (ViewData["MessageError"] != null)
+            {
+                <div class="mb-4 alert alert-danger alert-dismissible fade show" role="alert">
+                    @ViewData["MessageError"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            @if (@ViewData["MessageError"] == null)
+            {
+                <div class="form-group">
+                    <h3 class="text-center mt-4"> @SharedResources.ThankYouForConfirmingEmail </h3>
+                    <div class="form-group mt-5">
+                        <div class="text-center">
+                            <h4>
+                                @SharedResources.Login
+                                <a class="text-primary" asp-action="Login" asp-controller="Account">  @SharedResources.Here.ToLower() </a>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+

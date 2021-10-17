@@ -1,0 +1,59 @@
+﻿
+@(Html.Kendo().Window()
+    .Name("StudentPopup")
+    .Title("Student List")
+    .Visible(false)
+    .Modal(true)
+    .Draggable(true)
+    .Content(
+        Html.Kendo().Grid<OnlineSchool.Contract.Students.StudentModel>()
+        .Name("studentGridPopup")
+        .Events(events => events.Change("getSelectedStudents"))
+        .Columns(columns =>
+        {
+            columns.Select().Width(50);
+            columns.Bound(p => p.Id).Visible(false);
+            columns.Bound(p => p.Name).Title("Student Name").Width(50);
+            columns.Bound(p => p.Surname).Title("Student Surname").Width(50);;
+            columns.Bound(p => p.Description).Title("Description").Width(110);;
+            columns.Bound(p => p.ImagePath).Title("Image").Width(70);
+            columns.Bound(p => p.AuthDate).Format("{0:MM/dd/yyyy}").Width(110).Title("Data");
+            // columns.Bound(p => p.Note).Title("Note");//.ClientFooterTemplate("<button  class='btn float-right btn-contact mt-3' onclick='saveDocumentCustomerAssociations()'>Salva</button> ").Width(140);
+        })
+         .Pageable()
+         .ToolBar(toolbar =>
+         {
+             toolbar.Custom().Text("Save").HtmlAttributes(new { onclick = "saveDocumentStudentAssociation();", @style = "background-color: darkred;color: #fff !important;padding: 6px 50px;border-radius: 0px;" });
+             toolbar.Custom().Text("Close").HtmlAttributes(new { href = "/Document/Index", @style = "background-color: darkred;color: #fff !important;padding: 6px 50px;border-radius: 0px;" });
+             toolbar.Search();
+         })
+        .PersistSelection()
+        .Scrollable()
+        .Sortable()
+        .HtmlAttributes(new { style = "height:400px;" })
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(20)
+        .Batch(true)
+        //.Events(ev => ev.Change("onChange"))
+        .Events(events => events.Error("error_handler"))
+        .Model(model =>
+        {
+            model.Id(p => p.Id);
+            model.Field(x => x.Id).Editable(true);
+        })
+        .Read(read => read.Action("GetStudents", "Student", new { Id = "#= Id#" }).Type(HttpVerbs.Get))
+        //.Update(update => update.Action("", "Property").Type(HttpVerbs.Post))
+        //.Destroy(destroy => destroy.Action("", "Property").Type(HttpVerbs.Post))
+         )
+        .ToHtmlString()
+         )
+
+    .Width(1000)
+    .Height(500)
+    .Deferred()
+)
+
+<link rel="stylesheet" href="~/css/documenti.css" />
+
+

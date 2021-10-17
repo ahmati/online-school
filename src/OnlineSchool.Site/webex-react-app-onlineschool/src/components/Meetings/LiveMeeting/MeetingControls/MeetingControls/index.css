@@ -1,0 +1,52 @@
+#meeting-controls {
+  position: fixed;
+  bottom: 0;
+  width: 100vw !important;
+  height: var(--meeting-controls-height);
+  z-index: var(--meeting-controls-zIndex);
+  background-color: #f7f7f7;
+  align-content: center;
+}
+
+#left-controls .dropdown-toggle::after {
+  display: none;
+}
+
+#left-controls .dropdown-menu {
+  z-index: 99;
+}
+
+/* ------------------------ Responsiveness ------------------------ */
+@media only screen and (max-width: 1350px) {
+  .meeting-control > span {
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 601px) {
+  .left-controls #endMeetingBtn {
+    display: none;
+  }
+  .center-controls {
+    display: block;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .left-controls #endMeetingBtn {
+    display: inline-block;
+  }
+  .center-controls {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .meeting-control {
+    font-size: 13px !important;
+  }
+
+  .left-controls .meeting-control, .left-controls #moreOptions {
+    margin: 0 2px 0 2px !important;
+  }
+}

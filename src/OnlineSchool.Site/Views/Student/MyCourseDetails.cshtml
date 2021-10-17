@@ -1,0 +1,362 @@
+﻿@model OnlineSchool.Contract.Courses.CourseModel
+@using OnlineSchool.Core.Helper_
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/grid-style.css" />
+}
+
+<h6 class="page-title"> @SharedResources.DetailsForSubject: @Model.TeacherSubject.Subject.Name </h6>
+
+<div>
+    @(Html.Kendo().TabStrip()
+                    .Name("tabStrip")
+                    .SelectedIndex(0)
+                    .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+                    .Items(items =>
+                    {
+                        items.Add().Text(SharedResources.Materials)
+                                .Selected(true)
+                                .Content(@<text>
+                                    <!-- TeacherSubject Materials tab -->
+                                    <div class="row mx-0 p-0">
+                                        <div class="col-12 m-0 py-4 padding-lr bg-grey">
+                                            @(Html.Kendo().Grid<OnlineSchool.Contract.TeacherSubject.TeacherSubjectMaterialModel>()
+                                                .Name("subject-materials-grid")
+                                                .HtmlAttributes(new { id = "subject-materials-grid", style = "height: 500px" })
+                                                .NoRecords()
+                                                .ToolBar(toolbar =>
+                                                {
+                                                    toolbar.ClientTemplateId("teacher-subject-materials-grid-toolbar");
+                                                })
+                                                .Search(search =>
+                                                {
+                                                    search.Field(m => m.Material.FileName);
+                                                    search.Field(m => m.Material.MimeType);
+                                                })
+                                                .Columns(columns =>
+                                                {
+                                                    columns.Bound(p => p.Id).Visible(false);
+                                                    columns.Select().Width(50);
+                                                    columns.Bound(p => p.Material.FileName).Title(SharedResources.FileName).Width(250)
+                                                       .ClientTemplate(@"
+                                                            <a class='text-primary' target='_blank' href='/TeacherSubject/DownloadTeacherSubjectMaterial/#=Id#' title='" + SharedResources.Download + @"'>
+                                                                <span style='white-space: nowrap;'>
+                                                                    <i class='fas fa-file-download'></i> #=Material.FileName#
+                                                                </span>
+                                                            </a>
+                                                    ");
+                                                    columns.Bound(p => p.Material.MimeType).Title(SharedResources.FileType).Width(120);
+                                                    columns.Bound(p => p.Material.FileSize).Title(SharedResources.FileSize).Width(120).ClientTemplate("#=formatBytes(Material.FileSize)#");
+                                                })
+                                                .Sortable()
+                                                .Pageable(pg => {
+                                                    pg.Refresh(true);
+                                                    pg.PageSizes(true);
+                                                    pg.ButtonCount(5);
+                                                })
+                                                .Scrollable()
+                                                .Events(e =>
+                                                {
+                                                    e.Change("onChange");
+                                                    e.DataBound("onDataBound");
+                                                })
+                                                .DataSource(ds => ds
+                                                    .Ajax()
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+                                                    })
+                                                    .Read(read => read.Action("GetMaterials", "TeacherSubject" ,new { id = Model.TeacherSubject.Id }).Type(HttpVerbs.Get))
+                                                )
+                                                .Deferred()
+                                            )
+
+                                        </div>
+                                    </div>
+                                </text>);
+
+                        items.Add().Text(SharedResources.Lessons)
+                                .Selected(true)
+                                .Content(@<text>
+                                    <!-- TeacherSubject Lessons tab -->
+                                    <div class="row mx-0 p-0">
+                                        <div class="col-12 m-0 py-4 padding-lr bg-grey">
+                                            @(Html.Kendo().Grid<OnlineSchool.Contract.Lessons.LessonModel>()
+                                                .Name("lesson-grid")
+                                                .HtmlAttributes(new { id = "lesson-grid", style = "height: 500px" })
+                                                .NoRecords()
+                                                .ToolBar(toolbar =>
+                                                {
+                                                    toolbar.ClientTemplate(
+                                                        "<span class='k-textbox k-grid-search k-display-flex'>" +
+                                                            "<input autocomplete='off' placeholder='" + SharedResources.SEARCH + "...' title='" + SharedResources.SEARCH + "...' class='k-input'>" +
+                                                            "<span class='k-input-icon'>" +
+                                                                "<span class='k-icon k-i-search'></span>" +
+                                                            "</span>" +
+                                                        "</span>");
+                                                })
+                                                .Search(search =>
+                                                {
+                                                    search.Field(m => m.Name);
+                                                    search.Field(m => m.Description);
+                                                })
+                                                .Columns(columns =>
+                                                {
+                                                    columns.Bound(p => p.Id).Visible(false);
+                                                    columns.Bound(p => p.Name).Title(SharedResources.Name).Width(250);
+                                                    columns.Bound(p => p.Description).Title(SharedResources.Description).Width(250);
+                                                })
+                                                .Sortable()
+                                                .Pageable(pg =>
+                                                {
+                                                    pg.Refresh(true);
+                                                    pg.PageSizes(true);
+                                                    pg.ButtonCount(5);
+                                                })
+                                                .Scrollable()
+                                                .ClientDetailTemplateId("lesson-template")
+                                                .DataSource(ds => ds
+                                                    .Ajax()
+                                                    .PageSize(10)
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+                                                    })
+                                                    .Read(read => read.Action("GetLessonsByTeacherSubject", "TeacherSubject" ,new { id = Model.TeacherSubject.Id }).Type(HttpVerbs.Get))
+                                                )
+                                                .Events(e =>
+                                                {
+                                                    e.DetailExpand("expandDetails");
+                                                })
+                                                .Deferred()
+                                            )
+
+                                        </div>
+                                    </div>
+                                </text>);
+
+                        items.Add().Text(SharedResources.Sessions)
+                                .Selected(true)
+                                .Content(@<text>
+                                    <!-- TeacherSubject Sessions tab -->
+                                    <div class="row mx-0 p-0">
+                                        <div class="col-12 m-0 py-4 padding-lr bg-grey">
+                                            @(Html.Kendo().Grid<OnlineSchool.Contract.Session.SessionModel>()
+                                                .Name("session-grid")
+                                                .HtmlAttributes(new { id = "session-grid", style = "height: 500px" })
+                                                .NoRecords()
+                                                .ToolBar(toolbar =>
+                                                {
+                                                    toolbar.ClientTemplate(
+                                                        "<span class='k-textbox k-grid-search k-display-flex'>" +
+                                                            "<input autocomplete='off' placeholder='" + SharedResources.SEARCH + "...' title='" + SharedResources.SEARCH + "...' class='k-input'>" +
+                                                            "<span class='k-input-icon'>" +
+                                                                "<span class='k-icon k-i-search'></span>" +
+                                                            "</span>" +
+                                                        "</span>");
+                                                })
+                                                .Search(search =>
+                                                {
+                                                    search.Field(m => m.Topic);
+                                                })
+                                                .Columns(columns =>
+                                                {
+                                                    columns.Bound(p => p.Id).Visible(false);
+                                                    columns.Bound(p => p.Topic).Title(SharedResources.Topic).Width(100);
+                                                    columns.Bound(p => p.Date).Title(SharedResources.Date).Width(100).DateTimeFormat();
+                                                    columns.Bound(p => p.StartDate).Title(SharedResources.StartTime).Width(100).HourMinuteFormat();
+                                                    columns.Bound(p => p.EndDate).Title(SharedResources.EndTime).Width(100).HourMinuteFormat();
+                                                })
+                                                .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .PageSize(10)
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.CourseId);
+
+                                                    })
+                                                    .Read(read => read.Action("GetSessionByCourseId", "Course", new { CourseId = Model.Id }).Type(HttpVerbs.Get))
+                                                )
+                                                .Editable(editing => editing.Mode(GridEditMode.PopUp))
+                                                .Sortable()
+                                                .Pageable(pg =>
+                                                {
+                                                    pg.Refresh(true);
+                                                    pg.PageSizes(true);
+                                                    pg.ButtonCount(5);
+                                                })
+                                                .Deferred()
+                                            )
+
+                                        </div>
+                                    </div>
+                                </text>);
+                    })
+                    .Deferred()
+    )
+</div>
+
+<script id="lesson-template" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<OnlineSchool.Contract.Lessons.LessonMaterialModel>()
+        .Name("lesson-material-grid-#=Id#")
+        .NoRecords()
+        .ToolBar(toolbar =>
+        {
+            toolbar.ClientTemplate("" +
+                "<div class='lesson-material-grid-#=Id#-actions'>" +
+                    "<button disabled id='downloadSelectedLessons'  class='btn btn-sm btn-outline-primary float-right m-2' style='width: 38px; height: 38px;' onclick='onDownloadSelectedLessonMaterials(#=Id#)' title='" + SharedResources.DownloadSelected + "'>" +
+                        "<i class='fas fa-download'> </i>  " +
+                    "</button>" +
+                    "<span class='k-textbox k-grid-search k-display-flex align-middle float-right m-2 ml-0'>" +
+                        "<input autocomplete='off' placeholder='" + SharedResources.SEARCH + "...' title='" + SharedResources.SEARCH + "...' class='k-input'>" +
+                        "<span class='k-input-icon'>" +
+                            "<span class='k-icon k-i-search'></span>" + 
+                        "</span>" +
+                    "</span>" +
+                "</div> " +
+                "" +
+           "");
+        })
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.Id).Visible(false);
+            columns.Select().Width(50);
+            columns.Bound(p => p.Material.FileName).Title(SharedResources.FileName).Width(250)
+            .ClientTemplate(
+                "<a class='text-primary' target='_blank' href='/TeacherSubject/DownloadLessonMaterial/\\#=Id\\#' title='" + SharedResources.Download + "'>" +
+                    "<span style='white-space: nowrap;'>" +
+                        "<i class='fas fa-file-download'></i>  \\#:Material.FileName\\# " +
+                    "</span>" +
+                "</a>");
+            columns.Bound(p => p.Material.MimeType).Title(SharedResources.FileType).Width(120);
+            columns.Bound(p => p.Material.FileSize).Title(SharedResources.FileSize).Width(120).ClientTemplate("\\#=formatBytes(Material.FileSize)\\#");
+        })
+        .Sortable()
+        .Pageable(pg =>
+        {
+            pg.Refresh(true);
+            pg.PageSizes(true);
+            pg.ButtonCount(5);
+        })
+         .Events(e =>
+         {
+             e.Change("onChangeLessonMaterial");
+             e.DataBound("onDataBoundLessonMaterial");
+         })
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(3)
+            .Model(model =>
+            {
+                model.Id(p => p.Id);
+            })
+            .Read(read => read.Action("GetLessonMaterials", "TeacherSubject", new { id = "#=Id#" }).Type(HttpVerbs.Get))
+        )
+        .Editable(editing => editing.Mode(GridEditMode.PopUp))
+        .Sortable()
+        .ToClientTemplate()
+    )
+</script>
+
+
+@section Scripts{
+    <script id="teacher-subject-materials-grid-toolbar" type="text/x-kendo-template">
+
+        <div class='teacher-subject-materials-grid-actions'>
+            <button disabled id="downloadSelected" class='btn btn-sm btn-outline-primary float-right m-2' style='width: 38px; height: 38px;' onclick='onDownloadSelectedMaterials();' title='@SharedResources.DownloadSelected'>
+                <i class="fas fa-download"> </i>
+            </button>
+            <span class="k-textbox k-grid-search k-display-flex align-middle float-right m-2 ml-0">
+                <input autocomplete="off" placeholder="@SharedResources.SEARCH..." title="@SharedResources.SEARCH..." class="k-input">
+                <span class="k-input-icon">
+                    <span class="k-icon k-i-search"></span>
+                </span>
+            </span>
+        </div>
+
+    </script>
+
+
+    <script>
+        $(document).ready(() => {
+            let selectedIds = [];
+
+            //#region Grid events
+
+            onChange = (e) => {
+                selectedIds = []; // First, reset this
+                Object.keys(e.sender._selectedIds).forEach(k => selectedIds.push(parseInt(k)));
+
+                let downloadSelectedBtn = $('#downloadSelected');
+                (selectedIds.length > 0) ?
+                    downloadSelectedBtn.removeAttr('disabled') :
+                    downloadSelectedBtn.attr('disabled', true);
+            }
+
+            onDataBound = (e) => {
+                selectedIds = [];
+                let downloadSelectedBtn = $('#downloadSelected');
+                downloadSelectedBtn.attr('disabled', true);
+            }
+
+            onChangeLessonMaterial = (e) => {
+                selectedIds = []; // First, reset this
+                Object.keys(e.sender._selectedIds).forEach(k => selectedIds.push(parseInt(k)));
+
+                let downloadSelectedBtn = $('#downloadSelectedLessons');
+                (selectedIds.length > 0) ?
+                    downloadSelectedBtn.removeAttr('disabled') :
+                    downloadSelectedBtn.attr('disabled', true);
+            }
+
+            onDataBoundLessonMaterial = (e) => {
+                selectedIds = [];
+                let downloadSelectedBtn = $('#downloadSelectedLessons');
+                downloadSelectedBtn.attr('disabled', true);
+            }
+
+            //#endregion
+
+            onDownloadSelectedMaterials = () => {
+                if (selectedIds.length > 0) {
+
+                    let api = `/TeacherSubject/DownloadTeacherSubjectMaterials?`;
+                    selectedIds.forEach((id, i) => {
+                        api += `ids=${id}`;
+                        if (i < (selectedIds.length - 1))
+                            api += '&';
+                    });
+
+                    downloadURI(api);
+                    $('#subject-materials-grid').data('kendoGrid').clearSelection();
+                }
+            }
+
+            onDownloadSelectedLessonMaterials = (lessonId) => {
+                if (selectedIds.length > 0) {
+
+                    let api = `/TeacherSubject/DownloadLessonMaterials?`;
+                    selectedIds.forEach((id, i) => {
+                        api += `ids=${id}`;
+                        if (i < (selectedIds.length - 1))
+                            api += '&';
+                    });
+
+                    downloadURI(api);
+                    $(`#lesson-material-grid-${lessonId}`).data('kendoGrid').clearSelection();
+                }
+            }
+
+        });
+        function expandDetails(e) {
+            DocumentId = e.masterRow[0].cells[1].innerHTML;
+            var grid = e.sender;
+            var rows = grid.element.find(".k-master-row").not(e.masterRow);
+            rows.each(function (e) {
+                grid.collapseRow(this);
+            });
+        };
+
+    </script>
+}

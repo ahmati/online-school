@@ -1,0 +1,189 @@
+﻿@model OnlineSchool.Contract.Subject.SubjectModel
+@{
+    ViewData["Title"] = "Upload";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="row">
+    <div class="col-3 ">
+        <ul class="list" style="margin-top:20px">
+            <li>
+                @Model.Name<button class="fa-pull-right" type="button" data-toggle="modal" data-target="#myModal" style="margin-top:-4px;">Upload</button>
+            </li>
+        </ul>
+        <input type="text" id="text" />
+        <input type="submit" value="Filter" onclick="buttonSearch()" />
+    </div>
+    <div class="col-9">
+        <h4 class="text-darkred">@Model.Name</h4>
+        <h6>You can find the best materials in here</h6>
+        @(Html.Kendo().ListView<IEnumerable<OnlineSchool.Contract.Material.MaterialModel>>()
+                        .Name("listView")
+                        //.Events(ev => ev.DataBound("gridDataBound"))
+                        .TagName("div")
+                       .Scrollable(ListViewScrollableMode.Endless)
+                        .ClientTemplateId("template")
+                        .DataSource(dataSource =>
+                        {
+                            dataSource.Ajax().Read(read => read.Url("/Materials/GetMaterialsForSubject").Data("getFilterData").Type(HttpVerbs.Get)).PageSize(6);
+                        })
+                         .Selectable(selectable => selectable.Mode(ListViewSelectionMode.Single))
+                         .Deferred()
+        )
+
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Modal Header</h4>
+                    </div>
+                    <div class="modal-body">
+                        <h4>Dowload File</h4>
+                        <form asp-controller="Materials" asp-action="Save_File" method="post" enctype="multipart/form-data">
+                            <input type="text" hidden name="SubjectId" value="@Model.Id" />
+                            <input type="file" name="Files" />
+                            <button type="submit">Upload File</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/x-kendo-tmpl" id="template">
+    <div class="product">
+        <div class="row">
+            <div class="col-12">
+                <div class="k-card " style="margin-top:30px;border:none">
+                    <div class="ibox-content">
+                        #if (ImageTitle==null)
+                        {#
+                        <img alt="image" class="k-card-media" style="height:190px" src="@ViewBag.BaseUrl/images/image1.png" />
+                        #}
+                        else{#
+                        <img alt="image" class="k-card-media" style="height:190px" src="@ViewBag.BaseUrl/upload/Subject_#:SubjectId#/Images_#:Id#/#:ImageTitle#">
+                        #}#
+                       
+                    </div>
+                    <div class="text-center" style="height:160px">
+                        <p class="section-title" style="color:darkred; padding-top:1rem">#:Title#</p>
+                        <a type="button" class="k-button" href="/Materials/DeleteMaterial?id=#:Id#&&subjectId=#:SubjectId#">Delete</a>
+                        <a class="k-button" onclick="openmodal(#:Id#)">Upload</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</script>
+<div id="myModal1" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                <h4>Dowload File</h4>
+                <form asp-controller="Materials" asp-action="Save_Images" method="post" enctype="multipart/form-data">
+                    <input type="text" hidden name="MaterialId" value="" id="materilaId" />
+                    <input type="text" hidden name="SubjectId" value="@Model.Id" id="materilaId" />
+                    <input type="file" name="Files" />
+                    <button type="submit">Upload File</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+    
+
+
+
+
+<style>
+    .k-widget {
+        border-style: none !important;
+        display: block !important;
+    }
+
+    .list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .list li {
+            border: 1px solid #ddd;
+            margin-top: -1px;
+            background-color: #f6f6f6;
+            padding: 12px;
+            color: darkgrey;
+        }
+
+    #listView {
+        padding: 10px 5px;
+        margin-bottom: -1px;
+        display: block;
+    }
+
+    .product {
+        float: left;
+        position: relative;
+        width: 284px;
+        height: 360px;
+        margin: 0 5px;
+        padding: 0;
+    }
+
+        .product img {
+            width: 284px;
+            height: 205px !important;
+        }
+
+    .k-listview:after {
+        content: ".";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+    }
+</style>
+<script>
+
+    function openmodal(Id) {
+        $("#materilaId").val(Id);
+        $('#myModal1').modal('show');
+    }
+     function buttonSearch() {
+        $.get("/Materials/GetMaterialsForSubject", { search: getFilterData() }).done(function (data) {
+            console.log(data.Data)
+            var list = $("#listView").data("kendoListView");
+            list.dataSource.data(data.Data);
+        })
+    }
+    function getFilterData() {
+        return $("#text").val();
+    }
+    
+</script>
+
+
+
+
+
+
+

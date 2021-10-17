@@ -1,0 +1,38 @@
+﻿@{
+    var culture = CultureInfo.CurrentCulture.ToString();
+}
+
+<script>
+    localStorage.setItem('ciscoAuthToken', '@ViewBag.Token');
+    localStorage.setItem('meetingSipAddress', '@ViewBag.MeetingSipAddress');
+    localStorage.setItem('meetingPassword', '@ViewBag.MeetingPassword');
+    localStorage.setItem('webex-app-language', '@culture');
+</script>
+
+<div class="absolute-center text-center">
+    <span> Waiting in lobby... </span>
+    <span class="d-block"> The session will start automatically as soon as the teacher joins, so please wait here. </span>
+</div>
+
+<script>
+    var meetingStatusPinger =
+        setInterval(function () {
+            fetch('https://localhost:44341/LiveSession/@ViewBag.SessionId/ReadyToJoin')
+                .then(r => r.json()
+                    .then(data => {
+                        // data: { Output: true/false } indicates whether meeting is ready to join or not
+                        if (data.Output === true) {
+                            document.open();
+                            fetch('https://localhost:44341/react-app/index.html')
+                                .then(r => r.text()
+                                    .then(txt => {
+                                        document.write(txt);
+                                        clearInterval(meetingStatusPinger);
+                                    })
+                                    .finally(() => document.close())
+                                );
+                        }
+                    })
+                );
+        }, 10000)
+</script>

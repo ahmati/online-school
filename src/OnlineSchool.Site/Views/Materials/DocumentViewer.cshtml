@@ -1,0 +1,106 @@
+﻿@model IEnumerable<System.IO.FileInfo>
+@{
+    ViewData["Title"] = "GetListFiles";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <link rel="stylesheet" href="~/css/GetListFiles.css" />
+
+    <script src="https://kendo.cdn.telerik.com/2021.1.224/js/jquery.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2021.1.224/js/jszip.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2021.1.224/js/kendo.all.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2021.1.224/js/kendo.aspnetmvc.min.js"></script>
+</head>
+
+<body>
+    <div class="col-12">
+        <div class="container">
+            <form method="post">
+                <div class="row" align="center" style="height:400px;overflow: scroll" ;>
+                    <table align="center" id="tbl" border="1" cellpadding="4" cellspacing="4" style=" height:400px; overflow: scroll" class="table-bordered col-offset-12">
+                        <thead>
+                            <tr>
+                                <th style="background-color: #a9a6a661;color: dimgray">Select</th>
+                                <th style="background-color: #a9a6a661;color: dimgray; width:800px">File Name</th>
+                                <th style="background-color: #a9a6a661;color: darkred"></th>
+                            </tr>
+                        </thead>
+                        @using (Html.BeginForm(FormMethod.Post, new { @enctype = "multipart/form-data" }))
+                        {
+                            @foreach (System.IO.FileInfo file in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" id="Id_Checkbox" name="selectedFiles" value="@file.Name" />
+                                    </td>
+                                    <td style="color: blue;">
+                                        <a href='/uploads/@file.Name' style="color:blue">@file.Name</a>
+                                    </td>
+                                    <td>
+                                        <a role="button" id='EditContact' href="@Url.Action("Delete_File","Materials",new {fname=file.Name})"><span title='Delete' class='k-icon k-i-trash'></span></a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </table>
+                </div>
+                <div class="row mb-5">
+                    <div style="margin-left: 0px; ">
+                        <p style="padding-top: 1em; text-align: right">
+                            <button style="background-color: #174873" type="submit" class="btn float-right btn-contact mt-3" asp-area="" asp-controller="Materials" asp-action="PrepareListDowloadFiles"><i class="fa fa-download" style="margin-right:7px;"></i>Download</button>
+                        </p>
+                    </div>
+                    <div style="margin-left: 10px; ">
+                        <p style="padding-top: 1em; text-align: right;"> 
+                        <button asp-controller="Materials" asp-action="UploadDocument" style="background-color: #174873" type="submit" class="btn float-right btn-contact mt-3"><i class="fa fa-upload" style="margin-right:7px;"></i>Upload</button>
+                        </p>
+                    </div>       
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        function ValidateData1() {
+            var selectedfiles = [];
+            $('#tbl').find('input[type="checkbox"]:checked').each(function (i, item) {
+                if ($(item).prop('checked'))
+                    selectedfiles.push(item);
+                console.log("selectedfiles...", selectedfiles)
+            });
+            return selectedfiles;
+        }
+
+        function getSelectedFiles() {
+            $(document).ready(function () {
+                $('#Id_Checkbox').change(function () {
+                    if ($(this).is(":checked")) {
+                        $('#textbox1').val($(this).val());
+                    }
+
+                });
+            });
+        }
+   
+        function validateData() {
+            if ($('[type="checkbox"]').is(':checked')) {
+                alert("Your file is downloaded", "success");
+                return true;
+            }
+            else {
+                alert(" select at least one", "error");
+                return false;
+            }
+        }
+    </script>
+   
+
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,76 @@
+﻿@model IEnumerable<OnlineSchool.Contract.TeacherSubject.TeacherSubjectModel>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/grid-style.css" />
+}
+
+<h6 class="page-title"> @SharedResources.MySubjects </h6>
+
+<div class="row mx-0 p-0">
+    <div class="col-12 m-0 py-4 padding-lr bg-grey">
+
+        @(Html.Kendo().Grid<OnlineSchool.Contract.TeacherSubject.TeacherSubjectModel>()
+            .Name("mysubjects-grid")
+            .HtmlAttributes(new { style = "height: 600px;" })
+            .NoRecords()
+            .ToolBar(toolbar =>
+            {
+                toolbar.ClientTemplate(
+                        "<span class='k-textbox k-grid-search k-display-flex'>" +
+                            "<input autocomplete='off' placeholder='" + SharedResources.SEARCH + "...' title='" + SharedResources.SEARCH + "...' class='k-input'>" +
+                            "<span class='k-input-icon'>" +
+                                "<span class='k-icon k-i-search'></span>" +
+                            "</span>" +
+                        "</span>");
+            })
+            .Search(search =>
+            {
+                search.Field(m => m.Subject.Name);
+                search.Field(m => m.Subject.Description);
+            })
+            .Columns(columns =>
+            {
+                columns.Bound(p => p.SubjectId).Visible(false);
+                columns.Bound(p => p.Subject.Name).Title(SharedResources.Name).Width(150)
+                    .ClientTemplate(@"
+                            <span class='text-dark fw-bolder fs-6'>${data.Subject.Name}</span>
+                    ");
+                columns.Bound(p => p.Subject.Description).Title(SharedResources.Description).Width(150);
+                columns.Bound(p => p.Id).Title(SharedResources.Actions).Width(120)
+                     .ClientTemplate(@"
+                        <div class='text-center'>
+                            <a href='/TeacherSubject/Index?id=#=Id#' class='btn btn-sm btn-light border m-1'>
+                                <i class='fas fa-clipboard-list'></i> " + SharedResources.Manage + @"
+                            </a>
+                        </div>"
+                     );
+            })
+            .Sortable()
+            .Pageable(pg => {
+                pg.Refresh(true);
+                pg.PageSizes(true);
+                pg.ButtonCount(5);
+            })
+            .Scrollable()
+            //.Editable(editable => editable.Mode(GridEditMode.InLine))
+            .DataSource(ds => ds
+                .Ajax()
+                .PageSize(10)
+                .Model(model =>
+                {
+                    model.Id(p => p.Id);
+                })
+                .Read(read => read.Action("GetMySubjects", "Teacher").Type(HttpVerbs.Get))
+            )
+            .Deferred()
+        )
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+
+    </script>
+
+}

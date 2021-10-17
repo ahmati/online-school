@@ -1,0 +1,111 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="text-center">
+    <h6 class="title-nostraforza"> Students </h6>
+</div>
+
+
+
+@(Html.Kendo().Grid<OnlineSchool.Contract.Students.StudentModel>()
+    .Name("Students")
+    .Events(events => events.DetailExpand("expandDetails"))
+    .Columns(columns =>
+    {
+        columns.Bound(s => s.Id).Visible(false);
+        columns.Bound(s => s.Name).Title("Name");
+        columns.Bound(s => s.Surname).Title("Surname");
+        columns.Bound(s => s.Email).Title("Email");
+        columns.Bound(s => s.Gender).Title("Gender");
+        columns.Bound(s => s.ImagePath).Title("ImagePath");
+        columns.Bound(s => s.Description).Title("Description");
+
+    })
+    .Pageable()
+    .ClientDetailTemplateId("template")
+    .Editable(editable => editable.Mode(GridEditMode.InLine))
+    .HtmlAttributes(new { style = "height:480px;" })
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(5)
+        .Read(read => read.Action("GetStudentSubject", "Student").Type(HttpVerbs.Get))
+    )
+    .Deferred()
+)
+
+@section Scripts{
+
+    <script id="template" type="text/kendo-tmpl">
+
+        @(Html.Kendo().TabStrip()
+                .Name("tabStrip_#=Id#")
+                .SelectedIndex(0)
+                .Items(items =>
+                {
+                    items.Add().Text("Subjects").Content(
+                    @<text>
+                        @(Html.Kendo().Grid<OnlineSchool.Contract.Subject.SubjectModel>()
+                            .Name("Teachers_#=Id#")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.Id).Hidden(true);
+                                columns.Bound(p => p.Name);
+                                columns.Command(command => { command.Destroy(); }).Width(100);
+                            })
+                            .Sortable(sortable => sortable.AllowUnsort(false))
+                            .Search(search =>
+                            {
+                                search.Field("Nome");
+                            })
+                            .Pageable()
+                            .HtmlAttributes(new { style = "height:380px;" })
+                            .Editable(editable => editable.Mode(GridEditMode.InLine))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .PageSize(5)
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.Id);
+                                    //model.Field(x => x.Id).Editable(false);
+                                    //model.Field(p => p.Role).DefaultValue(
+                                    //ViewData["DefaultRoles"] as Abitare.Contract.Roles.Ruoli);
+
+                                })
+                                    //.Create(create => create.Action("Create_Agents", "Agency").Type(HttpVerbs.Post))
+                                    .Read(read => read.Action("GetTeacherSubjects", "Teacher", new {studentId = "#= Id#" }).Type(HttpVerbs.Get))
+                                    //.Update(update => update.Action("Update_Agents", "Agency").Type(HttpVerbs.Post))
+                                    //.Destroy(destroy => destroy.Action("Delete_AgencyAgent", "Agency", new { agencyId = "#= Id#" }).Type(HttpVerbs.Post))
+                            )
+                            .ToClientTemplate())
+                    </text>);
+                })
+                .ToClientTemplate()
+            )
+    </script>
+
+    <script type="text/javascript">
+
+        function expandDetails(e) {
+            console.log('row', e.masterRow[0]);
+            StudentId = e.masterRow[0].cells[1].innerHTML;
+            console.log('studentId', StudentId);
+            var grid = e.sender;
+            var rows = grid.element.find(".k-master-row").not(e.masterRow);
+            rows.each(function (e) {
+                grid.collapseRow(this);
+            });
+        };
+
+        function GetId() {
+            return {
+                'studentId': StudentId
+            }
+        };
+
+    </script>
+}
+
+
+
+

@@ -1,0 +1,46 @@
+﻿<nav id="navigationMenu" class="autohide navbar-fixed-top navbar navbar-expand-sm navbar-light bg-white border shadow px-1 py-0">
+
+    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+        <img src="~/images/logo.png" width="150"/>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item dropdown">
+                <a class="nav-link text-dark dropdown-toggle" href="#" id="manage-users-dd" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    @SharedResources.Manage
+                </a>
+                <div class="dropdown-menu" aria-labelledby="manage-users-dd">
+                    <a class="dropdown-item" asp-controller="Student" asp-action="Manage"> @SharedResources.Students </a>
+                    <a class="dropdown-item" asp-controller="Teacher" asp-action="Manage"> @SharedResources.Teachers </a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="Subject" asp-action="Index"> @SharedResources.Subjects </a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link text-dark dropdown-toggle" href="#" id="manage-users-dd" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    @SharedResources.Documents
+                </a>
+                <div class="dropdown-menu" aria-labelledby="manage-users-dd">
+                    <a class="dropdown-item" asp-controller="Document" asp-action="StudentDocuments"> @SharedResources.StudentDocuments </a>
+                    <a class="dropdown-item" asp-controller="Document" asp-action="TeacherDocuments"> @SharedResources.TeacherDocuments </a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="Course" asp-action="Manage"> @SharedResources.Courses </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="SpotMeeting" asp-action="Manage"> @SharedResources.Meetings </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-area="" asp-controller="LiveSession" asp-action="WebexIntegration"> @SharedResources.WebexIntegration </a>
+            </li>
+        </ul>
+    </div>
+</nav>

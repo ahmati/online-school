@@ -1,0 +1,585 @@
+﻿@model OnlineSchool.Contract.Courses.CourseModel
+@using OnlineSchool.Core.Helper_
+@using OnlineSchool.Contract.Courses
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/grid-style.css" />
+}
+
+@{
+    var culture = System.Globalization.CultureInfo.CurrentCulture.ToString();
+    var isAdmin = User.IsInRole("Admin");
+}
+
+<h6 class="page-title"> @SharedResources.Courses </h6>
+
+<div class="row mx-0 p-0">
+    <div class="col-12 m-0 py-4 padding-lr bg-grey">
+
+        @(Html.Kendo().Grid<OnlineSchool.Contract.Courses.CourseModel>()
+            .Name("courses-grid")
+            .HtmlAttributes(new { style = "height: 600px;" })
+            .NoRecords()
+            .ToolBar(toolbar =>
+            {
+                toolbar.ClientTemplateId("courses-grid-toolbar");
+            })
+            .Search(search =>
+            {
+                search.Field(m => m.TeacherSubject.Subject.Name);
+                search.Field(m => m.TeacherSubject.Subject.Description);
+                search.Field(m => m.TeacherSubject.Teacher.Name);
+                search.Field(m => m.TeacherSubject.Teacher.Surname);
+                search.Field(m => m.TeacherSubject.Teacher.Description);
+            })
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.Id).Visible(false);
+                columns.Bound(c => c.TeacherSubject.Subject.Name).Title(SharedResources.Subject).Width(150)
+                    .ClientTemplate("#= renderCourseSubject(data.TeacherSubject.Subject) #")
+                    .Filterable(false);
+                columns.Bound(c => c.TeacherSubject.Teacher.Name).Title(SharedResources.Teacher).Width(150)
+                    .ClientTemplate("#= renderCourseTeacher(data.TeacherSubject.Teacher) #")
+                    .Filterable(false);
+                columns.Bound(c => c.StartDate).Title(SharedResources.Date).Width(150)
+                    .ClientTemplate("#= renderCourseDate(data) #")
+                    .Filterable(false);
+                columns.Bound(c => c.Price).Title(SharedResources.Price).Width(100)
+                    .ClientTemplate("€ #=Price#")
+                    .Filterable(false);
+                columns.Bound(c => c.AvailableSpots).Title(SharedResources.AvailableSpots).Width(100).Filterable(false);
+                columns.Bound(c => c.Status).Title(SharedResources.Status).Width(100)
+                    .ClientTemplate("#= renderCourseStatus(Status) #")
+                    .Filterable(ftb =>
+                        ftb.Multi(true)
+                           .CheckAll(true)
+                    );
+                columns.Bound(p => p.Id).Title(SharedResources.Actions).Width(100)
+                     .ClientTemplate(@"
+                        <div class='text-center'>
+                            #= data.Buttons #
+
+                        </div>"
+                     )
+                     .Filterable(false);
+            })
+            .ClientDetailTemplateId("session-template")
+            //.Groupable()
+            .Pageable(pageable => pageable
+                .Refresh(true)
+                .PageSizes(true)
+                .ButtonCount(5)
+            )
+            .Sortable(x => x.SortMode(GridSortMode.MultipleColumn))
+            .Filterable()
+            .Scrollable()
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(10)
+                .Read(read => read.Action("GetAllCourses", "Course").Type(HttpVerbs.Get))
+                //.Group(x => x.Add(m => m.Status))
+                .Sort(x =>
+                {
+                    x.Add(m => m.Status);
+                    x.Add(m => m.StartDate);
+                })
+            )
+            .Events(events => events.DetailExpand("expandDetails"))
+            .Deferred()
+        )
+
+    </div>
+</div>
+
+<script id="session-template" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<OnlineSchool.Contract.Session.SessionModel>()
+        .Name("session-grid-#=Id#")
+        .NoRecords()
+        .ToolBar(toolbar =>
+        {
+            toolbar.ClientTemplate("#= renderSessionToolbar(data) #");
+        })
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.Id).Visible(false);
+            columns.Bound(p => p.Topic).Width(100);
+            columns.Bound(p => p.Date).Title(SharedResources.Date).Width(100).DateTimeFormat();
+            columns.Bound(p => p.StartDate).Title(SharedResources.StartTime).Width(100).HourMinuteFormat();
+            columns.Bound(p => p.EndDate).Title(SharedResources.EndTime).Width(100).HourMinuteFormat();
+            columns.Template(
+                "<button class='btn btn-sm btn-danger text-white m-1'  id='deleteSessionBtn' onclick='onDeleteSession(this, #=Id#)'>" +
+                    "<i class='far fa-trash-alt' title='" + SharedResources.Delete + "'></i>" +
+                "</button>")
+                .Title(@SharedResources.Actions).Width(50);
+        })
+        .Sortable()
+        .Pageable(pageable => pageable
+            .Refresh(true)
+            .PageSizes(true)
+            .ButtonCount(5)
+        )
+        .Scrollable()
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(3)
+            .Model(model =>
+            {
+                model.Id(p => p.CourseId);
+            })
+            .Read(read => read.Action("GetSessionByCourseId", "Course", new { CourseId = "#= Id#" }).Type(HttpVerbs.Get))
+            .Sort(x => {
+                x.Add(m => m.Date);
+                x.Add(m => m.StartTime);
+            })
+        )
+        .Editable(editing => editing.Mode(GridEditMode.PopUp))
+        .ToClientTemplate()
+    )
+
+</script>
+
+<div id="session-modal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="session-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="session-modal-label"> @SharedResources.AddSession </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="session-form" class="my-4">
+
+                    <div class="validation-summary-errors text-danger mb-4">
+                        <ul id="session-errors"></ul>
+                    </div>
+
+                    <input type="hidden" id="courseId" />
+
+                    <div class="form-group">
+                        <label for="sessionTopic" class="form-control-placeholder"> Topic </label>
+                        <textarea rows="3" id="sessionTopic" name="sessionTopic" class="form-control w-100" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="sessionDate" class="form-control-placeholder"> @SharedResources.Date </label>
+                        @(Html.Kendo().DatePicker()
+                            .Name("Date")
+                            .HtmlAttributes(new { id = "sessionDate", @class = "form-control w-100" })
+                            .Format("{0:dd MMMM yyyy}")
+                            .Min(DateTime.Now.AddDays(1))
+                            .Deferred()
+                            )
+                    </div>
+                    <div class="form-group">
+                        <label for="sessionStartTime" class="form-control-placeholder"> @SharedResources.StartTime </label>
+                        @(Html.Kendo().TimePicker()
+                            .Name("StartTime")
+                            .HtmlAttributes(new { id = "sessionStartTime", @class = "form-control w-100" })
+                            .Format("{0:HH:mm}")
+                            .Interval(15)
+                            .Deferred()
+                            )
+                    </div>
+                    <div class="form-group">
+                        <label for="sessionEndTime" class="form-control-placeholder"> @SharedResources.EndTime </label>
+                        @(Html.Kendo().TimePicker()
+                            .Name("EndTime")
+                            .HtmlAttributes(new { id = "sessionEndTime", @class = "form-control w-100" })
+                            .Format("{0:HH:mm}")
+                            .Interval(15)
+                            .Deferred()
+                            )
+                    </div>
+                    <div class="form-group text-right">
+                        <button type="button" class="btn btn-sm btn-light border" data-dismiss="modal"> @SharedResources.Close </button>
+                        <button id="sessionFormSubmitBtn" type="submit" class="btn btn-sm my-btn-primary ml-2"> @SharedResources.Save </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script id="courses-grid-toolbar" type="text/x-kendo-template">
+
+        @if (isAdmin)
+        {
+            <div class="courses-grid-actions m-2 ml-0 float-left">
+                <a href="/Course/Create" class="btn btn-active-primary btn-light btn-sm" title="@SharedResources.NewCourse">
+                    <i class="k-icon k-i-plus"></i> @SharedResources.NewCourse
+                </a>
+            </div>
+        }
+        <span class="k-textbox k-grid-search k-display-flex">
+            <input autocomplete="off" placeholder="@SharedResources.SEARCH..." title="@SharedResources.SEARCH..." class="k-input">
+            <span class="k-input-icon">
+                <span class="k-icon k-i-search"></span>
+            </span>
+        </span>
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            // Variables
+            let gridName = "courses-grid";
+            var sessionModal = $('#session-modal');
+
+            let isAdmin = "@isAdmin";
+
+            var successMsg = '@TempData["Success"]';
+            var errorMsg = '@TempData["Error"]';
+            if (successMsg)
+                ShowSuccess(successMsg);
+            if (errorMsg)
+                ShowError(errorMsg);
+
+            onEditCourse = (id) => {
+                window.location.href = '@Url.Action("Edit", "Course")?id=' + id;
+            }
+
+            onPublishCourse = (id) => {
+                ShowConfirmation(
+                    "You are about to publish the course. Once published, you can't modify it. Continue?",
+                    "",
+                    () => {
+                        setKendoGridLoading(gridName, true);
+                        $.ajax({
+                            type: "POST",
+                            url: `/Course/Publish?id=${id}`,
+                            dataType: "json",
+                            success: function (data) {
+                                // Ok
+                                if (data.HasErrors === false) {
+                                    ShowSuccess("Course published successfully.");
+                                    refreshKendoGrid(gridName);
+                                }
+                                // Errors
+                                else {
+                                    data.Errors.forEach(err => {
+                                        ShowError(err);
+                                    });
+                                }
+                            },
+                            error: function (req, status, error) {
+                                ShowError("Unable to publish the course.");
+                                console.error(error);
+                            },
+                            complete: function () {
+                                setKendoGridLoading(gridName, false);
+                            }
+                        });
+                    },
+                    null
+                );
+            }
+
+            onUnpublishCourse = (id) => {
+                ShowConfirmation(
+                    "You are about to unpublish the course. Once unpublished, it won't appear in homepage. Continue?",
+                    "",
+                    () => {
+                        setKendoGridLoading(gridName, true);
+                        $.ajax({
+                            type: "POST",
+                            url: `/Course/Unpublish?id=${id}`,
+                            dataType: "json",
+                            success: function (data) {
+                                // Ok
+                                if (data.HasErrors === false) {
+                                    ShowSuccess("Course unpublished successfully.");
+                                    refreshKendoGrid(gridName);
+                                }
+                                // Errors
+                                else {
+                                    data.Errors.forEach(err => {
+                                        ShowError(err);
+                                    });
+                                }
+                            },
+                            error: function (req, status, error) {
+                                ShowError("Unable to unpublish the course.");
+                                console.error(error);
+                            },
+                            complete: function () {
+                                setKendoGridLoading(gridName, false);
+                            }
+                        });
+                    },
+                    null
+                );
+            }
+
+            onDeleteCourse = (id) => {
+                ShowConfirmation(
+                    "Are you sure you want to delete this course?",
+                    "",
+                    () => {
+                        setKendoGridLoading(gridName, true);
+                        $.ajax({
+                            type: "DELETE",
+                            url: `/course/delete/?id=${id}`,
+                            dataType: "json",
+                            success: function (data) {
+                                // Ok
+                                if (data.HasErrors === false) {
+                                    setKendoGridLoading(gridName, false);
+                                    ShowSuccess("Course deleted successfully");
+                                    refreshKendoGrid(gridName);
+                                }
+                                // Errors
+                                else {
+                                    data.Errors.forEach(err => {
+                                        ShowError(err);
+                                    });
+                                }
+                            },
+                            error: function (req, status, error) {
+                                ShowError("Unable to delete this course.");
+                                console.error(error);
+                            },
+                            complete: function () {
+                                setKendoGridLoading(gridName, false);
+                            }
+                        });
+                    },
+                    null
+                );
+            }
+
+            onDeleteSession = (e, courseId) => {
+                let grid = $(`#session-grid-${courseId}`).data("kendoGrid");
+                let dataItem = grid.dataItem($(e).closest("tr"));
+                let sessionId = dataItem.Id;
+
+                ShowConfirmation(
+                    "Are you sure you want to delete this session?",
+                    "",
+                    () => {
+                        setKendoGridLoading(gridName, true);
+                        $.ajax({
+                            type: "DELETE",
+                            url: `/course/session/${sessionId}/delete`,
+                            dataType: "json",
+                            success: function (data) {
+                                // Ok
+                                if (data.HasErrors === false) {
+                                    setKendoGridLoading(gridName, false);
+                                    ShowSuccess("Session deleted successfully");
+                                    refreshKendoGrid(gridName);
+                                }
+                                // Errors
+                                else {
+                                    data.Errors.forEach(err => {
+                                        ShowError(err);
+                                    });
+                                }
+                            },
+                            error: function (req, status, error) {
+                                ShowError("Unable to delete this session.");
+                                console.error(error);
+                            },
+                            complete: function () {
+                                setKendoGridLoading(gridName, false);
+                            }
+                        });
+                    },
+                    null
+                );
+            }
+
+            renderCourseSubject = (data) => {
+                let description = data.Description;
+
+                if (description == null) {
+                    description = " ";
+                }
+                else if (description.length > 21) {
+                    description = description.substring(0, 18) + "...";
+                }
+
+                return `<div class="d-flex align-items-center">
+                            <div class="d-flex justify-content-start flex-column">
+                                <span class="text-dark fw-bolder fs-6">${data.Name}</span>
+                                <span class="text-muted fw-bold d-block fs-7">${description}</span>
+                            </div>
+                        </div>`;
+            }
+
+            renderCourseTeacher = (data) => {
+                let description = data.Description;
+
+                if (description == null) {
+                    description = " ";
+                }
+                else if (description.length > 21) {
+                    description = description.substring(0, 18) + "...";
+                }
+
+                let url = "";
+                if (data.ImagePath != null) {
+                    url = `/uploads/teachers/${data.Id}/${data.ImagePath}`;
+                }
+                else {
+                    url = '/images/image3.png';
+                }
+
+                let detailsUrl = `/Teacher/${data.Id}/Details`;
+
+                return `<div class="d-flex align-items-center">
+                            <div class="symbol symbol-45px me-5">
+                                <img src="${url}" alt="" />
+                            </div>
+                            <div class="d-flex justify-content-start flex-column">
+                                <a href="${detailsUrl}" class="fw-bolder text-hover-primary fs-6">${data.Name} ${data.Surname}</a>
+                                <span class="text-muted fw-bold d-block fs-7">${description}</span>
+                            </div>
+                        </div>`;
+            }
+
+            renderCourseDate = (data) => {
+                let startDate = formatDate(data.StartDate, "@culture");
+                let endDate = formatDate(data.EndDate, "@culture");
+                return `<div class="d-flex align-items-center">
+                            <div class="d-flex justify-content-start flex-column">
+                                <span class="text-dark fw-bolder fs-6">From: ${startDate}</span>
+                                <span class="text-dark fw-bolder fs-6">To: ${endDate}</span>
+                            </div>
+                        </div>`;
+            }
+
+            renderCourseStatus = (status) => {
+                let color, label;
+                switch (status) {
+                    case CourseStatus.NotPublished:
+                        color = 'secondary'; label = '@SharedResources.NotPublished';
+                        break;
+                    case CourseStatus.NotPublished_PastDue:
+                        color = 'danger'; label = '@SharedResources.NotPublishedPassedDueDate';
+                        break;
+                    case CourseStatus.Published:
+                        color = 'primary'; label = '@SharedResources.Published';
+                        break;
+                    case CourseStatus.InProgress:
+                        color = 'warning'; label = '@SharedResources.InProgress';
+                        break;
+                    case CourseStatus.Finished:
+                        color = 'success'; label = '@SharedResources.Finished';
+                        break;
+                    default:
+                        color = 'secondary'; label = '-';
+                        break;
+                }
+                return `<span class='font-weight-bold text-${color}'> ${label} </span>`;
+            }
+
+            renderSessionToolbar = (data) => {
+                return data.Status === CourseStatus.NotPublished ?
+                    "<button class='btn btn-sm my-btn-primary' onclick='showSessionModal(" + data.Id + ")' title='@SharedResources.NewSession'> " +
+                        "<i class='fas fa-calendar-alt'></i> @SharedResources.NewSession " +
+                    "</button>"
+                    :
+                    "<span class='k-textbox k-grid-search k-display-flex'>" +
+                        "<input autocomplete='off' placeholder='@SharedResources.SEARCH...' title='@SharedResources.SEARCH...' class='k-input'>" +
+                        "<span class='k-input-icon'>" +
+                            "<span class='k-icon k-i-search'></span>" +
+                        "</span>" +
+                    "</span>"
+            }
+
+            $('#session-form').submit(e => {
+                e.preventDefault();
+
+                var model = {
+                    CourseId: parseInt($("#courseId").val()),
+                    Topic: $('#sessionTopic').val(),
+                    Date: $('#sessionDate').data("kendoDatePicker").value()?.toLocaleString() ?? null,
+                    StartTime: $('#sessionStartTime').data("kendoTimePicker").value()?.toLocaleString() ?? null,
+                    EndTime: $('#sessionEndTime').data("kendoTimePicker").value()?.toLocaleString() ?? null
+                };
+
+                setSessionCreating(true);
+                // Todo: Ajax call here
+                $.ajax({
+                    type: 'POST',
+                    url: '/Course/CreateSession',
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(model),
+                    success: data => {
+                        // Ok
+                        if (data.HasErrors === false) {
+                            ShowSuccess('Session created successfully.');
+                            closeSessionModal();
+                            refreshKendoGrid(`session-grid-${model.CourseId}`);
+                        }
+                        // Errors
+                        else {
+                            let errors = '';
+                            data.Errors.forEach(e => {
+                                errors += `<li> ${e} </li>`;
+                            });
+                            $('#session-errors').html(errors);
+                        }
+                    },
+                    fail: err => {
+                        console.log(err);
+                        ShowError("An error occurred. The session was not created.");
+                    },
+                    complete: function () {
+                        setSessionCreating(false);
+                    }
+                });
+            });
+
+            setSessionCreating = (isCreating = false) => {
+                var submitBtn = $("#sessionFormSubmitBtn");
+                if (isCreating) {
+                    submitBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+                    submitBtn.attr("disabled", true);
+                }
+                else {
+                    submitBtn.html('Save');
+                    submitBtn.removeAttr("disabled");
+                }
+            }
+
+            showSessionModal = (id) => {
+                $('#courseId').val(id);
+                $('#session-modal').modal('show');
+                setSessionCreating(false);
+            }
+
+            closeSessionModal = () => {
+                sessionModal.modal('hide');
+            }
+
+            sessionModal.on('hidden.bs.modal', function (event) {
+                clearSessionForm();
+            });
+
+            clearSessionForm = () => {
+                $('#session-errors').html('');
+                $('#courseId').val('');
+                $('#sessionTopic').val('');
+                $('#sessionDate').data("kendoDatePicker").value(null);
+                $('#sessionStartTime').data("kendoTimePicker").value(null);
+                $('#sessionEndTime').data("kendoTimePicker").value(null);
+            }
+
+        });
+
+        function expandDetails(e) {
+            DocumentId = e.masterRow[0].cells[1].innerHTML;
+            var grid = e.sender;
+            var rows = grid.element.find(".k-master-row").not(e.masterRow);
+            rows.each(function (e) {
+                grid.collapseRow(this);
+            });
+        };
+
+    </script>
+}

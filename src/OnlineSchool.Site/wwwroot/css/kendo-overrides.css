@@ -1,0 +1,25 @@
+﻿@import url('shared/variables.css');
+
+/* Kendo overrides */
+
+.k-pager-wrap .k-link, .k-pager-wrap .k-pager-nav {
+    color: var(--blueColor) !important;
+}
+
+    .k-pager-wrap .k-link:focus, .k-pager-wrap .k-pager-nav:focus {
+        box-shadow: 0 0 0 0.2rem rgb(23 72 115 / 20%) !important;
+    }
+
+.k-pager-numbers .k-state-selected, .k-pager-numbers .k-state-selected:hover {
+    background-color: var(--blueColor) !important;
+    border-color: var(--blueColor) !important;
+    color: white !important;
+}
+
+.k-column-menu .k-menu:not(.k-context-menu) .k-item.k-state-selected, .k-columnmenu-item.k-state-selected, .k-list .k-item.k-state-selected, .k-list-container .k-button.k-state-active, .k-list-container .k-button:active, .k-list-optionlabel.k-state-selected, .k-spreadsheet-popup .k-button.k-state-active, .k-spreadsheet-popup .k-button.k-state-selected, .k-spreadsheet-popup .k-button:active {
+    background-color: var(--blueColor) !important;
+}
+
+.k-grid-header .k-i-sort-asc-sm, .k-grid-header .k-i-sort-desc-sm, .k-grid-header .k-sort-order {
+    color: var(--blueColor) !important;
+}

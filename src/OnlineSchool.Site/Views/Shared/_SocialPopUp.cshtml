@@ -1,0 +1,35 @@
+﻿@(Html.Kendo().Window()
+    .Name("SocialPopUp")
+    .Title("Social")
+    .Visible(false)
+    .Modal(true)
+    .Draggable(true)
+    .Content(
+        Html.Kendo().Grid<OnlineSchool.Contract.SocialNetworks.SocialNetworkModel>()
+        //.HtmlAttributes(new { @style = "height: 40vw;margin-bottom: 0px;" })
+        .Name("SocialGrid")
+        .Columns(columns =>
+        {
+            columns.Select().Width(50);
+            columns.Bound(p => p.Description).Title("Descrption");
+            columns.Bound(p => p.Id).Title("Icon").ClientTemplate("#if(Id==1) {#<span class='fab fa-facebook-f'></span>#} else if(Id==2){ #<span class='fab fa-twitter'></span>#} else if(Id=3){ #<span class='fab fa-instagram'></span>#} #");
+        })
+        .Pageable()
+        .Scrollable()
+        .HtmlAttributes(new { style = "height:450px;" })
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(20)
+            .Model(model =>
+            {
+                model.Id(p => p.Id);
+            })
+            .Read(read => read.Action("GetSocial", "Teacher").Type(HttpVerbs.Get))/* Read_AllAgentData*/
+        )
+        .Deferred()
+        .ToHtmlString()
+    )
+    .Width(1000)
+    .Height(500)
+    .Deferred()
+)

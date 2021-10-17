@@ -1,0 +1,35 @@
+﻿<nav id="navigationMenu" class="autohide navbar-fixed-top navbar navbar-expand-sm navbar-light bg-white border shadow px-1 py-0">
+
+    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+        <img src="~/images/logo.png" width="150" />
+    </a>
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Home" asp-action="Index" asp-fragment=""> @SharedResources.HomePage </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Home" asp-action="Index" asp-fragment="services-section"> @SharedResources.AboutUs </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Teacher" asp-action="Index"> @SharedResources.Teachers </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Course" asp-action="Index"> @SharedResources.Courses </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="SpotMeeting" asp-action="Index"> @SharedResources.Meetings </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Home" asp-action="Index" asp-fragment="contact-section"> @SharedResources.Contact </a>
+            </li>
+        </ul>
+    </div>
+
+</nav>

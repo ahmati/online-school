@@ -1,0 +1,33 @@
+﻿@model OnlineSchool.Contract.Material.MaterialModel
+
+@{
+    ViewData["Title"] = "UploadFile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<br />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-controller="Materials" asp-action="SaveMaterial" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @*<div class="form-group">
+                <label asp-for="@Model.Title" class="control-label"></label>
+                <input asp-for="@Model.Title" class="form-control" />
+                <span asp-validation-for="@Model.Title" class="text-danger"></span>
+            </div>*@
+            <div class="form-group">
+                <label asp-for="@Model.FileName" class="control-label"></label>
+                <input asp-for="@Model.FileName" class="form-control" />
+                <span asp-validation-for="@Model.FileName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.AuthDate" class="control-label"></label>
+                <input asp-for="@Model.AuthDate" class="form-control" />
+                <span asp-validation-for="@Model.AuthDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create Material" class="btn btn-primary"  />
+            </div>
+
+        </form>
+    </div>
+</div>

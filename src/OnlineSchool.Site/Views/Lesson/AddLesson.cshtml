@@ -1,0 +1,159 @@
+﻿@model OnlineSchool.Contract.Lessons.LessonModel
+
+
+<div class="container">
+   
+    <div class="text-center mb-3">
+        @if (Model.Id > 0)
+        {
+            <div style="margin-bottom:70px" class="text-center">
+                <h6 class="title-nostraforza">Update</h6>
+            </div>
+
+        }
+        else
+        {
+            <div style="margin-bottom:40px" class="text-center">
+                <h6 class="title-nostraforza">New Lesson</h6>
+            </div>
+        }
+    </div>
+
+    <form method="post" id="lessonForm">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="row mb-4">
+            <div class="col-6">
+                <div class="form-group">
+                    <label asp-for="@Model.Name"></label>
+                    <input asp-for="@Model.Name" class="form-control no-border col-12" required />
+                    <span asp-validation-for="@Model.Name" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group">
+                    <label asp-for="@Model.Description"></label>
+                    <input asp-for="@Model.Description" class="form-control no-border col-12" required />
+                    <span asp-validation-for="@Model.Description" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-6">
+                <div class="form-group ">
+                    <label asp-for="@Model.StartTime"></label>
+                    @(Html.Kendo().DatePickerFor(m => m.StartTime)
+                    .Format("MMMM yyyy")
+                    .Value(DateTime.Now)
+                    .HtmlAttributes(new { style = "width: 100%" })
+                    )
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group ">
+                    <label asp-for="@Model.EndTime"></label>
+                    @(Html.Kendo().DatePickerFor(m => m.EndTime)
+                     .Format("MMMM yyyy")
+                     .Value(DateTime.Now)
+                     .HtmlAttributes(new { style = "width: 100%" })
+                    )
+                </div>
+            </div>
+
+            @*<input asp-for="@Model.SubjectId" class="form-control no-border col-12" type="hidden" />*@
+            <div class="form-group " hidden>
+                @(Html.Kendo().DatePickerFor(m => m.AuthDate)
+                     .Format("MMMM yyyy")
+                     .Value(DateTime.Now)
+                     .HtmlAttributes(new { style = "width: 100%" })
+                    )
+            </div>
+        </div>
+        <div style="margin-bottom:50px" class="text-right mb-5">
+            @if (Model.Id > 0)
+            {
+                <button type="submit" class='btn float-right btn-contact mt-3 ' asp-area="" asp-controller="Lesson" asp-route-Id="@Model.Id" asp-action="UpdateLesson" >Update</button>
+            }
+            else
+            {
+
+                <button type="submit" class='btn btn-s float-right btn-contact mt-3 ' asp-area="" asp-controller="Lesson" asp-action="CreateLesson">Save</button>
+            }
+            <button type="submit" class='btn float-right btn-contact mt-3 mr-3' asp-area="" asp-controller="Lesson" asp-action="Index">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .title-nostraforza {
+        margin: 10px 0px 10px 0px;
+        text-align: center;
+        color: white;
+        font-size: 22px;
+        text-transform: uppercase;
+        background-color: darkblue;
+        height: 70px;
+        padding-top: 15px;
+    }
+
+    .btn-contact {
+        background-color: darkblue;
+        color: #fff !important;
+        padding: 6px 50px;
+        border-radius: 0px;
+        margin-bottom: 270px;
+    }
+
+    .form-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-control-placeholder {
+        position: absolute;
+        top: 0;
+        padding: 7px 0 0 0;
+        transition: all 200ms;
+        opacity: 0.5;
+    }
+
+
+    .form-control:focus + .form-control-placeholder,
+    .form-control.valid + .form-control-placeholder {
+        font-size: 75%;
+        transform: translate3d(0, -100%, 0);
+        opacity: 1;
+        padding-left: 0px;
+    }
+
+    .form-control:focus {
+        border-radius: 0px;
+        border: 0;
+        box-shadow: none;
+        border-bottom: 1px solid darkred;
+    }
+
+    .form-control {
+        border: 0;
+        border-bottom: 1px solid #ccc;
+        font-family: inherit;
+        border-radius: 0;
+        padding: 0;
+        cursor: text;
+        width: 100%;
+    }
+
+    .border-top {
+        border-top: 1px solid #e5e5e5;
+    }
+
+    .border-bottom {
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .box-shadow {
+        box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+    }
+</style>
+
+<script type="text/javascript">
+</script>

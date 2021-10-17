@@ -1,0 +1,23 @@
+#moreOptions button::after {
+    display: none !important;
+}
+#moreOptions .dropdown-header {
+    background-color: #e9ecef !important;
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+}
+
+@media only screen and (max-width: 400px) {
+    #moreOptions .meeting-control {
+      font-size: 13px !important;
+      margin: 0 2px 0 2px !important;
+    }
+  
+    #moreOptions .dropdown-menu {
+        font-size: 11px !important;
+    }
+
+    #moreOptions .dropdown-header {
+        font-size: 11px !important;
+    }
+  }

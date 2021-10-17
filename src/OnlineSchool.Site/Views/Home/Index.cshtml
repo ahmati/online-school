@@ -1,0 +1,513 @@
+﻿@using OnlineSchool.Contract.Courses
+@using OnlineSchool.Contract.Teachers
+@using OnlineSchool.Contract.SpotMeeting
+@using OnlineSchool.Core.Helper_
+
+@model IEnumerable<TeacherModel>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/landing-page.css" />
+    <link rel="stylesheet" href="~/css/animations.css" />
+}
+
+<div id="presentation-section" class="jumbotron jumbotron-fluid m-0">
+    <div class="jumbotron-content text-white">
+        <h1 class="display-4"> @SharedResources.HeaderTitle </h1>
+        <p class="lead d-inline-block p-1"> @SharedResources.HeaderSmallTitle </p>
+    </div>
+</div>
+
+<section id="services-section" class="section services-section">
+    <div class="container">
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="section-title">
+                    <h2> @SharedResources.AboutUs </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- feature box -->
+            <div class="col-sm-6 col-lg-4">
+                <div class="feature-box">
+                    <div class="icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <div class="feature-content">
+                        <a class="my-text-primary" asp-controller="Home" asp-action="Index">
+                            <h5> @SharedResources.Service1_title </h5>
+                        </a>
+                        <p> @SharedResources.Service1_quote .</p>
+                    </div>
+                </div>
+            </div>
+            <!-- / -->
+            <!-- feature box -->
+            <div class="col-sm-6 col-lg-4">
+                <div class="feature-box">
+                    <div class="icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="feature-content">
+                        <a class="my-text-primary" asp-controller="Teacher" asp-action="Index">
+                            <h5> @SharedResources.Service2_title </h5>
+                        </a>
+                        <p> @SharedResources.Service2_quote .</p>
+                    </div>
+                </div>
+            </div>
+            <!-- / -->
+            <!-- feature box -->
+            <div class="col-sm-6 col-lg-4">
+                <div class="feature-box">
+                    <div class="icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="feature-content">
+                        <a class="my-text-primary" asp-controller="Account" asp-action="Register">
+                            <h5> @SharedResources.Service3_title </h5>
+                        </a>
+                        <p> @SharedResources.Service3_quote .</p>
+                    </div>
+                </div>
+            </div>
+            <!-- / -->
+        </div>
+
+    </div>
+</section>
+
+@if (ViewBag.MeetingsNumber > 0)
+{
+    <section id="meetings-section">
+        <div class="meetings-section meetings-background" style="height: 600px;">
+            <div class="meetings-section bg-greydark-alpha-gradient-5" style="height: 600px;">
+                <div class="meetings-container">
+                    <div class="meetings-section" style="height: 50px;"></div>
+                    <div class="grid grid-12 padding-15">
+                        <h1 class="font-size-50 text-white first-font">
+                            <strong>Our Meetings</strong>
+                        </h1>
+                        <div class="meetings-section" style="height: 10px;"></div>
+                        <h3 class="text-white first-font">The Best In Our School</h3>
+                    </div>
+                </div>
+                <div class="meetings-container padding-20 pb-0 border-box">
+                    <div class="width-100 position-relative float-left border-1-solid-grey padding-20 bg-grey" style="min-height: 450px;">
+                        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3">
+                            @foreach (var meeting in ((IEnumerable<SpotMeetingModel>)ViewBag.Meetings).Take(3))
+                            {
+                                <div class="width-33 float-left col">
+                                    <div class="meetings-section padding-15 border-box">
+                                        <div class="meetings-section border-1-solid-grey bg-white">
+                                            <div class="meetings-section position-relative">
+                                                @if (!String.IsNullOrEmpty(meeting.ImagePath))
+                                                {
+                                                    <img src="~/uploads/spotMeetings/@meeting.Id/@meeting.ImagePath" alt="" class="meetings-section" />
+                                                }
+                                                else
+                                                {
+                                                    <img src="~/images/image4.jpeg" alt="" class="meetings-section" />
+                                                }
+                                                <div class="bg-greydark-alpha-gradient-2 position-absolute left-0 top-0 padding-20 width-100 height-100 border-box">
+                                                    <div class="position-absolute p-2 width-100 bottom left-0">
+                                                        <div class="table float-left text-white font-size-13 second-font">
+                                                            @if (meeting.IsRecursiveSpotMeeting)
+                                                            {
+                                                                <span class="table-cell float-left">
+                                                                    <i class="fas fa-calendar-alt margin-right-10"></i>
+                                                                    @SharedResources.Every @meeting.StartDate.DayOfWeek
+                                                                </span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="table-cell float-left">
+                                                                    <i class="fas fa-calendar-alt margin-right-10"></i>
+                                                                    @meeting.StartDate.ToString("dd MMM yyyy")
+                                                                </span>
+                                                            }
+                                                            <span class="table-cell float-right">
+                                                                <i class="far fa-clock margin-left-20 margin-right-10"></i> @meeting.Duration Hours
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="meetings-section padding-20 border-box ring-container">
+                                                @if (meeting.IsLive)
+                                                {
+                                                    <div class="ringring"></div>
+                                                    <div class="circle" title=@SharedResources.LiveEvent></div>
+                                                }
+                                                <h3>@meeting.Title</h3>
+                                                <div class="meetings-section" style="height: 20px;"></div>
+                                                @{ var description = meeting.Description.Length > 100 ? meeting.Description.Substring(0, 97) + "..." : meeting.Description; }
+                                                <p class="text-lightgrey m-0" style="height: 100px;">@description</p>
+                                            </div>
+                                            <div class="meetings-section padding-20 border-box border-top-1-solid-grey overflow-auto">
+                                                <div class="width-33 float-left">
+                                                    <div class="table m-0 float-left">
+                                                        <img alt="" class="margin-left-10 table-cell align-middle" width="25" height="25" src="~/images/icon-clock-grey.png" />
+                                                        <p class="table-cell align-middle font-size-15">
+                                                            <a class="link" href="/SpotMeeting/@meeting.Id/Details">
+                                                                @meeting.StartDate.ConvertTimeFromUtc().TimeOfDay.ToString(@"hh\:mm", CultureInfo.CurrentCulture)
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="width-50 float-left text-align-right">
+                                                    <a class="btn btn-sm my-btn-primary" href="/SpotMeeting/@meeting.Id/Details"> Details </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="meetings-section padding-31 align-middle" style="height: 100px; clear: both;">
+        <div class="width-100 text-center">
+            <a class="btn btn-md my-btn-primary-o rounded-0 pl-4 pr-4" asp-controller="SpotMeeting" asp-action="Index"> @SharedResources.SeeAll </a>
+        </div>
+    </div>
+}
+
+<section id="teachers-section" class="section teachers-section">
+    <div class="container">
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="section-title">
+                    <h2> @SharedResources.Teachers </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2">
+            @foreach (var teacher in Model.Take(6))
+            {
+                <div class="col mb-4 teacher-card">
+                    <div class="card mb-3 shadow-sm" style="max-width: 540px;">
+                        <div class="row no-gutters">
+                            <div class="col-12 col-md-4">
+                                @if (teacher.ImagePath != null)
+                                {
+                                    <img class="card-image" alt="" src="~/uploads/teachers/@teacher.Id/@teacher.ImagePath" />
+                                }
+                                else
+                                {
+                                    <img class="card-image" alt="" src="~/images/image3.png" />
+                                }
+                            </div>
+                            <div class="col-12 col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title"> @teacher.Name @teacher.Surname </h5>
+                                    <p class="card-text"> @teacher.Description </p>
+                                    <a class="btn btn-sm my-btn-primary" href="/Teacher/@teacher.Id/Details">
+                                        @SharedResources.Details
+                                    </a>
+                                    <div class="social-networks text-right">
+                                        @if (teacher.TeacherSocialNetwork != null && teacher.TeacherSocialNetwork.Count > 0)
+                                        {
+                                            @foreach (var social in teacher.TeacherSocialNetwork)
+                                            {
+                                                <a class="text-decoration-none mx-1" target="_blank" href="@social.Link">
+                                                    @if (social.SocialNetworkId == 1)
+                                                    {
+                                                        <i class="fab fa-facebook"></i>
+                                                    }
+                                                    else if (social.SocialNetworkId == 2)
+                                                    {
+                                                        <i class="fab fa-linkedin"></i>
+                                                    }
+                                                    else if (social.SocialNetworkId == 3)
+                                                    {
+                                                        <i class="fab fa-twitter"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fas fa-question-circle"></i>
+                                                    }
+                                                </a>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <small class="text-muted"> No social networks. </small>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="text-center">
+            <a class="btn btn-md my-btn-primary-o rounded-0 pl-4 pr-4" asp-controller="Teacher" asp-action="Index"> @SharedResources.SeeAll </a>
+        </div>
+
+    </div>
+</section>
+
+<section id="courses-section" class="section courses-section">
+    <div class="container">
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="section-title">
+                    <h2> @SharedResources.Courses </h2>
+                </div>
+            </div>
+        </div>
+
+        @{
+            var courses = ((IEnumerable<CourseModel>)ViewBag.Courses);
+            if (courses.Any())
+            {
+                <div class="row row-cols-1 row-cols-md-2">
+                    @foreach (var course in courses.Take(6))
+                    {
+                        <div class="col mb-4 course-card">
+                            <div class="card mb-3 shadow-sm" style="max-width: 540px;">
+                                <div class="row no-gutters">
+                                    <div class="col-12 col-md-4">
+                                        @if (course.ImagePath != null)
+                                        {
+                                            <img class="card-image" alt="" src="~/uploads/courses/@course.Id/@course.ImagePath" />
+                                        }
+                                        else
+                                        {
+                                            <img class="card-image" alt="" src="~/images/image4.jpeg" />
+                                        }
+                                    </div>
+                                    <div class="col-12 col-md-8">
+                                        <div class="card-body ring-container">
+                                            @if (course.IsLive)
+                                            {
+                                                <div class="ringring"></div>
+                                                <div class="circle" title=@SharedResources.LiveEvent></div>
+                                            }
+                                            <h5 class="card-title"> @course.TeacherSubject.Subject.Name </h5>
+                                            <p class="card-text"> @course.TeacherSubject.Teacher.Name @course.TeacherSubject.Teacher.Surname </p>
+                                            <a class="btn btn-sm my-btn-primary" href="/Course/@course.Id/Details">
+                                                @SharedResources.Details
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="text-center">
+                    <a class="btn btn-md my-btn-primary-o rounded-0 pl-4 pr-4" asp-controller="Course" asp-action="Index"> @SharedResources.SeeAll </a>
+                </div>
+            }
+            else
+            {
+                <div class="row col-12 m-0 alert alert-warning border shadow-sm" role="alert">
+                    <span>
+                        <i class="fa fa-info"></i>
+                        No courses available currently.
+                    </span>
+                </div>
+            }
+        }
+
+    </div>
+</section>
+
+<section id="counters-section" class="section counters-section wow fadeIn animated d-flex justify-content-center align-items-center">
+    <div class="row m-0 p-0 w-100 justify-content-center">
+        <!-- counter -->
+        <div class="col-md-3 col-sm-6 bottom-margin text-center counter-section wow fadeInUp sm-margin-bottom-ten animated" data-wow-duration="300ms" style="visibility: visible; animation-duration: 300ms; animation-name: fadeInUp;">
+            <span class="timer counter alt-font appear" data-to="980" data-speed="3000"> @Model.Count() </span>
+            <p class="counter-title"> @SharedResources.Teachers </p>
+        </div> <!-- end counter -->
+        @if (@ViewBag.StudentsNumber >= 10)
+        {
+            <!-- counter -->
+            <div class="col-md-3 col-sm-6 bottom-margin text-center counter-section wow fadeInUp sm-margin-bottom-ten animated" data-wow-duration="600ms" style="visibility: visible; animation-duration: 600ms; animation-name: fadeInUp;">
+                <span class="timer counter alt-font appear" data-to="980" data-speed="3000"> @ViewBag.StudentsNumber </span>
+                <p class="counter-title"> @SharedResources.Students </p>
+            </div> <!-- end counter -->
+        }
+        <!-- counter -->
+        <div class="col-md-3 col-sm-6 bottom-margin-small text-center counter-section wow fadeInUp xs-margin-bottom-ten animated" data-wow-duration="900ms" style="visibility: visible; animation-duration: 900ms; animation-name: fadeInUp;">
+            <span class="timer counter alt-font appear" data-to="810" data-speed="3000"> @ViewBag.CoursesNumber </span>
+            <p class="counter-title"> @SharedResources.Courses </p>
+        </div> <!-- end counter -->
+        <!-- counter -->
+        <div class="col-md-3 col-sm-6 text-center counter-section wow fadeInUp animated" data-wow-duration="1200ms" style="visibility: visible; animation-duration: 1200ms; animation-name: fadeInUp;">
+            <span class="timer counter alt-font appear" data-to="600" data-speed="3000"> 15 </span>
+            <p class="counter-title"> @SharedResources.YearsOfExperience </p>
+        </div> <!-- end counter -->
+    </div>
+</section>
+
+
+<section id="contact-section" class="section contact-section">
+    <div class="container">
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="section-title">
+                    <h2> @SharedResources.ContactUs </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            @* Map *@
+            <div class="col-md-6">
+                <div id="googlemap" style="width:100%; height:350px;"></div>
+
+                <script src="https://maps.googleapis.com/maps/api/js"></script>
+                <script type="text/javascript">
+                    // Google Maps setup
+                    var coordinates = new google.maps.LatLng(45.464664, 9.188540);
+
+                    var googlemap = new google.maps.Map(
+                        document.getElementById('googlemap'),
+                        {
+                            center: coordinates,
+                            zoom: 8,
+                            mapTypeId: google.maps.MapTypeId.ROADMAP
+                        }
+                    );
+
+                    var mapMarker = new google.maps.Marker({
+                        draggable: true,
+                        position: coordinates,
+                        animation: google.maps.Animation.DROP,
+                        map: googlemap
+                    });
+                </script>
+            </div>
+            <br />
+
+            @* Contact form *@
+            <div class="col-md-6">
+                <h5 class="text-center my-text-primary mb-4"> @SharedResources.ContactFormHint </h5>
+                <form id="contact-form">
+                    <div class="form-group">
+                        <label for="fullName"> @SharedResources.FullName </label>
+                        <input required type="text" class="form-control" id="fullName">
+                    </div>
+                    <div class="form-group">
+                        <label for="email"> @SharedResources.Email </label>
+                        <input required type="email" class="form-control" id="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="message"> @SharedResources.Message </label>
+                        <textarea required class="form-control" id="message"></textarea>
+                    </div>
+                    <button id="sendContactBtn" class="btn my-btn-primary float-right" type="submit"> @SharedResources.Send </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+@*@await Html.PartialAsync("_SocialPopUp")*@
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        $(document).ready(() => {
+
+            handleCounters();
+
+            $("#contact-form").on('submit', function (e) {
+                e.preventDefault();
+
+                var fullName = $("#fullName").val();
+                var email = $("#email").val();
+                var message = $("#message").val();
+
+                setSendingContact(true);
+                $.ajax({
+                    type: "POST",
+                    url: "/Contacts/Create_ContactRequest",
+                    data: {
+                        "message": message,
+                        "fullName": fullName,
+                        "email": email
+                    },
+                    dataType: "json",
+                    success: function (result) {
+                        ShowSuccess('@SharedResources.EmailSent');
+                        clearContactForm();
+                    },
+                    error: function (req, status, error) {
+                        ShowError(error);
+                        console.log(error);
+                    },
+                    complete: function (data) {
+                        setSendingContact(false);
+                    }
+                });
+            });
+        });
+
+        handleCounters = () => {
+            // Flag, to count only once
+            let didCount = false;
+
+            $(window).scroll(() => {
+                // Start the counter only when the counters section is in window
+                let oTop = $('#counters-section').offset().top - window.innerHeight;
+
+                if (didCount === false && $(window).scrollTop() > oTop) {
+                    $('.counter').each(function () {
+
+                        $(this).prop('Counter', 0).animate({
+                            Counter: $(this).text()
+                        }, {
+                            duration: 4000,
+                            easing: 'swing',
+                            step: function (currNumber) {
+                                $(this).text("+" + Math.ceil(currNumber));
+                            }
+                        });
+                    });
+
+                    didCount = true;
+                }
+            });
+        }
+
+        clearContactForm = () => {
+            $("#fullName").val('');
+            $("#email").val('');
+            $("#message").val('');
+        }
+
+        setSendingContact = (isSending) => {
+            let sendBtn = $('#sendContactBtn');
+
+            if (isSending === true) {
+                sendBtn.attr('disabled', true);
+                sendBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>')
+            }
+
+            if (isSending === false) {
+                sendBtn.removeAttr('disabled');
+                sendBtn.html('@SharedResources.Send');
+            }
+        }
+
+    </script>
+}

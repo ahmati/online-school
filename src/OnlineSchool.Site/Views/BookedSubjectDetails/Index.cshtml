@@ -1,0 +1,31 @@
+﻿@model OnlineSchool.Contract.Subject.SubjectModel
+
+<br /><br /><br />
+<div class="card justify-content-center" style="width: 18rem; ">
+    <div class="card-header justify-content-center">
+        Course : @Model.Name <br />
+        @Model.Description
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">Price:@Model.Price</li>
+    </ul>
+</div>
+
+<style>
+    .container {
+        display: flex;
+        justify-content: center;
+    }
+
+    .card {
+        height: auto;
+        width: auto;
+        background-color: white;
+        text-align: center;
+        margin: 15px;
+        display: inline-block;
+        border: 1px solid #ccc;
+        box-shadow: 0px 5px 25px #aaa;
+        border-radius: 10px;
+    }
+</style>

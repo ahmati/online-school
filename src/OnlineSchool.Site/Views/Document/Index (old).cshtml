@@ -1,0 +1,318 @@
+﻿
+<div class="text-center">
+    <h6 class="title-nostraforza">Documenti</h6>
+</div>
+
+@(Html.Kendo().Grid<OnlineSchool.Contract.Documents.DocumentModel>()
+    .Name("DocumentGrid")
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.Id).Width(320).Hidden(true);
+        @*columns.Bound(p => p.Description).Width(150);
+        columns.Bound(p => p.InsertedDate).Format("{0:MM/dd/yyyy}").Width(130).Title("Data inserimento");
+        columns.Bound(p => p.ExpiredDate).Format("{0:MM/dd/yyyy}").Width(130).Title("Data scadenza");*@
+        columns.Bound(p => p.DocumentTypeId).Width(150).MinScreenWidth(800).Title("Document Description").ClientTemplate("#=DocumentDescriptionType#");
+        columns.Template("<a href= '/File/GetListFiles?Id=#=Id#' class='btn btn-contact' title='Visualizza documneti'"
+       + ">Visualizza</a>").Title("").Width(100);
+        columns.Bound(p => p.Id).Title("Azioni").ClientTemplate("<a role='button' style='width:100%' id='EditContact'" +
+               " href='/Documenti/InsertDocumento?Id=#=Id#'>" +
+               "<span title='Modifica documente' class='k-icon k-i-edit'></span></a> " +
+               "<a style='width:100%' role='button' id='DeleteContact' " +
+               "onclick='DeleteDocument(#=Id#,\"#=Description#\")'><span title='Rimuovi documente'  class='k-icon k-i-trash'></span></a>").Width(100);
+
+    })
+    .ToolBar(toolbar =>
+    {
+        toolbar.Custom().Text("Nuovo documento").IconClass("k-icon k-i-plus").HtmlAttributes(new { href = "/Documenti/InsertDocumento", title = "Aggiungi nuovo dovumento",/* @style = "background-color: black;color: #fff !important;padding: 6px 50px;border-radius: 0px;"*/ });
+        //  toolbar.Search();
+
+    })
+    // .Editable(editable => editable.Mode(GridEditMode.InCell))
+    .Pageable()
+    //.Navigatable()
+    .Sortable()
+    // .Groupable()
+    // .Filterable()
+    .Scrollable()
+    .ClientDetailTemplateId("template")
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        // .Batch(true)
+        .PageSize(20)
+        //.ServerOperation(false)
+        .Events(events => events.Error("error_handler"))
+        .Model(model =>
+        {
+            model.Id(p => p.Id);
+            model.Field(p => p.Id).Editable(false);
+
+        })
+        // .Create("CreateDocument", "Documenti")
+        .Read(read => read.Action("Read_AllDocument", "Documenti").Type(HttpVerbs.Get))
+        //.Update("Update_Document", "Documenti")
+        .Update(update => update.Action("Update_Document", "Documenti").Type(HttpVerbs.Post))
+        .Destroy(destroy => destroy.Action("Delete_Document", "Documenti").Type(HttpVerbs.Post)))
+         .Events(events => events.DetailExpand("expandDetails").DataBound("openRow"))
+
+)
+
+
+
+<script id="template" type="text/kendo-tmpl">
+
+    @(Html.Kendo().TabStrip()
+      .Name("tabStrip_#=Id#")
+      .SelectedIndex(0)
+      .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+      .Items(items =>
+      {
+          //teacher tab
+          @*items.Add().Text("Insegnante").Content(@<text>
+                @(Html.Kendo().Grid<OnlineSchool.Contract.Documenti.DocumentTeacherModel>()
+                    .Name("InsegnanteGrid_#=Id#")
+                    .Columns(columns =>
+                    {
+                    columns.Bound(p => p.Name).Width(320).Hidden(false);
+                    columns.Bound(p => p.AuthDate).Width(150);
+                    columns.Command(command => { command.Destroy(); }).Width(40);
+                    })
+                    .ToolBar(toolbar =>
+                    {
+                    toolbar.Custom().Text("Nuovo documento").IconClass("k-icon k-i-plus").HtmlAttributes(new { onClick = "pickProperty()", title = "Aggiungi Proprieta",/* @style = "background-color: black;color: #fff !important;padding: 6px 50px;border-radius: 0px;"*/ });
+                    })
+                    .Editable(editable => editable.Mode(GridEditMode.InLine))
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .PageSize(5)
+                    .Events(events => events.Error("error_handler"))
+                    .Model(model =>
+                    {
+                       model.Id(p => p.TeacherId);
+                       model.Field(x => x.TeacherId).Editable(true);
+                    })
+                    // .Create(update => update.Action("Create_DocumentProperty", "Document", new { Id = "#= Id#" }).Type(HttpVerbs.Post))
+                    .Read(read => read.Action("Read_DocumentTeacherData", "Documenti", new { Id = "#= Id#" }).Type(HttpVerbs.Get))
+                    .Update(update => update.Action("Update_Document", "Documenti").Type(HttpVerbs.Post))
+                    .Destroy(destroy => destroy.Action("Delete_DocumentTeacher", "Documenti", new { documentId = "#= Id#", Id = "#= Id#" }).Type(HttpVerbs.Post)))
+                    .Pageable()
+                    .Sortable()
+                    .ToClientTemplate()
+            )</text>);*@
+
+//Student
+
+
+
+items.Add().Text("Student").Content
+(@<text>
+            @(Html.Kendo().Grid<OnlineSchool.Contract.Students.StudentModel>()
+.Name("studentGrid_#=Id#")
+.Columns(columns =>
+{
+    columns.Bound(p => p.Name).Width(320).Hidden(false);
+    columns.Bound(p => p.Surname).Width(150);
+    columns.Command(command => { command.Destroy(); }).Width(40);
+
+})
+.ToolBar(toolbar =>
+{
+    toolbar.Custom().Text("Nuovo documento").IconClass("k-icon k-i-plus").HtmlAttributes(new { onClick = "pickStudent()", title = "Aggiungi Cliente",/* @style = "background-color: black;color: #fff !important;padding: 6px 50px;border-radius: 0px;"*/ });
+})
+.Editable(editable => editable.Mode(GridEditMode.InLine))
+.DataSource(dataSource => dataSource
+.Ajax()
+.PageSize(5)
+.Events(events => events.Error("error_handler"))
+.Model(model =>
+{
+    model.Id(p => p.Id);
+    model.Field(x => x.Id).Editable(true);
+})
+.Create(update => update.Action("Create_DocumentStudent", "Documenti", new { Id = "#= Id#" }).Type(HttpVerbs.Post))
+.Read(read => read.Action("Read_DocumentStudentData", "Documenti", new { id = "#= Id#" }).Type(HttpVerbs.Get))
+//.Update(update => update.Action("Update_DocumentCustomer", "Document").Type(HttpVerbs.Post))
+.Destroy(destroy => destroy.Action("Delete_DocumentStudent", "Documenti", new { documentId = "#= Id#"  }).Type(HttpVerbs.Post))
+)
+.Pageable()
+.Sortable()
+.ToClientTemplate())</text>);
+})
+.ToClientTemplate()
+
+    )
+
+</script>
+
+@await Html.PartialAsync("_PropertyPopup")
+@await Html.PartialAsync("_StudentPopup")
+
+<script type="text/javascript">
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+
+    var DocumentId = 0;
+    function openRow(e) {
+        var grid = e.sender;
+
+        grid.tbody.find("tr.k-master-row").click(function (e) {
+            var target = $(e.target);
+            if ((target.hasClass("k-i-expand")) || (target.hasClass("k-i-collapse"))) {
+                return;
+            }
+            var row = target.closest("tr.k-master-row");
+            var icon = row.find(".k-i-expand");
+            if (icon.length) {
+                grid.expandRow(row);
+            } else {
+                grid.collapseRow(row);
+            }
+        })
+    };
+
+    function DeleteDocument(Id, Description) {
+        var _confirm = confirm("Sei sicuro di voler cancellare " + Description + "?");
+        if (_confirm) {
+            $.post("/Documenti/Delete_Document?Id=" + Id).done(function () {
+                $("#DocumentGrid").data("kendoGrid").dataSource.read();
+            });
+
+        }
+        return false;
+    }
+    function expandDetails(e) {
+        console.log('row', e.masterRow[0]);
+        DocumentId = e.masterRow[0].cells[1].innerHTML;
+        console.log('DocumentId', DocumentId);
+        var grid = e.sender;
+        var rows = grid.element.find(".k-master-row").not(e.masterRow);
+        rows.each(function (e) {
+            grid.collapseRow(this);
+        });
+    };
+    function saveDocumentPropertyAssociation() {
+        //var documentId = getSelectedDocumentId();
+        var listaProperty = getSelectedProperties();
+        var serviceUrl = "/Documenti/Create_DocumentTeacher";
+        var dataInput = {
+            'DocumentId': DocumentId,
+            'L_Property': listaProperty
+        };
+
+        var request = $.post(serviceUrl, dataInput);
+        request.done(function (data) {
+
+            alert("Record saved successfully")
+            $("#PropertyPopup").data("kendoWindow").close();
+            $("#DocumentGrid").data("kendoGrid").refresh();
+        })
+            .fail(function () {
+                alert('Errore imprevisto');
+            });
+    }
+
+    function getSelectedProperties(e) {
+        var grid = $("#propertyGridPopup").data("kendoGrid");
+        var selected = [];
+
+        grid.select().each(function () {
+            selected.push(grid.dataItem(this).Id);
+            console.log("selected...", selected);
+        });
+        return selected;
+    }
+    function pickStudent(e) {
+        window.grid = $("#DocumentGrid").data("kendoGrid");
+        window.dataItem = window.grid.dataItem($(event.srcElement).closest("tr"));
+        var wnd = $("#StudentPopup").kendoWindow({
+            visible: true,
+            modal: true,
+            close: closeFormPopupStudent
+        }).data("kendoWindow");
+        wnd.center();
+        wnd.open();
+    }
+
+     function saveDocumentStudentAssociation() {
+            var ListaStudent = getSelectedStudents();
+            var serviceUrl = "/Documenti/Create_DocumentStudent";
+            var dataInput = {
+                'DocumentId': DocumentId,
+                'L_Student': ListaStudent
+            };
+            var request = $.post(serviceUrl, dataInput);
+            request.done(function (data) {
+                alert("The document saved successfully")
+                $("#StudentPopup").data("kendoWindow").close();
+                $("#DocumentGrid").data("kendoGrid").refresh();
+            })
+                .fail(function () {
+                    alert('Errore imprevisto');
+                });
+    }
+
+    function getSelectedStudents(e) {
+            var grid = $("#studentGridPopup").data("kendoGrid");
+            var selectedCustomers = [];
+
+            grid.select().each(function () {
+                selectedCustomers.push(grid.dataItem(this).Id);
+                console.log("selectedCustomers...", selectedCustomers);
+            });
+            return selectedCustomers;
+    }
+
+    function pickProperty(e) {
+        window.grid = $("#DocumentGrid").data("kendoGrid");
+        window.dataItem = window.grid.dataItem($(event.srcElement).closest("tr"));
+        // window.location = "/Agency/Read_PopupAgentData?agencyId=" + AgencyId;
+        var wnd = $("#PropertyPopup").kendoWindow({
+            visible: true,
+            modal: true,
+            close: closeFormPopup
+        }).data("kendoWindow");
+        wnd.center();
+        wnd.open();
+    }
+    function closeFormPopup() {
+        $(".k-overlay").remove();
+        $("#PropertyPopup").click(function (ev) {
+            ev.preventDefault();
+        })
+
+        //$("#PropertyPopup").data("kendoWindow").close();
+        //  $("#DocumentGrid").data("kendoGrid").refresh();
+    }
+    function closeFormPopupStudent() {
+            $(".k-overlay").remove();
+            $("#ClientePopup").click(function (ev) {
+                ev.preventDefault();
+            })
+        }
+
+</script>
+
+
+<style>
+    .title-nostraforza {
+        margin: 12px 0px 10px 0px;
+        /* font-weight: bold; */
+        text-align: center;
+        color: white;
+        text-transform: uppercase;
+        background-color: darkblue;
+        height: 80px;
+        padding-top: 25px;
+    }
+</style>

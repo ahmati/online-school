@@ -1,0 +1,105 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+@import url('shared/variables.css');
+
+html {
+    scroll-behavior: smooth;
+}
+body {
+    /* Messed up kendo stuff, like dropdowns etc. */
+    /* position: relative; */
+}
+.main-container {
+    position: relative;
+    margin-top: var(--header-height);
+    min-height: calc(100vh - var(--header-height));
+    padding-bottom: var(--footer-height);
+    overflow: auto !important;
+}
+footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+
+/* ------------------------------------------- Scrollbar -------------------------------------------  */
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: var(--blueColor);
+}
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgb(141, 141, 141);
+    }
+/* ------------------------------------------- Scrollbar -------------------------------------------  */
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+/*Classes Added by Eugen*/
+.img-responsive,
+.thumbnail > img,
+.thumbnail a > img,
+.carousel-inner > .item > img,
+.carousel-inner > .item > a > img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+.capuccinoColor {
+    background-color: #FFF1E0
+}
+
+.custom-class-text-center {
+    position: relative;
+    margin: 154px 0px 25px calc((100% - 327px) * 0.5);
+    left: 19px;
+    grid-area: 1 / 1 / 2 / 2;
+    justify-self: start;
+    align-self: start;
+}
+
+.div-position {
+    position: relative;
+    padding-left: 25px;
+    margin-top: 50px;
+}
+
+
+.hr-line-solid {
+    border-bottom: 1px solid #e7eaec;
+    background-color: rgba(0, 0, 0, 0);
+    border-style: solid !important;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.divider {
+    height: 4px;
+    margin: 9px 0;
+    overflow: hidden;
+    background-color: #e5e5e5;
+}
+
+.hidden {
+    display: none;
+}
+
+.highlighted {
+    background-color: rgba(69, 128, 243,.8);
+    color: #f1f1f1; /* Grey text */
+    width: 100%; /* Full width */
+    padding-left: 10px; /* Some padding */
+}

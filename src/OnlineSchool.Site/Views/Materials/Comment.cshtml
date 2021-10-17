@@ -1,0 +1,13 @@
+﻿@model IEnumerable<OnlineSchool.Contract.Material.MaterialModel>
+@foreach (var item in Model)
+{
+    <div class="row">
+        <img src="~/images/image11.png" width="25" style="border-radius:50%;width:95px;height:95px;margin-left:25px;" />
+        @*<h3 class="u-text u-text-4" style="font-family: 'Varela Round',sans-serif;font-size: 14px;color: #a3a3a3;margin-top: 40px;"><strong> @item.CommentName </strong></h3>*@
+        <p class="u-text u-text-4" style="font-family: 'Varela Round',sans-serif;font-size: 14px;color: #a3a3a3;margin-top: 40px;margin-left:35px"></p>
+        <p style="font-family: 'Varela Round',sans-serif;font-size: 16px;line-height: 30px;margin-top:25px;margin-left:25px;">
+            @*@item.Body*@
+        </p>
+    </div>
+
+}

@@ -1,0 +1,153 @@
+﻿@model OnlineSchool.Contract.SpotMeeting.CreateSpotMeetingModel
+
+@{
+    var currCulture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.UICulture.Name;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/details.css" />
+}
+
+<h6 class="page-title"> @SharedResources.NewMeeting </h6>
+
+<div class="container mb-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+
+            <form method="post" action="/SpotMeeting/Create" enctype="multipart/form-data" class="mt-5">
+
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div class="form-group">
+                    <label asp-for="@Model.Title" class="form-control-placeholder"> @SharedResources.Title </label>
+                    <input asp-for="@Model.Title" class="form-control" required />
+                    <span asp-validation-for="@Model.Title" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-group">
+                        <label asp-for="@Model.Description" class="form-control-placeholder"> @SharedResources.Description </label>
+                        <textarea rows="3" asp-for="@Model.Description" class="form-control" required></textarea>
+                        <span asp-validation-for="@Model.Description" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="@Model.HostId" class="form-control-placeholder"> Managing teacher </label>
+                    @(Html.Kendo().ComboBoxFor(m => m.HostId)
+                            .Placeholder(SharedResources.SelectManagingTeacher)
+                            .DataTextField("Name")
+                            .DataValueField("Id")
+                            .Template("<div>#: data.Name #</div>")
+                            .HtmlAttributes(new { @class = "form-control w-100", required = "required" })
+                            .Filter(FilterType.Contains)
+                            .AutoBind(false)
+                            .SelectedIndex(0)
+                            .Suggest(true)
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("GetAllTeachers_Dropdown", "Teacher");
+                                });
+                            })
+                            .Deferred()
+                        )
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label asp-for="@Model.StartDate" class="form-control-placeholder"> @SharedResources.StartDate </label>
+                        @(Html.Kendo().DatePickerFor(m => m.StartDate)
+                            .HtmlAttributes(new { @class = "w-100" })
+                            .Format("{0:dd MMMM yyyy}")
+                            .Min(DateTime.Now.AddDays(1))
+                            .Deferred()
+                        )
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label asp-for="@Model.StartTime" class="form-control-placeholder"> @SharedResources.StartTime </label>
+                        @(Html.Kendo().TimePicker()
+                            .Name("StartTime")
+                            .HtmlAttributes(new { @class = "form-control w-100" })
+                            .Format("{0:HH:mm}")
+                            .Interval(15)
+                            .Deferred()
+                        )
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="@Model.Duration" class="form-control-placeholder"> @SharedResources.Duration </label>
+                    @(Html.Kendo().IntegerTextBoxFor(m => m.Duration)
+                            .Culture(currCulture)
+                            .Min(1)
+                            .Max(24)
+                            .Step(1)
+                            .Value(1)
+                            .HtmlAttributes(new { @class = "form-control w-100" })
+                            .Deferred()
+                        )
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="@Model.Price" class="form-control-placeholder"> @SharedResources.Price </label>
+                    @(Html.Kendo().NumericTextBoxFor(m => m.Price)
+                        .Culture(currCulture)
+			            .Min(0)
+                        .Max(99999999.99)
+                        .Decimals(2)
+                        .Step(0.1)
+                        .Value(0.00)
+                        .HtmlAttributes(new { @class = "form-control w-100" })
+                        .Deferred()
+                    )
+                </div>
+                
+                <div class="form-group m-0">
+                    <label asp-for="@Model.AvailableSpots" class="form-control-placeholder"> @SharedResources.AvailableSpots </label>
+                    @(Html.Kendo().IntegerTextBoxFor(m => m.AvailableSpots)
+                            .Culture(currCulture)
+                            .Min(1)
+                            .Max(99)
+                            .Step(1)
+                            .Value(1)
+                            .HtmlAttributes(new { @class = "form-control w-100" })
+                            .Deferred()
+                        )
+                </div>
+
+                <div class="form-group margin-top-10">
+                    @(Html.Kendo().CheckBoxFor(m => m.IsRecursiveSpotMeeting)
+                        .Checked(false)
+                        .Enable(true)
+                        .Label(SharedResources.IsRecursive)
+                        .HtmlAttributes(new { @class = "form-control w-10" })
+                        .Deferred()
+                    )
+                </div>
+
+                <div class="form-group custom-file">
+                    <label asp-for="@Model.ImageFile" class="form-control-placeholder"> @SharedResources.Image </label>
+                    <input asp-for="@Model.ImageFile" class="form-control cursor-pointer" />
+                    <span asp-validation-for="@Model.ImageFile" class="text-danger"> </span>
+                </div>
+
+                <div class="form-group text-right">
+                    <a class="btn btn-sm btn-light border" asp-controller="SpotMeeting" asp-action="Manage">
+                        <i class="fas fa-times"></i> @SharedResources.Cancel
+                    </a>
+                    <button type="submit" class="btn btn-sm my-btn-primary ml-2">
+                        <i class="far fa-save"></i> @SharedResources.Save
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

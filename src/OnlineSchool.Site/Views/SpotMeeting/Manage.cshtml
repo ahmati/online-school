@@ -1,0 +1,371 @@
+﻿@model OnlineSchool.Contract.SpotMeeting.SpotMeetingModel
+@using OnlineSchool.Core.Helper_
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/grid-style.css" />
+}
+
+@{
+    var culture = System.Globalization.CultureInfo.CurrentCulture.ToString();
+    var isAdmin = User.IsInRole("Admin");
+    var userEmail = User.Identity.Name;
+}
+
+<h6 class="page-title"> @SharedResources.Meetings </h6>
+
+<div class="row mx-0 p-0">
+    <div class="col-12 m-0 py-4 padding-lr bg-grey">
+        @(Html.Kendo().Grid<OnlineSchool.Contract.SpotMeeting.SpotMeetingModel>()
+            .Name("meetings-grid")
+            .HtmlAttributes(new { style = "height: 600px;" })
+            .NoRecords()
+            .ToolBar(toolbar =>
+            {
+                toolbar.ClientTemplateId("meetings-grid-toolbar");
+            })
+            .Search(search =>
+            {
+                search.Field(m => m.Title);
+                search.Field(m => m.Description);
+            })
+            .Columns( columns =>
+            {
+                columns.Bound(m => m.Id).Visible(false);
+                columns.Bound(m => m.Title).Title(SharedResources.Meetings).Width(200)
+                    .ClientTemplate("#= renderSpotMeetingTitle(data) #")
+                    .Filterable(false);
+                columns.Bound(m => m.StartDate).Title(SharedResources.Date).Width(150)
+                    .ClientTemplate("#= renderSpotMeetingDateDetails(data) #")
+                    .Filterable(false);
+                columns.Bound(c => c.Price).Title(SharedResources.Price).Width(100)
+                    .ClientTemplate("€ #=Price#")
+                    .Filterable(false);
+                columns.Bound(m => m.AvailableSpots).Title(SharedResources.AvailableSpots).Width(100).Filterable(false);
+                columns.Bound(m => m.Status).Title(SharedResources.Status).Width(150)
+                    .ClientTemplate("#= renderSpotMeetingStatus(Status) #")
+                    .Filterable(ftb =>
+                        ftb.Multi(true)
+                           .CheckAll(true)
+                    );
+                columns.Bound(m => m.Id).Title(SharedResources.Actions).Width(150)
+                    .ClientTemplate(@"
+                        <div class='text-center'>
+                            #= data.Buttons # #= renderStartJoinSpotMeetingBtn(data) #
+                        </div>"
+                    )
+                    .Filterable(false)
+                    .Sortable(false);
+            }
+            )
+            .Pageable(pageable => pageable
+                .Refresh(true)
+                .PageSizes(true)
+                .ButtonCount(5)
+            )
+            .Sortable(x => x.SortMode(GridSortMode.MultipleColumn))
+            .Filterable()
+            .Scrollable()
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(10)
+                .Read(read => read.Action("GetAllSpotMeetings", "SpotMeeting").Type(HttpVerbs.Get))
+                .Sort(x =>
+                {
+                    x.Add(m => m.Status);
+                    x.Add(m => m.StartDate);
+                })
+            )
+            .Deferred()
+            )
+    </div>
+</div>
+
+@section Scripts {
+
+    <script id="meetings-grid-toolbar" type="text/x-kendo-template">
+        @if (isAdmin)
+        {
+            <div class="meetings-grid-actions m-2 ml-0 float-left">
+                <a href="/SpotMeeting/Create" class="btn btn-active-primary btn-light btn-sm" title="@SharedResources.NewMeeting">
+                    <i class="k-icon k-i-plus"></i> @SharedResources.NewMeeting
+                </a>
+            </div>
+        }
+        <span class="k-textbox k-grid-search k-display-flex">
+            <input autocomplete="off" placeholder="@SharedResources.SEARCH..." title="@SharedResources.SEARCH..." class="k-input">
+            <span class="k-input-icon">
+                <span class="k-icon k-i-search"></span>
+            </span>
+        </span>
+    </script>
+
+    <script>
+
+        $(document).ready(function () {
+
+            let gridName = "meetings-grid";
+
+            let isAdmin = "@isAdmin".toLowerCase() == "true";
+            let userEmail = "@userEmail";
+
+            var successMsg = '@TempData["Success"]';
+            var errorMsg = '@TempData["Error"]';
+            if (successMsg)
+                ShowSuccess(successMsg);
+            if (errorMsg)
+                ShowError(errorMsg);
+
+            onPublishSpotMeeting = (id) => {
+                ShowConfirmation(
+                    "You are about to publish the meeting. Once published, you can't modify it. Continue?",
+                    "",
+                    () => {
+                        setKendoGridLoading(gridName, true);
+                        $.ajax({
+                            type: "POST",
+                            url: `/SpotMeeting/Publish?id=${id}`,
+                            dataType: "json",
+                            success: function (data) {
+                                // Ok
+                                if (data.HasErrors === false) {
+                                    ShowSuccess("Meeting published successfully.");
+                                    refreshKendoGrid(gridName);
+                                }
+                                // Errors
+                                else {
+                                    data.Errors.forEach(err => {
+                                        ShowError(err);
+                                    });
+                                }
+                            },
+                            error: function (req, status, error) {
+                                ShowError("Unable to publish the meeting.");
+                                console.error(error);
+                            },
+                            complete: function () {
+                                setKendoGridLoading(gridName, false);
+                            }
+                        });
+                    },
+                    null
+                );
+            }
+
+            onUnpublishSpotMeeting = (id) => {
+                ShowConfirmation(
+                    "You are about to unpublish the meeting. Once unpublished, it won't appear in homepage. Continue?",
+                    "",
+                    () => {
+                        setKendoGridLoading(gridName, true);
+                        $.ajax({
+                            type: "POST",
+                            url: `/SpotMeeting/Unpublish?id=${id}`,
+                            dataType: "json",
+                            success: function (data) {
+                                // Ok
+                                if (data.HasErrors === false) {
+                                    ShowSuccess("Meeting unpublished successfully.");
+                                    refreshKendoGrid(gridName);
+                                }
+                                // Errors
+                                else {
+                                    data.Errors.forEach(err => {
+                                        ShowError(err);
+                                    });
+                                }
+                            },
+                            error: function (req, status, error) {
+                                ShowError("Unable to unpublish the meeting.");
+                                console.error(error);
+                            },
+                            complete: function () {
+                                setKendoGridLoading(gridName, false);
+                            }
+                        });
+                    },
+                    null
+                );
+            }
+
+            onDeleteSpotMeeting = (id) => {
+                ShowConfirmation(
+                    "Are you sure you want to delete this meeting?",
+                    "",
+                    () => {
+                        setKendoGridLoading(gridName, true);
+                        $.ajax({
+                            type: "DELETE",
+                            url: `/SpotMeeting/Delete/?id=${id}`,
+                            dataType: "json",
+                            success: function (data) {
+                                // Ok
+                                if (data.HasErrors === false) {
+                                    setKendoGridLoading(gridName, false);
+                                    ShowSuccess("Meeting deleted successfully");
+                                    refreshKendoGrid(gridName);
+                                }
+                                // Errors
+                                else {
+                                    data.Errors.forEach(err => {
+                                        ShowError(err);
+                                    });
+                                }
+                            },
+                            error: function (req, status, error) {
+                                ShowError("Unable to delete this meeting.");
+                                console.error(error);
+                            },
+                            complete: function () {
+                                setKendoGridLoading(gridName, false);
+                            }
+                        });
+                    },
+                    null
+                );
+            }
+
+            onEditSpotMeeting = (id) => {
+                window.location.href = '@Url.Action("Edit", "SpotMeeting")?id=' + id;
+            }
+
+            onCheckProgram = (id) => {
+                window.location.href = '@Url.Action("CheckProgram", "SpotMeeting")?id=' + id;
+            }
+
+            renderSpotMeetingTitle = (data) => {
+                let description = data.Description;
+
+                if (description == null) {
+                    description = " ";
+                }
+                else if (description.length > 21) {
+                    description = description.substring(0, 18) + "...";
+                }
+
+                let url = "";
+                if (data.ImagePath != null) {
+                    url = `/uploads/spotMeetings/${data.Id}/${data.ImagePath}`;
+                }
+                else {
+                    url = '/images/image4.jpeg';
+                }
+
+                let detailsUrl = `/SpotMeeting/${data.Id}/Details`;
+
+                return `<div class="d-flex align-items-center">
+                            <div class="symbol symbol-45px me-5">
+                                <img src="${url}" alt="" />
+                            </div>
+                            <div class="d-flex justify-content-start flex-column">
+                                <a href="${detailsUrl}" class="fw-bolder text-hover-primary fs-6">${data.Title}</a>
+                                <span class="text-muted fw-bold d-block fs-7">${description}</span>
+                            </div>
+                        </div>`;
+            }
+
+            renderSpotMeetingDateDetails = (data) => {
+                let date = formatDate(data.StartDate, "@culture");
+                let time = formatTime(data.StartDate, "@culture");
+                return `<div class="d-flex align-items-center">
+                            <div class="d-flex justify-content-start flex-column">
+                                <span class="text-dark fw-bolder fs-6">${date}</span>
+                                <span class="text-muted fw-bold d-block fs-7">${time}, ${data.Duration} @SharedResources.Hour_s_</span>
+                            </div>
+                        </div>`;
+            }
+
+            renderSpotMeetingStatus = (status) => {
+                let color, label;
+                switch (status) {
+                    case SpotMeetingStatus.NotPublished:
+                        color = 'secondary'; label = '@SharedResources.NotPublished';
+                        break;
+                    case SpotMeetingStatus.NotPublished_PastDue:
+                        color = 'danger'; label = '@SharedResources.NotPublishedPassedDueDate';
+                        break;
+                    case SpotMeetingStatus.Published:
+                        color = 'primary'; label = '@SharedResources.Published';
+                        break;
+                    case SpotMeetingStatus.InProgress:
+                        color = 'warning'; label = '@SharedResources.InProgress';
+                        break;
+                    case SpotMeetingStatus.Finished:
+                        color = 'success'; label = '@SharedResources.Finished';
+                        break;
+                    default:
+                        color = 'secondary'; label = '-';
+                        break;
+                }
+                return `<span class='font-weight-bold text-${color}'> ${label} </span>`;
+            }
+
+            renderStartJoinSpotMeetingBtn = (data) => {
+                if (data.Status == SpotMeetingStatus.Published && !isAdmin) {
+                    let extraAttr = 'disabled';
+
+                    let startTime = data.StartTime.split(":");
+                    let startDate = new Date(data.StartDate.valueOf());
+                    startDate.setHours(startTime[0], startTime[1], 0);
+
+                    let endDate = new Date(data.StartDate.valueOf());
+                    endDate.setHours(startDate.getHours() + data.Duration);
+
+                    let now = new Date();
+                    now.setMinutes(now.getMinutes() + 30);
+
+                    if (now >= startDate && now <= endDate)
+                        extraAttr = '';
+
+                    if (data.Host.Teacher.Email == userEmail) {
+                        return `<div class='text-center'>
+                                    <button ${extraAttr} class='btn btn-sm btn-success shadow' onclick='startSpotMeeting(${data.Id})'> @SharedResources.Start </button>
+                                </div>
+                                `;
+                    }
+                    else {
+                        return `<div class='text-center'>
+                                    <button class='btn btn-sm btn-success shadow' onclick='joinSpotMeeting(${data.Id})'> @SharedResources.Join </button>
+                                </div >
+                                `;
+                    }
+
+                }
+                else {
+                    return ``;
+                }
+            }
+
+            startSpotMeeting = (spotMeetingId) => {
+                ShowConfirmation('You are about to start the live meeting. Continue?', '', () => {
+                    window.location.href = `/SpotMeeting/${spotMeetingId}/Host`;
+                }, null)
+            }
+
+            joinSpotMeeting = (spotMeetingId) => {
+                ShowConfirmation('You are about to join the live meeting. Continue?', '', () => {
+                    window.location.href = `/SpotMeeting/${spotMeetingId}/Guest`;
+                }, null)
+            }
+        });
+
+        var filterDataSource = new kendo.data.DataSource({
+            data: [
+                { status: "@SharedResources.NotPublished" },
+                { status: "@SharedResources.NotPublishedPassedDueDate" },
+                { status: "@SharedResources.Published" },
+                { status: "@SharedResources.InProgress" },
+                { status: "@SharedResources.Finished" }
+            ]
+        });
+
+        function filterTemplate(e) {
+            return "<span>"
+                        "<label>"
+                            "<span>#= data.status || data.all #</span>"
+                            "< input type = 'checkbox' name = '" + e.field + "' value = '#= data.status#' />"
+                        "</label >"
+                    "</span > ";
+        }
+
+    </script>
+}

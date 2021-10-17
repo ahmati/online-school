@@ -1,0 +1,338 @@
+﻿@model IEnumerable<OnlineSchool.Contract.Documents.StudentDocumentModel>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/grid-style.css" />
+}
+
+<h6 class="page-title"> @SharedResources.StudentDocuments </h6>
+
+<div class="row mx-0 p-0">
+    <div class="col-12 m-0 py-4 padding-lr bg-grey">
+
+        @(Html.Kendo().Grid<OnlineSchool.Contract.Documents.StudentDocumentModel>()
+            .Name("student-documents-grid")
+            .HtmlAttributes(new { style = "height: 600px;", id = "student-documents-grid" })
+            .NoRecords()
+            .ToolBar(toolbar =>
+            {
+                toolbar.ClientTemplateId("student-documents-grid-toolbar");
+            })
+            .Search(search =>
+            {
+                search.Field(m => m.FileName);
+                search.Field(m => m.MimeType);
+                search.Field(m => m.Student.Email);
+            })
+            .Columns(columns =>
+            {
+                columns.Bound(p => p.Id).Visible(false);
+                columns.Select().Width(50);
+                columns.Bound(p => p.FileName).Title(SharedResources.FileName).Width(150)
+                    .ClientTemplate(@"
+                        <a class='text-primary' target='_blank' href='/Document/DownloadStudentDocument/#=Id#' title='" + SharedResources.Download + @"'>
+                            <span style='white-space: nowrap;'>                            
+                                <i class='fas fa-file-download'></i> #=FileName#
+                            </span>
+                        </a>
+                    ");
+                columns.Bound(p => p.MimeType).Title(SharedResources.FileType).Width(120);
+                columns.Bound(p => p.FileSize).Title(SharedResources.FileSize).Width(150).ClientTemplate("#=formatBytes(FileSize)#");
+                columns.Bound(p => p.Student.Email).Title(SharedResources.Student).Width(150);
+                columns.Bound(p => p.Id).Title(SharedResources.Actions).Width(120)
+                    .ClientTemplate(@"
+                        <div class='text-center'>
+                            <button class='btn btn-sm btn-danger text-white m-1' title='" + SharedResources.Delete + @"' onclick='onDeleteStudentDocument(#=Id#)'>
+                                <i class='far fa-trash-alt'></i>
+                            </button>
+                        </div>"
+                    );
+            })
+            .Sortable()
+            .Pageable(pg => {
+                pg.Refresh(true);
+                pg.PageSizes(true);
+                pg.ButtonCount(5);
+            })
+            .Scrollable()
+            .Editable(editable => editable.Mode(GridEditMode.InLine))
+            .Events(e =>
+            {
+                e.Change("onChange");
+                e.DataBound("onDataBound");
+            })
+            .DataSource(ds => ds
+                .Ajax()
+                .PageSize(10)
+                .Model(model =>
+                {
+                    model.Id(p => p.Id);
+                })
+                .Read(read => read.Action("GetStudentDocuments", "Document").Type(HttpVerbs.Get))
+            )
+            .Deferred()
+        )
+
+    </div>
+</div>
+
+<!-- Modal: add student document -->
+<div id="student-document-modal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="student-document-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="student-document-modal-label"> @SharedResources.NewStudentDocument </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="@SharedResources.Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="student-document-upload" class="my-4">
+
+                    <div class="validation-summary-errors text-danger mb-4">
+                        <ul id="student-document-upload-errors"></ul>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="student" class="form-control-placeholder"> @SharedResources.Student </label>
+                        @(Html.Kendo().ComboBox()
+                            .Name("students-combobox")
+                            .HtmlAttributes(new { id = "students-combobox", @class = "form-control w-100" })
+                            .Placeholder(SharedResources.SelectStudent)
+                            .DataTextField("Email")
+                            .DataValueField("Id")
+                            .Template("#=Name# #=Surname# (#=Email#)")
+                            .Filter(FilterType.Contains)
+                            .AutoBind(false)
+                            .SelectedIndex(0)
+                            .Suggest(true)
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("GetAllStudents_Dropdown", "Student");
+                                });
+                            })
+                            .Deferred()
+                        )
+                    </div>
+
+                    <div class="form-group">
+                        <label for="student-documents" class="form-control-placeholder"> @SharedResources.Documents </label>
+                        @(Html.Kendo().Upload()
+                            .Name("files")
+                            .HtmlAttributes(new { @class = "form-control w-100", id = "documents-upload" })
+                            .Multiple(true)
+                            .Directory(false)
+                            .Validation(validation =>
+                            {
+                                validation.MinFileSize(0);
+                                validation.MaxFileSize(104857600); // 100MB limit
+                            })
+                            .Async(a =>
+                            {
+                                a.Save("StudentDocument_ChunkUpload", "Document");
+                                a.AutoUpload(false);
+                                a.ChunkSize(20480); // 3MB chunk
+                            })
+                            .Events(e => {
+                                e.Upload("onUpload");
+                                e.Success("onUploadSuccess");
+                                e.Error("onUploadError");
+                            })
+                            .Deferred()
+                        )
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script id="student-documents-grid-toolbar" type="text/x-kendo-template">
+
+        <div class='student-documents-grid-actions'>
+            <div class="m-2 ml-0 float-left">
+                <a class="btn btn-active-primary btn-light btn-sm" onclick='onShowStudentDocumentModal();' title='@SharedResources.NewDocument'>
+                    <i class="k-icon k-i-plus"></i> @SharedResources.NewDocument
+                </a>
+            </div>
+            <button disabled id="downloadSelected" class='btn btn-sm btn-outline-primary float-right m-2' style='width: 38px; height: 38px;' onclick='onDownloadSelectedMaterials();' title='@SharedResources.DownloadSelected'>
+                <i class="fas fa-download"> </i>
+            </button>
+            <span class="k-textbox k-grid-search k-display-flex align-middle float-right m-2 ml-0">
+                <input autocomplete="off" placeholder="@SharedResources.SEARCH..." title="@SharedResources.SEARCH..." class="k-input">
+                <span class="k-input-icon">
+                    <span class="k-icon k-i-search"></span>
+                </span>
+            </span>
+        </div>
+
+
+    </script>
+
+    <script>
+
+        beforeUnloadListener = (e) => {
+            e.preventDefault();
+            e.returnValue = "";
+        }
+
+        $(document).ready(() => {
+            let selectedIds = [];
+
+            // A reference to the modal
+            let studentDocumentModal = $('#student-document-modal');
+            let studentDocumentModalErrorsRef = $('#student-document-upload-errors');
+
+            let successMsg = '@TempData["Success"]';
+            successMsg ? ShowSuccess(successMsg) : null;
+            let errorMsg = '@TempData["Error"]';
+            errorMsg ? ShowError(errorMsg) : null;
+
+            //#region Grid events
+
+            onChange = (e) => {
+                selectedIds = []; // First, reset this
+                Object.keys(e.sender._selectedIds).forEach(k => selectedIds.push(parseInt(k)));
+
+                let downloadSelectedBtn = $('#downloadSelected');
+                (selectedIds.length > 0) ?
+                    downloadSelectedBtn.removeAttr('disabled') :
+                    downloadSelectedBtn.attr('disabled', true);
+            }
+
+            onDataBound = (e) => {
+                selectedIds = [];
+                let downloadSelectedBtn = $('#downloadSelected');
+                downloadSelectedBtn.attr('disabled', true);
+            }
+
+            //#endregion
+
+            //#region Upload events
+
+            onUpload = (e) => {
+                let studentsCombobox = $('#students-combobox').data("kendoComboBox");
+                let documentsUpload = $('#documents-upload').data("kendoUpload");
+
+                let studentId = parseInt(studentsCombobox.value());
+                if (!studentId || isNaN(studentId)) {
+                    documentsUpload.trigger("cancel");
+                    ShowError('Please, select a student.');
+                }
+                else {
+                    documentsUpload.options.async.saveUrl = `/Document/StudentDocument_ChunkUpload/${studentId}`;
+                    documentsUpload.upload();
+                    studentsCombobox.enable(false);
+                }
+            }
+
+            onUploadSuccess = (e) => {
+                if (e.operation === 'upload' && e.response.uploaded === true) {
+                    ShowSuccess(`${e.files[0].name} uploaded successfully.`);
+                    refreshKendoGrid('student-documents-grid');
+                }
+            }
+
+            onUploadError = (e) => {
+                console.error(e);
+                let response = JSON.parse(e.XMLHttpRequest.response);
+                ShowError(response.error);
+            }
+
+            //#endregion
+
+            //#region Modal events/methods
+
+            studentDocumentModal.on('hide.bs.modal', (e) => {
+                if (isUploading()) {
+                    e.preventDefault();
+                    ShowWarning('Upload is still in progress.');
+                    window.addEventListener("beforeunload", beforeUnloadListener);
+                }
+                else {
+                    window.removeEventListener("beforeunload", beforeUnloadListener);
+                }
+            });
+
+            studentDocumentModal.on('hidden.bs.modal', (e) => {
+                clearDocumentModal();
+            });
+
+            //#endregion
+
+            onDeleteStudentDocument = (studentDocumentId) => {
+                // Todo
+                ShowConfirmation('Are you sure you want to delete the document?', '', () => {
+                    $.ajax({
+                        url: `/Document/DeleteStudentDocument/${studentDocumentId}`,
+                        type: 'DELETE',
+                        contentType: "application/json",
+                        dataType: "json",
+                        success: (data) => {
+                            if (data.HasErrors === false) {
+                                refreshKendoGrid("student-documents-grid");
+                                ShowSuccess('Document deleted successfully.');
+                            }
+                            else {
+                                data.Errors.forEach(err => {
+                                    ShowError(err);
+                                })
+                            }
+                        },
+                        fail: (err) => {
+                            console.error(err);
+                            ShowError('An error occurred. The document could not be deleted.');
+                        }
+                    });
+                }, null)
+            }
+
+            onDownloadSelectedDocuments = () => {
+                if (selectedIds.length > 0) {
+
+                    // selectedIds.forEach(studentDocumentId => {
+                    //     let uri = `/Document/DownloadStudentDocument/${studentDocumentId}`;
+                    //     downloadURI(uri);
+                    // })
+
+                    let api = `/Document/DownloadStudentDocuments?`;
+                    selectedIds.forEach((id, i) => {
+                        api += `ids=${id}`;
+                        if (i < (selectedIds.length - 1))
+                            api += '&';
+                    });
+
+                    downloadURI(api);
+                    $('#student-documents-grid').data('kendoGrid').clearSelection();
+                }
+            }
+
+            onShowStudentDocumentModal = () => {
+                studentDocumentModal.modal('show');
+                // Other stuff if needed
+            }
+
+            clearDocumentModal = () => {
+                let studentsCombobox = $('#students-combobox').data("kendoComboBox");
+                let documentsUpload = $('#documents-upload').data("kendoUpload");
+
+                studentDocumentModalErrorsRef.html('');
+                studentsCombobox.text("");
+                studentsCombobox.value();
+                studentsCombobox.enable(true);
+                documentsUpload.clearAllFiles();
+                documentsUpload.options.async.saveUrl = "/Document/StudentDocument_ChunkUpload";
+            }
+
+            isUploading = () => {
+                return $('#documents-upload').parents('.k-upload').find('.k-file-progress').length > 0;
+            }
+        });
+
+    </script>
+
+}

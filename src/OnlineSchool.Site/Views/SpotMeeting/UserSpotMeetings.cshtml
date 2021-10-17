@@ -1,0 +1,173 @@
+﻿@model IEnumerable<OnlineSchool.Contract.SpotMeeting.SpotMeetingModel>
+@using OnlineSchool.Core.Helper_
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/grid-style.css" />
+}
+
+@{
+    var culture = System.Globalization.CultureInfo.CurrentCulture.ToString();
+}
+
+<h6 class="page-title"> @SharedResources.MyMeetings </h6>
+
+<div class="row mx-0 p-0">
+    <div class="col-12 m-0 py-4 padding-lr bg-grey">
+
+        @(Html.Kendo().Grid<OnlineSchool.Contract.SpotMeeting.SpotMeetingModel>()
+            .Name("user-spo-meetings-grid")
+            .HtmlAttributes(new { style = "height: 600px;" })
+            .NoRecords()
+            .ToolBar(toolbar =>
+            {
+                toolbar.ClientTemplate(
+                        "<span class='k-textbox k-grid-search k-display-flex'>" +
+                            "<input autocomplete='off' placeholder='" + SharedResources.SEARCH + "...' title='" + SharedResources.SEARCH + "...' class='k-input'>" +
+                            "<span class='k-input-icon'>" +
+                                "<span class='k-icon k-i-search'></span>" +
+                            "</span>" +
+                        "</span>");
+            })
+            .Search(search =>
+            {
+                search.Field(m => m.Title);
+                search.Field(m => m.Description);
+            })
+            .Columns(columns =>
+            {
+                columns.Bound(p => p.Id).Visible(false);
+                columns.Bound(p => p.Title).Title(SharedResources.Subject).Width(150)
+                    .ClientTemplate("#= renderSpotMeetingTitle(data) #")
+                    .Filterable(false);
+                columns.Bound(p => p.StartDate).Title(SharedResources.Date).Width(100)
+                    .ClientTemplate("#= renderSpotMeetingDateDetails(data) #")
+                    .Filterable(false);
+                columns.Bound(p => p.Price).Title(SharedResources.Price).Width(100)
+                    .ClientTemplate("€ #=Price#")
+                    .Filterable(false);
+                columns.Bound(c => c.Status).Title(SharedResources.Status).Width(100)
+                    .ClientTemplate("#= renderSpotMeetingStatus(Status) #")
+                    .Filterable(ftb =>
+                        ftb.Multi(true)
+                           .CheckAll(true)
+                    );
+                columns.Bound(p => p.Id).Title(SharedResources.Actions).Width(120)
+                    .ClientTemplate(@"
+                        <div class='text-center'>
+                            #= renderSpotMeetingActions(data) #
+                        </div>"
+                    )
+                    .Filterable(false);
+            })
+            .Sortable(x => x.SortMode(GridSortMode.MultipleColumn))
+            .Pageable(pg => {
+                pg.Refresh(true);
+                pg.PageSizes(true);
+                pg.ButtonCount(5);
+            })
+            .Scrollable()
+            .DataSource(ds => ds
+                .Ajax()
+                .PageSize(10)
+                .Model(model =>
+                {
+                    model.Id(p => p.Id);
+                })
+                .Read(read => read.Action("GetUserSpotmeetings", "SpotMeeting").Type(HttpVerbs.Get))
+                .Sort(x =>
+                {
+                    x.Add(m => m.Status);
+                    x.Add(m => m.StartDate);
+                })
+            )
+            .Deferred()
+        )
+
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+
+            renderSpotMeetingTitle = (data) => {
+                let description = data.Description;
+                if (description != null && description.length > 21) {
+                    description = description.substring(0, 18) + "...";
+                }
+
+                let url = "";
+                if (data.ImagePath != null) {
+                    url = `/uploads/spotMeetings/${data.Id}/${data.ImagePath}`;
+                }
+                else {
+                    url = '/images/image4.jpeg';
+                }
+
+                let detailsUrl = `/SpotMeeting/${data.Id}/Details`;
+
+                return `<div class="d-flex align-items-center">
+                            <div class="symbol symbol-45px me-5">
+                                <img src="${url}" alt="" />
+                            </div>
+                            <div class="d-flex justify-content-start flex-column">
+                                <a href="${detailsUrl}" class="fw-bolder text-hover-primary fs-6">${data.Title}</a>
+                                <span class="text-muted fw-bold d-block fs-7">${description}</span>
+                            </div>
+                        </div>`;
+            }
+
+            renderSpotMeetingDateDetails = (data) => {
+                let date = formatDate(data.StartDate, "@culture");
+                let time = formatTime(data.StartDate, "@culture");
+                return `<div class="d-flex align-items-center">
+                            <div class="d-flex justify-content-start flex-column">
+                                <span class="text-dark fw-bolder fs-6">${date}</span>
+                                <span class="text-muted fw-bold d-block fs-7">${time}, ${data.Duration} @SharedResources.Hour_s_</span>
+                            </div>
+                        </div>`;
+            }
+
+            renderSpotMeetingStatus = (status) => {
+                let color, label;
+                switch (status) {
+                    case SpotMeetingStatus.NotPublished:
+                        color = 'secondary'; label = '@SharedResources.NotPublished';
+                        break;
+                    case SpotMeetingStatus.NotPublished_PastDue:
+                        color = 'danger'; label = '@SharedResources.NotPublishedPassedDueDate';
+                        break;
+                    case SpotMeetingStatus.Published:
+                        color = 'primary'; label = '@SharedResources.Published';
+                        break;
+                    case SpotMeetingStatus.InProgress:
+                        color = 'warning'; label = '@SharedResources.InProgress';
+                        break;
+                    case SpotMeetingStatus.Finished:
+                        color = 'success'; label = '@SharedResources.Finished';
+                        break;
+                    default:
+                        color = 'secondary'; label = '-';
+                        break;
+                }
+                return `<span class='font-weight-bold text-${color}'> ${label} </span>`;
+            }
+
+            renderSpotMeetingActions = (data) => {
+                return `<a href='/SpotMeeting/CheckProgram/${data.Id}' class='btn btn-sm btn-light border m-1' title='@SharedResources.Details'>
+                            <i class='fas fa-clipboard-list'></i> @SharedResources.Details
+                        </a>
+                        <button class='btn btn-sm btn-success shadow' onclick='joinSpotMeeting(${data.Id})'> @SharedResources.Join </button>`;
+            }
+
+            joinSpotMeeting = (spotMeetingId) => {
+                ShowConfirmation('You are about to join the live meeting. Continue?', '', () => {
+                    window.location.href = `/SpotMeeting/${spotMeetingId}/Guest`;
+                }, null)
+            }
+        });
+
+    </script>
+
+}

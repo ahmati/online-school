@@ -1,0 +1,45 @@
+﻿@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@inject IViewLocalizer Localizer
+@inject IOptions<RequestLocalizationOptions> LocOptions
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var cultureItems = LocOptions.Value.SupportedUICultures
+        .Select(c => new SelectListItem { Value = c.Name, Text = Localizer.GetString(c.Name) })
+        .ToList();
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}{Context.Request.QueryString}";
+
+    var user = await UserManager.GetUserAsync(User);
+}
+
+<ul class="nav h-100 justify-content-end">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item align-self-center mr-2">
+            <u id="manage" class="small text-white" title="Manage">
+                @SharedResources.Hello,  @user.Name.ToUpper() @user.Surname.ToUpper()
+            </u>
+        </li>
+        <li class="nav-item">
+            <a class="btn btn-sm text-white" asp-controller="Account" asp-action="Logout">
+                @SharedResources.Logout
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="btn btn-sm text-white" id="login" asp-controller="Account" asp-action="Login">
+                <i class="fas fa-sign-in-alt"></i> @SharedResources.Login
+            </a>
+        </li>
+
+        <li class="nav-item menu-item">
+            <a class="btn btn-sm text-white" id="register" asp-controller="Account" asp-action="Register">
+                <i class="far fa-user"></i> @SharedResources.Register
+            </a>
+        </li>
+    }
+</ul>

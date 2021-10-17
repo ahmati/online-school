@@ -1,0 +1,109 @@
+﻿@model OnlineSchool.Contract.Lessons.LessonModel
+
+@{
+    var subId = ViewBag.SubjectId;
+}
+
+<div class="text-center">
+    <h6 class="title-nostraforza"> Lessons </h6>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div>
+            @(Html.Kendo().Grid<OnlineSchool.Contract.Lessons.LessonModel>()
+        .Name("DocumentGrid")
+
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.Id).Visible(false);
+            columns.Bound(p => p.Name).Width(150);
+            columns.Bound(p => p.Description).Title("Description").Width(150);
+            columns.Bound(p => p.StartTime).Format("{0:MM/dd/yyyy}").Width(100).Title("Start Time");
+            columns.Bound(p => p.EndTime).Format("{0:MM/dd/yyyy}").Width(100).Title("End Time");
+            columns.Bound(p => p.AuthDate).Format("{0:MM/dd/yyyy}").Width(100).Title("Created on");
+            columns.Bound(p => p.Id).Width(120).Title("Actions")
+
+            .ClientTemplate("<a role='button' style='width:100%'" +
+                 " href='/Lesson/AddLesson?id=#=Id#'><span title='Edit Lesson' class='k-icon k-i-edit'></span></a> " +
+
+            "<a style='width:100%' role='button'  onclick='DeleteLesson(#=Id#)'>" +
+            "<span title='Delete Lesson' class='k-icon k-i-trash'></span></a>");
+
+
+        })
+        .ToolBar(toolbar =>
+        {
+
+            toolbar.Custom().Text("New Lesson").IconClass("k-icon k-i-plus").HtmlAttributes(new { href = "/Lesson/AddLesson?subId=" + subId, title = "Add new lesson" });
+
+        })
+
+       .Editable(editable => editable.Mode(GridEditMode.InLine))
+       .Sortable()
+      .Pageable()
+       .Scrollable()
+        .DataSource(dataSource => dataSource
+        .Ajax()
+
+        .Model(model =>
+        {
+            model.Id(p => p.Id);
+            model.Field(x => x.Id).Editable(true);
+
+        })
+          .Read(read => read.Action("GetLessonsBySubjectId", "Lesson", new { SubjectId = subId}).Type(HttpVerbs.Get))
+          .Update(update => update.Action("UpdateLesson", "Lesson").Type(HttpVerbs.Post))
+          .Destroy(destroy => destroy.Action("DeleteLesson", "Lesson").Type(HttpVerbs.Post))
+        )
+
+)
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .title-nostraforza {
+        margin: 12px 0px 10px 0px;
+        /* font-weight: bold; */
+        text-align: center;
+        color: white;
+        text-transform: uppercase;
+        background-color: darkblue;
+        height: 80px;
+        padding-top: 25px;
+    }
+
+    .k-grid .k-grid-search {
+        margin-left: auto;
+        margin-right: 0;
+    }
+</style>
+
+
+@section Scripts {
+    <script>
+
+        $(document).ready(function () {
+
+            var successMsg = '@TempData["Success"]';
+            var errorMsg = '@TempData["Error"]';
+            console.log(successMsg);
+            if (successMsg)
+                ShowSuccess(successMsg);
+            else if (errorMsg)
+                ShowError(errorMsg);
+        });
+
+            function DeleteLesson(Id) {
+                var _confirm = confirm("Are you sure you want to delete this lesson?");
+                if (_confirm) {
+                $.post("/Lessons/DeleteLesson?Id=" + Id).done(function () {
+                    $("#customerGrid").data("kendoGrid").dataSource.read();
+                    });
+                }
+                return false;
+            }
+    </script>
+}

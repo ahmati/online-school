@@ -1,0 +1,343 @@
+﻿@model IEnumerable<OnlineSchool.Contract.Documents.TeacherDocumentModel>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/grid-style.css" />
+}
+
+<h6 class="page-title"> @SharedResources.TeacherDocuments </h6>
+
+<div class="row mx-0 p-0">
+    <div class="col-12 m-0 py-4 padding-lr bg-grey">
+
+        @(Html.Kendo().Grid<OnlineSchool.Contract.Documents.TeacherDocumentModel>()
+            .Name("teacher-documents-grid")
+            .HtmlAttributes(new { style = "height: 600px;", id = "teacher-documents-grid" })
+            .NoRecords()
+            .ToolBar(toolbar =>
+            {
+                toolbar.ClientTemplateId("teacher-documents-grid-toolbar");
+
+            })
+            .Search(search =>
+            {
+                search.Field(m => m.FileName);
+                search.Field(m => m.MimeType);
+                search.Field(m => m.Teacher.Email);
+            })
+            .Columns(columns =>
+            {
+                columns.Bound(p => p.Id).Visible(false);
+                columns.Select().Width(50);
+                columns.Bound(p => p.FileName).Title(SharedResources.FileName).Width(150)
+                    .ClientTemplate(@"
+                        <a class='text-primary' target='_blank' href='/Document/DownloadTeacherDocument/#=Id#' title='" + SharedResources.Download + @"'>
+                            <span style='white-space: nowrap;'>
+                                <i class='fas fa-file-download'></i> #=FileName#
+                            </span>
+                        </a>
+                    ");
+                columns.Bound(p => p.MimeType).Title(SharedResources.FileType).Width(120);
+                columns.Bound(p => p.FileSize).Title(SharedResources.FileSize).Width(150).ClientTemplate("#=formatBytes(FileSize)#");
+                columns.Bound(p => p.Teacher.Email).Title(SharedResources.Teacher).Width(150);
+                columns.Bound(p => p.Id).Title(SharedResources.Actions).Width(120)
+                    .ClientTemplate(@"
+                        <div class='text-center'>
+                            <button class='btn btn-sm btn-danger text-white m-1' title='" + SharedResources.Delete + @"' onclick='onDeleteTeacherDocument(#=Id#)'>
+                                <i class='far fa-trash-alt'></i>
+                            </button>
+                        </div>"
+                    )
+                    .Sortable(false);
+            })
+            //.Groupable()
+            .Sortable()
+            .Pageable(pg => {
+                pg.Refresh(true);
+                pg.PageSizes(true);
+                pg.ButtonCount(5);
+            })
+            .Scrollable()
+            //.Editable(editable => editable.Mode(GridEditMode.InLine))
+            .Events(e =>
+            {
+                e.Change("onChange");
+                e.DataBound("onDataBound");
+            })
+            .DataSource(ds => ds
+                .Ajax()
+                .PageSize(10)
+                .Model(model =>
+                {
+                    model.Id(p => p.Id);
+                })
+                .Read(read => read.Action("GetTeacherDocuments", "Document").Type(HttpVerbs.Get))
+                @*.Group(x => {
+                    x.Add(d => d.Teacher.Email);
+                })*@
+            )
+            .Deferred()
+        )
+
+    </div>
+</div>
+
+<!-- Modal: add teacher document -->
+<div id="teacher-document-modal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="teacher-document-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="teacher-document-modal-label"> @SharedResources.NewTeacherDocument </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="@SharedResources.Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="teacher-document-upload" class="my-4">
+
+                    <div class="validation-summary-errors text-danger mb-4">
+                        <ul id="teacher-document-upload-errors"></ul>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="teacher" class="form-control-placeholder"> @SharedResources.Teacher </label>
+                        @(Html.Kendo().ComboBox()
+                            .Name("teachers-combobox")
+                            .HtmlAttributes(new { @class = "form-control w-100", id = "teachers-combobox" })
+                            .Placeholder(SharedResources.SelectTeacher)
+                            .DataTextField("Email")
+                            .DataValueField("Id")
+                            .Template("#=Name# #=Surname# (#=Email#)")
+                            .Filter(FilterType.Contains)
+                            .AutoBind(false)
+                            .SelectedIndex(0)
+                            .Suggest(true)
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("GetAllTeachers_Dropdown", "Teacher");
+                                });
+                            })
+                            .Deferred()
+                        )
+                    </div>
+
+                    <div class="form-group">
+                        <label for="teacher-documents" class="form-control-placeholder"> @SharedResources.Documents </label>
+                        @(Html.Kendo().Upload()
+                            .Name("files")
+                            .HtmlAttributes(new { @class = "form-control w-100", id = "documents-upload" })
+                            .Multiple(true)
+                            .Directory(false)
+                            .Validation(validation =>
+                            {
+                                validation.MinFileSize(0);
+                                validation.MaxFileSize(104857600); // 100MB limit
+                            })
+                            .Async(a =>
+                            {
+                                a.Save("TeacherDocument_ChunkUpload", "Document");
+                                a.AutoUpload(false);
+                                a.ChunkSize(20480); // 3MB chunk
+                            })
+                            .Events(e => {
+                                e.Upload("onUpload");
+                                e.Success("onUploadSuccess");
+                                e.Error("onUploadError");
+                            })
+                            .Deferred()
+                        )
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script id="teacher-documents-grid-toolbar" type="text/x-kendo-template">
+
+        <div class='teacher-documents-grid-actions'>
+            <div class="m-2 ml-0 float-left">
+                <a class="btn btn-active-primary btn-light btn-sm" onclick='onShowTeacherDocumentModal();' title="@SharedResources.NewDocument">
+                    <i class="k-icon k-i-plus"></i> @SharedResources.NewDocument
+                </a>
+            </div>
+            <button disabled id="downloadSelected" class='btn btn-sm btn-outline-primary float-right m-2' style='width: 38px; height: 38px;' onclick='onDownloadSelectedMaterials();' title='@SharedResources.DownloadSelected'>
+                <i class="fas fa-download"> </i>
+            </button>
+            <span class="k-textbox k-grid-search k-display-flex align-middle float-right m-2 ml-0">
+                <input autocomplete="off" placeholder="@SharedResources.SEARCH..." title="@SharedResources.SEARCH..." class="k-input">
+                <span class="k-input-icon">
+                    <span class="k-icon k-i-search"></span>
+                </span>
+            </span>
+        </div>
+
+    </script>
+
+    <script>
+
+        beforeUnloadListener = (e) => {
+            e.preventDefault();
+            e.returnValue = "";
+        }
+
+        $(document).ready(() => {
+            let selectedIds = [];
+
+            // A reference to the modal
+            let teacherDocumentModal = $('#teacher-document-modal');
+            let teacherDocumentModalErrorsRef = $('#teacher-document-upload-errors');
+
+
+            let successMsg = '@TempData["Success"]';
+            successMsg ? ShowSuccess(successMsg) : null;
+            let errorMsg = '@TempData["Error"]';
+            errorMsg ? ShowError(errorMsg) : null;
+
+            onShowTeacherDocumentModal = () => {
+                teacherDocumentModal.modal('show');
+            }
+
+            //#region Grid events
+
+            onChange = (e) => {
+                selectedIds = []; // First, reset this
+                Object.keys(e.sender._selectedIds).forEach(k => selectedIds.push(parseInt(k)));
+
+                let downloadSelectedBtn = $('#downloadSelected');
+                (selectedIds.length > 0) ?
+                    downloadSelectedBtn.removeAttr('disabled') :
+                    downloadSelectedBtn.attr('disabled', true);
+            }
+
+            onDataBound = (e) => {
+                selectedIds = [];
+                let downloadSelectedBtn = $('#downloadSelected');
+                downloadSelectedBtn.attr('disabled', true);
+            }
+
+            //#endregion
+
+            //#region Modal events
+
+            teacherDocumentModal.on('hide.bs.modal', (e) => {
+                if (isUploading()) {
+                    e.preventDefault();
+                    ShowWarning('Upload is still in progress.');
+                    window.addEventListener("beforeunload", beforeUnloadListener);
+                }
+                else {
+                    window.removeEventListener("beforeunload", beforeUnloadListener);
+                }
+            });
+
+            teacherDocumentModal.on('hidden.bs.modal', (e) => {
+                clearDocumentModal();
+            });
+
+            //#endregion
+
+            //#region Upload events
+
+            onUpload = (e) => {
+                let teachersCombobox = $('#teachers-combobox').data("kendoComboBox");
+                let documentsUpload = $('#documents-upload').data("kendoUpload");
+
+                let teacherId = parseInt(teachersCombobox.value());
+                if (!teacherId || isNaN(teacherId)) {
+                    documentsUpload.trigger("cancel");
+                    ShowError('Please, select a teacher.');
+                }
+                else {
+                    documentsUpload.options.async.saveUrl = `/Document/TeacherDocument_ChunkUpload/${teacherId}`;
+                    documentsUpload.upload();
+                    teachersCombobox.enable(false);
+                }
+            }
+
+            onUploadSuccess = (e) => {
+                if (e.operation === 'upload' && e.response.uploaded === true) {
+                    ShowSuccess(`${e.files[0].name} uploaded successfully.`);
+                    refreshKendoGrid('teacher-documents-grid');
+                }
+            }
+
+            onUploadError = (e) => {
+                console.error(e);
+                let response = JSON.parse(e.XMLHttpRequest.response);
+                ShowError(response.error);
+            }
+
+            //#endregion
+
+            isUploading = () => {
+                return $('#documents-upload').parents('.k-upload').find('.k-file-progress').length > 0;
+            }
+
+            onDeleteTeacherDocument = (teacherDocumentId) => {
+
+                ShowConfirmation('Are you sure you want to delete the document?', '', () => {
+                    $.ajax({
+                        url: `/Document/DeleteTeacherDocument/${teacherDocumentId}`,
+                        type: 'DELETE',
+                        contentType: "application/json",
+                        dataType: "json",
+                        success: (data) => {
+                            if (data.HasErrors === false) {
+                                refreshKendoGrid("teacher-documents-grid");
+                                ShowSuccess('Document deleted successfully.');
+                            }
+                            else {
+                                data.Errors.forEach(err => {
+                                    ShowError(err);
+                                })
+                            }
+                        },
+                        fail: (err) => {
+                            console.error(err);
+                            ShowError('An error occurred. The document could not be deleted.');
+                        }
+                    });
+                }, null)
+            }
+
+            onDownloadSelectedDocuments = () => {
+                if (selectedIds.length > 0) {
+                    let api = `/Document/DownloadTeacherDocuments?`;
+                    selectedIds.forEach((id, i) => {
+                        api += `ids=${id}`;
+                        if (i < (selectedIds.length - 1))
+                            api += '&';
+                    });
+
+                    downloadURI(api);
+                    $('#teacher-documents-grid').data('kendoGrid').clearSelection();
+                }
+            }
+
+            clearDocumentModal = () => {
+                let teachersCombobox = $('#teachers-combobox').data("kendoComboBox");
+                let documentsUpload = $('#documents-upload').data("kendoUpload");
+
+                teacherDocumentModalErrorsRef.html('');
+                teachersCombobox.text("");
+                teachersCombobox.value();
+                teachersCombobox.enable(true);
+                documentsUpload.clearAllFiles();
+                documentsUpload.options.async.saveUrl = "/Document/TeacherDocument_ChunkUpload";
+            }
+
+        });
+
+        $("#teacher-documents-grid").on("click", "#newItemButton", function (e) {
+            onShowTeacherDocumentModal();
+        });
+
+        $("#teacher-documents-grid").on("click", "#downloadSelected", function (e) {
+            onDownloadSelectedDocuments();
+        });
+    </script>
+}

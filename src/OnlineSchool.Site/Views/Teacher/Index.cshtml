@@ -1,0 +1,130 @@
+﻿@using X.PagedList.Mvc.Core;
+
+@model X.PagedList.IPagedList<OnlineSchool.Contract.Teachers.TeacherModel>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/details.css" />
+}
+
+<div class="section top-image" style="height: 315px;">
+    <div class="section align-bottom">
+        <div class="container">
+            <div class="section" style="height: 220px;"></div>
+            <div class="detail-section-50 float-left">
+                <strong class="first-font color-white font-size-60 jumbotron-title"> Teachers </strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section section-grey">
+    <div class="container">
+        <div class="grid">
+            <a class="link" asp-area="" asp-controller="Home" asp-action="Index"> Home </a>
+            <img class="next-icon" alt="" src="~/images/next.png" />
+            <a class="link" href="#"> Teachers </a>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="container">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3">
+            @{ 
+                var index = 0;
+                foreach (var teacher in Model)
+                {
+                    var className = (index % 2 == 0) ? "my-btn-primary" : "btn-info";
+
+                    <div class="col my-2">
+                        <div class="section border shadow-sm">
+
+                            <div class="section position-relative">
+                                <img alt="" class="section" width="250" height="250" src="~/uploads/teachers/@teacher.Id/@teacher.ImagePath" />
+                                <div class="bg-alpha-gradient position-absolute left height-100 width-100 padding-20">
+                                </div>
+                            </div>
+
+                            <div class="section p-3">
+                                <h3> @teacher.Name @teacher.Surname </h3>
+
+                                <p> @teacher.Description </p>
+
+                                <div class="social-networks text-right border-top border-b">
+                                    @if (teacher.TeacherSocialNetwork.Any())
+                                    {
+                                        foreach (var social in teacher.TeacherSocialNetwork)
+                                        {
+                                            <a class="text-decoration-none mx-1" target="_blank" href="@social.Link">
+                                                @if (social.SocialNetworkId == 1)
+                                                {
+                                                    <i class="fab fa-facebook"></i>
+                                                }
+                                                else if (social.SocialNetworkId == 2)
+                                                {
+                                                    <i class="fab fa-linkedin"></i>
+                                                }
+                                                else if (social.SocialNetworkId == 3)
+                                                {
+                                                    <i class="fab fa-twitter"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-question-circle"></i>
+                                                }
+                                            </a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted"> No social networks. </small>
+                                    }
+                                </div>
+
+                                <div class="text-left">
+                                    <a class="btn btn-sm my-btn-primary" href="/Teacher/@teacher.Id/Details"> View profile </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    index++;
+                }
+            }
+        </div>
+
+        @Html.PagedListPager(Model, page => Url.Action("Index", new { page }))
+            
+    </div>
+</div>
+
+<style>
+    .jumbotron-title {
+        text-shadow: -3px 3px 7px black;
+    }
+    .pagination-container {
+        text-align: center;
+    }
+    .pagination-container li {
+        display: inline-block;
+        padding: 10px;
+        font-size: 20px;
+        line-height: 20px;
+        color: #a3a3a3;
+        font-family: 'Montserrat',sans-serif;
+    }
+    .pagination-container a {
+        text-decoration: none;
+        color: inherit;
+    }
+        .pagination-container a:hover {
+            text-decoration: none;
+            color: inherit;
+        }
+    .pagination {
+        display: flow-root;
+    }
+    .pagination-container .active {
+        color: #727475;
+    }
+</style>

@@ -1,0 +1,102 @@
+﻿@import url('variables.css');
+
+/* ----------------------------- Autohide on scroll down ----------------------------- */
+.scrolled-down {
+    display: none;
+    transition: all 0.3s ease-in-out;
+}
+
+.scrolled-up {
+    display: flex;
+    transition: all 0.3s ease-in-out;
+}
+/* --------------------------------- Utility classes ----------------------------------*/
+
+.absolute-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.top { top: 0; } .bottom { bottom: 0; } .left { left: 0; } .right { right: 0; }
+
+.cursor-pointer {
+    cursor: pointer !important;
+}
+
+.page-title {
+    margin: 0 !important;
+    padding: 5px;
+    text-align: center;
+    color: white;
+    background-color: var(--blueColor);
+}
+
+/* --------------------------------- Colors ----------------------------------*/
+
+.my-border-primary {
+    border-color: var(--blueColor) !important;
+}
+
+.my-text-primary {
+    color: var(--blueColor) !important;
+}
+
+.my-bg-primary {
+    background-color: var(--blueColor) !important;
+}
+
+.my-btn-primary {
+    color: white !important;
+    background-color: var(--blueColor) !important;
+    border-color: var(--blueColor) !important;
+}
+    .my-btn-primary:hover {
+        color: white !important;
+        background-color: var(--blueColor) !important;
+        border-color: var(--blueColor) !important;
+    }
+
+.my-btn-primary-o {
+    color: var(--blueColor) !important;
+    background-color: white !important;
+    border-color: var(--blueColor) !important;
+}
+    .my-btn-primary-o:hover {
+        color: var(--blueColor) !important;
+        background-color: white !important;
+        border-color: var(--blueColor) !important;
+    }
+
+.my-btn-outline-primary {
+    color: var(--blueColor) !important;
+    background-color: white !important;
+    border-color: var(--blueColor) !important;
+}
+    .my-btn-outline-primary:hover {
+        color: white !important;
+        background-color: var(--blueColor) !important;
+        border-color: var(--blueColor) !important;
+    }
+
+
+/* ----------------------------- Font Awesome: Social media colors ----------------------------- */
+.fa-facebook, .fa-facebook-square {
+    color: var(--facebook-color) !important;
+}
+
+.fa-instagram, .fa-instagram-square {
+    color: var(--instagram-color) !important;
+}
+
+.fa-twitter, .fa-twitter-square {
+    color: var(--twitter-color) !important;
+}
+
+.fa-linkedin, .fa-linkedin-in {
+    color: var(--linkedin-color) !important;
+}
+
+.fa-google {
+    color: var(--gmail-color) !important;
+}

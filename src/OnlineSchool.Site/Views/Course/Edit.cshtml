@@ -1,0 +1,148 @@
+﻿@model OnlineSchool.Contract.Courses.UpdateCourseModel
+
+@{
+    var currCulture = Context.Features.Get<IRequestCultureFeature>().RequestCulture.UICulture.Name;
+}
+
+<h6 class="page-title"> @SharedResources.EditCourse </h6>
+
+<div class="container mb-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+
+            <form method="post" action="/course/edit" enctype="multipart/form-data" class="mt-5">
+
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                @Html.HiddenFor(m => m.Id)
+
+                <div class="form-group">
+
+                    <label for="teachersubject" class="form-control-placeholder"> Subject | Teacher </label>
+                    @(Html.Kendo().ComboBoxFor(m => m.TeacherSubjectId)
+                            .Placeholder("Select subject & teacher")
+                            .DataTextField("Subject.Name")
+                            .DataValueField("Id")
+                            .Template("<div>#: data.Subject.Name # - #: data.Teacher.Name #</div>")
+                            .HtmlAttributes(new { @class = "form-control w-100", required = "required" })
+                            .Filter(FilterType.Contains)
+                            .Value(Model.TeacherSubjectId.ToString())
+                            .Suggest(true)
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("GetAll", "TeacherSubject");
+                                });
+                            })
+                            .Deferred()
+                        )
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label asp-for="@Model.StartDate" class="form-control-placeholder"> Start date </label>
+                        @(Html.Kendo().DatePickerFor(m => m.StartDate)
+                            .HtmlAttributes(new { @class = "w-100" })
+                            .Format("{0:dd MMMM yyyy}")
+                            .Min(DateTime.Now.AddDays(1))
+                            .Deferred()
+                        )
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label asp-for="@Model.EndDate" class="form-control-placeholder"> End date </label>
+                        @(Html.Kendo().DatePickerFor(m => m.EndDate)
+                            .HtmlAttributes(new { @class = "w-100" })
+                            .Format("{0:dd MMMM yyyy}")
+                            .Min(DateTime.Now.AddDays(2))
+                            .Deferred()
+                        )
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="@Model.Price" class="form-control-placeholder"> Price </label>
+                    @(Html.Kendo().NumericTextBoxFor(m => m.Price)
+                        .Culture(currCulture)
+			            .Min(0)
+                        .Max(99999999.99)
+                        .Decimals(2)
+                        .Step(0.1)
+                        .Value(Model.Price)
+                        .HtmlAttributes(new { @class = "form-control w-100" })
+                        .Deferred()
+                    )
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="@Model.AvailableSpots" class="form-control-placeholder"> @SharedResources.AvailableSpots </label>
+                    @(Html.Kendo().IntegerTextBoxFor(m => m.AvailableSpots)
+                            .Culture(currCulture)
+                            .Min(1)
+                            .Max(99)
+                            .Step(1)
+                            .Value(Model.AvailableSpots)
+                            .HtmlAttributes(new { @class = "form-control w-100" })
+                            .Deferred()
+                        )
+                </div>
+
+                <div class="form-group custom-file">
+                    <label asp-for="@Model.ImageFile" class="form-control-placeholder"> @SharedResources.Image </label>
+                    <input asp-for="@Model.ImageFile" class="form-control cursor-pointer" />
+                    <span asp-validation-for="@Model.ImageFile" class="text-danger"> </span>
+                </div>
+                @{
+                    if (Model.ImagePath != null)
+                    {
+                        <div class="form-group text-center">
+                            <img class="w-100" src="~/uploads/courses/@Model.Id/@Model.ImagePath" alt="no-image" />
+                        </div>
+                    }
+                }
+
+                <div class="form-group text-right">
+                    <a class="btn btn-sm btn-light border" asp-controller="Course" asp-action="Manage">
+                        <i class="fas fa-times"></i> @SharedResources.Cancel
+                    </a>
+                    <button type="submit" class="btn btn-sm my-btn-primary ml-2">
+                        <i class="far fa-save"></i> @SharedResources.Edit
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+
+        $(document).ready(() => {
+
+            onChangeStartDate = (e) => {
+
+                let startDate = $('#StartDate').data("kendoDatePicker");
+
+                if (startDate.value() == null)
+                    ShowWarning("Start Date cannot be empty");
+
+            }
+
+            onChangeEndDate = (e) => {
+
+                let endDate = $('#EndDate').data("kendoDatePicker");
+
+                if (endDate.value() == null)
+                    ShowWarning("End Date cannot be empty");
+
+            }
+           
+        });
+
+    </script>
+
+}

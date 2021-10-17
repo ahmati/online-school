@@ -1,0 +1,29 @@
+// Errors
+export const GET_ERRORS = "GET_ERRORS";
+export const GET_ERROR_OBJECT = "GET_ERROR_OBJECT";
+export const CLEAR_ERRORS = "CLEAR_ERRORS";
+
+// Webex instance
+export const SET_WEBEX_INSTANCE = "SET_WEBEX_INSTANCE";
+
+// People
+export const GET_PERSONAL_DETAILS = "GET_PERSONAL_DETAILS";
+export const PERSONAL_DETAILS_LOADING = "PERSONAL_DETAILS_LOADING";
+
+// Meeting preferences
+export const GET_MEETING_PREFERENCES = "GET_MEETING_PREFERENCES";
+export const MEETING_PREFERENCES_LOADING = "MEETING_PREFERENCES_LOADING";
+
+// Meetings
+export const GET_MEETINGS = "GET_MEETINGS";
+export const MEETINGS_LOADING = "MEETINGS_LOADING";
+export const DELETE_MEETING = "DELETE_MEETING";
+
+export const GET_MEETING = "GET_MEETING";
+export const MEETING_LOADING = "MEETING_LOADING";
+
+// Invitees
+export const GET_INVITEES = "GET_INVITEES";
+export const INVITEES_LOADING = "INVITEES_LOADING";
+export const ADD_INVITEE = "ADD_INVITEE";
+export const DELETE_INVITEE = "DELETE_INVITEE";

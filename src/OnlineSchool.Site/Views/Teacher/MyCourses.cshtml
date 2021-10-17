@@ -1,0 +1,151 @@
+﻿@model IEnumerable<OnlineSchool.Contract.Courses.CourseModel>
+@using OnlineSchool.Core.Helper_
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/grid-style.css" />
+}
+
+@{
+    var culture = System.Globalization.CultureInfo.CurrentCulture.ToString();
+}
+
+<h6 class="page-title"> @SharedResources.MyCourses </h6>
+
+<div class="row mx-0 p-0">
+    <div class="col-12 m-0 py-4 padding-lr bg-grey">
+
+        @(Html.Kendo().Grid<OnlineSchool.Contract.Courses.CourseModel>()
+            .Name("mycourses-grid")
+            .HtmlAttributes(new { style = "height: 600px;" })
+            .NoRecords()
+            .ToolBar(toolbar =>
+            {
+                toolbar.ClientTemplate(
+                        "<span class='k-textbox k-grid-search k-display-flex'>" +
+                            "<input autocomplete='off' placeholder='" + SharedResources.SEARCH + "...' title='" + SharedResources.SEARCH + "...' class='k-input'>" +
+                            "<span class='k-input-icon'>" +
+                                "<span class='k-icon k-i-search'></span>" +
+                            "</span>" +
+                        "</span>");
+            })
+            .Search(search =>
+            {
+                search.Field(m => m.TeacherSubject.Subject.Name);
+                search.Field(m => m.TeacherSubject.Subject.Description);
+                search.Field(m => m.TeacherSubject.Teacher.Name);
+                search.Field(m => m.TeacherSubject.Teacher.Surname);
+                search.Field(m => m.TeacherSubject.Teacher.Description);
+            })
+            .Columns(columns =>
+            {
+                columns.Bound(p => p.Id).Visible(false);
+                columns.Bound(p => p.TeacherSubject.Subject).Title(SharedResources.Subject).Width(150)
+                    .ClientTemplate("#= renderCourseSubject(data.TeacherSubject.Subject) #")
+                    .Filterable(false);
+                columns.Bound(c => c.StartDate).Title(SharedResources.Date).Width(150)
+                    .ClientTemplate("#= renderCourseDate(data) #")
+                    .Filterable(false);
+                columns.Bound(p => p.Price).Title(SharedResources.Price).Width(100)
+                       .ClientTemplate("€ #=Price#")
+                       .Filterable(false);
+                columns.Bound(c => c.Status).Title(SharedResources.Status).Width(100)
+                    .ClientTemplate("#= renderCourseStatus(Status) #")
+                    .Filterable(ftb =>
+                        ftb.Multi(true)
+                           .CheckAll(true)
+                    );
+                columns.Bound(p => p.Id).Title(SharedResources.Actions).Width(120)
+                    .ClientTemplate(@"
+                        <div class='text-center'>
+
+                        </div>"
+                    )
+                    .Filterable(false);
+            })
+            .Sortable(x => x.SortMode(GridSortMode.MultipleColumn))
+            .Pageable(pg => {
+                pg.Refresh(true);
+                pg.PageSizes(true);
+                pg.ButtonCount(5);
+            })
+            .Scrollable()
+            .Editable(editable => editable.Mode(GridEditMode.InLine))
+            .DataSource(ds => ds
+                .Ajax()
+                .PageSize(10)
+                .Model(model =>
+                {
+                    model.Id(p => p.Id);
+                })
+                .Read(read => read.Action("GetMyCourses", "Teacher").Type(HttpVerbs.Get))
+                //.Group(x => x.Add(m => m.Status))
+                .Sort(x =>
+                {
+                    x.Add(m => m.Status);
+                    x.Add(m => m.StartDate);
+                })
+            )
+            .Deferred()
+        )
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        renderCourseStatus = (status) => {
+            let color, label;
+            switch (status) {
+                case CourseStatus.NotPublished:
+                    color = 'secondary'; label = '@SharedResources.NotPublished';
+                    break;
+                case CourseStatus.NotPublished_PastDue:
+                    color = 'danger'; label = '@SharedResources.NotPublishedPassedDueDate';
+                    break;
+                case CourseStatus.Published:
+                    color = 'primary'; label = '@SharedResources.Published';
+                    break;
+                case CourseStatus.InProgress:
+                    color = 'warning'; label = '@SharedResources.InProgress';
+                    break;
+                case CourseStatus.Finished:
+                    color = 'success'; label = '@SharedResources.Finished';
+                    break;
+                default:
+                    color = 'secondary'; label = '-';
+                    break;
+            }
+            return `<span class='font-weight-bold text-${color}'> ${label} </span>`;
+        }
+
+        renderCourseSubject = (data) => {
+            let description = data.Description;
+
+            if (description == null) {
+                description = " ";
+            }
+            else if (description.length > 21) {
+                description = description.substring(0, 18) + "...";
+            }
+
+            return `<div class="d-flex align-items-center">
+                        <div class="d-flex justify-content-start flex-column">
+                            <span class="text-dark fw-bolder fs-6">${data.Name}</span>
+                            <span class="text-muted fw-bold d-block fs-7">${description}</span>
+                        </div>
+                    </div>`;
+        }
+
+        renderCourseDate = (data) => {
+            let startDate = formatDate(data.StartDate, "@culture");
+            let endDate = formatDate(data.EndDate, "@culture");
+            return `<div class="d-flex align-items-center">
+                        <div class="d-flex justify-content-start flex-column">
+                            <span class="text-dark fw-bolder fs-6">From: ${startDate}</span>
+                            <span class="text-dark fw-bolder fs-6">To: ${endDate}</span>
+                        </div>
+                    </div>`;
+        }
+    </script>
+
+} 

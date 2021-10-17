@@ -1,0 +1,720 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AboutUs" xml:space="preserve">
+    <value>Chi siamo</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Azioni</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Inserisci</value>
+  </data>
+  <data name="AddFile" xml:space="preserve">
+    <value>Aggiungi file</value>
+  </data>
+  <data name="AddSocial" xml:space="preserve">
+    <value>Aggiungi social</value>
+  </data>
+  <data name="AllRightsReserved" xml:space="preserve">
+    <value>Tutti i diritti riservati</value>
+  </data>
+  <data name="AreYouAlreadyMember" xml:space="preserve">
+    <value>Sei già un membro?</value>
+  </data>
+  <data name="AreYouNotMember" xml:space="preserve">
+    <value>Non hai ancora un account?</value>
+  </data>
+  <data name="AssignNewTeacher" xml:space="preserve">
+    <value>Assegna nuovo insegnante</value>
+  </data>
+  <data name="BookCourse" xml:space="preserve">
+    <value>Prenota un corso</value>
+  </data>
+  <data name="Bought" xml:space="preserve">
+    <value>Comprato</value>
+  </data>
+  <data name="BuyNow" xml:space="preserve">
+    <value>Acquista ora</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Annulla</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>Categoria</value>
+  </data>
+  <data name="CheckProgram" xml:space="preserve">
+    <value>Controllare il programma</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Chiudere</value>
+  </data>
+  <data name="Color" xml:space="preserve">
+    <value>Colore</value>
+  </data>
+  <data name="Compare" xml:space="preserve">
+    <value>Confrontare</value>
+  </data>
+  <data name="ConfirmEmail" xml:space="preserve">
+    <value>Conferma email</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Conferma password</value>
+  </data>
+  <data name="Contact" xml:space="preserve">
+    <value>Contatto</value>
+  </data>
+  <data name="ContactFormHint" xml:space="preserve">
+    <value>Inviaci un messaggio e ti contatteremo</value>
+  </data>
+  <data name="ContactUs" xml:space="preserve">
+    <value>Contattaci</value>
+  </data>
+  <data name="Courses" xml:space="preserve">
+    <value>Corsi</value>
+  </data>
+  <data name="CreditCardNumber" xml:space="preserve">
+    <value>Numero di carta di credito</value>
+  </data>
+  <data name="Customers" xml:space="preserve">
+    <value>Clienti</value>
+  </data>
+  <data name="CVCNumber" xml:space="preserve">
+    <value>CVC numero</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Elimina</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Descrizione</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>Dettagli</value>
+  </data>
+  <data name="Documents" xml:space="preserve">
+    <value>Documenti</value>
+  </data>
+  <data name="Download" xml:space="preserve">
+    <value>Scarica</value>
+  </data>
+  <data name="Duration" xml:space="preserve">
+    <value>Durata</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Modifica</value>
+  </data>
+  <data name="EditCourse" xml:space="preserve">
+    <value>Aggiorna Corsi</value>
+  </data>
+  <data name="EditStudent" xml:space="preserve">
+    <value>Aggiorna studente</value>
+  </data>
+  <data name="EditSubject" xml:space="preserve">
+    <value>Aggiorna soggetto</value>
+  </data>
+  <data name="EditTeacher" xml:space="preserve">
+    <value>Aggiorna professore</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="EmailSent" xml:space="preserve">
+    <value>Email inviata  con successo</value>
+  </data>
+  <data name="EndDate" xml:space="preserve">
+    <value>Data di fine</value>
+  </data>
+  <data name="EndTime" xml:space="preserve">
+    <value>Tempo scaduto</value>
+  </data>
+  <data name="Expiration" xml:space="preserve">
+    <value>Scadenza</value>
+  </data>
+  <data name="Female" xml:space="preserve">
+    <value>Femmina</value>
+  </data>
+  <data name="FileName" xml:space="preserve">
+    <value>Nome del file</value>
+  </data>
+  <data name="FileSize" xml:space="preserve">
+    <value>Dimensione del file </value>
+  </data>
+  <data name="FileType" xml:space="preserve">
+    <value>Tipo di file</value>
+  </data>
+  <data name="FillPaymentForm" xml:space="preserve">
+    <value>Compila il form per acquistare il</value>
+  </data>
+  <data name="ForgotPassword" xml:space="preserve">
+    <value>Password dimenticata</value>
+  </data>
+  <data name="Free" xml:space="preserve">
+    <value>GRATIS</value>
+  </data>
+  <data name="FullName" xml:space="preserve">
+    <value>Nome / Congome</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Genere</value>
+  </data>
+  <data name="HeaderSmallTitle" xml:space="preserve">
+    <value>Attraverso lo studio della Bibbia potrai prepararti per servire meglio nella tua chiesa, comunità o nel campo della missione</value>
+  </data>
+  <data name="HeaderTitle" xml:space="preserve">
+    <value>I nostri corsi si rivolgono a coloro che desiderano conoscere di più Dio...</value>
+  </data>
+  <data name="Hello" xml:space="preserve">
+    <value>Ciao</value>
+  </data>
+  <data name="Here" xml:space="preserve">
+    <value>Qui</value>
+  </data>
+  <data name="HomePage" xml:space="preserve">
+    <value>Home page</value>
+  </data>
+  <data name="Hours" xml:space="preserve">
+    <value>Ore</value>
+  </data>
+  <data name="Image" xml:space="preserve">
+    <value>Foto</value>
+  </data>
+  <data name="Join" xml:space="preserve">
+    <value>Aderire</value>
+  </data>
+  <data name="Joined" xml:space="preserve">
+    <value>Partecipata</value>
+  </data>
+  <data name="Know Me" xml:space="preserve">
+    <value>Conoscimi</value>
+  </data>
+  <data name="Lesson Time" xml:space="preserve">
+    <value>Tempo di lezione</value>
+  </data>
+  <data name="Lessons" xml:space="preserve">
+    <value>Lezioni</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Posizione</value>
+  </data>
+  <data name="LiveEvent" xml:space="preserve">
+    <value>Evento dal vivo</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Accedere</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Logout</value>
+  </data>
+  <data name="Male" xml:space="preserve">
+    <value>Maschio</value>
+  </data>
+  <data name="Manage" xml:space="preserve">
+    <value>Gestire</value>
+  </data>
+  <data name="Materials" xml:space="preserve">
+    <value>Materiali</value>
+  </data>
+  <data name="Meetings" xml:space="preserve">
+    <value>Incontri</value>
+  </data>
+  <data name="Message" xml:space="preserve">
+    <value>Messaggio</value>
+  </data>
+  <data name="MyCourses" xml:space="preserve">
+    <value>Miei Corsi</value>
+  </data>
+  <data name="MyMeetings" xml:space="preserve">
+    <value>I miei incontri</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="NewCourse" xml:space="preserve">
+    <value>Nuovo corso</value>
+  </data>
+  <data name="NewPassword" xml:space="preserve">
+    <value>Nuova password</value>
+  </data>
+  <data name="NewStudent" xml:space="preserve">
+    <value>Nuovo studente</value>
+  </data>
+  <data name="NewSubject" xml:space="preserve">
+    <value>Nuovo soggetto</value>
+  </data>
+  <data name="NewTeacher" xml:space="preserve">
+    <value>Nouvo insegnante</value>
+  </data>
+  <data name="NoSocialNetworks" xml:space="preserve">
+    <value>Nessun social network</value>
+  </data>
+  <data name="Our Courses" xml:space="preserve">
+    <value>I nostri corsi</value>
+  </data>
+  <data name="OUR SOCIAL" xml:space="preserve">
+    <value>I nostri social</value>
+  </data>
+  <data name="Our Teachers" xml:space="preserve">
+    <value>I nostri relatori</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="PasswordResetSuccessful" xml:space="preserve">
+    <value>Reimpostazione della password riuscita</value>
+  </data>
+  <data name="PaymentError" xml:space="preserve">
+    <value>Pagamento non andato a buon fine!</value>
+  </data>
+  <data name="PaymentSuccess" xml:space="preserve">
+    <value>Pagamento completato con successo. I pianificatori del calendario sono stati inviati al tuo indirizzo e-mail per ogni sessione.</value>
+  </data>
+  <data name="PerPerson" xml:space="preserve">
+    <value>a testa</value>
+  </data>
+  <data name="Price" xml:space="preserve">
+    <value>Prezzo</value>
+  </data>
+  <data name="Program" xml:space="preserve">
+    <value>Il programma</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Registrati</value>
+  </data>
+  <data name="RememberMe" xml:space="preserve">
+    <value>Ricordati di me</value>
+  </data>
+  <data name="RememberPassword" xml:space="preserve">
+    <value>Ricordare la password</value>
+  </data>
+  <data name="Remote" xml:space="preserve">
+    <value>A distanza</value>
+  </data>
+  <data name="ResetPassword" xml:space="preserve">
+    <value>Resetta la password</value>
+  </data>
+  <data name="Resources" xml:space="preserve">
+    <value>Risorse</value>
+  </data>
+  <data name="ROLES" xml:space="preserve">
+    <value>Ruoli</value>
+  </data>
+  <data name="RowsAvailable" xml:space="preserve">
+    <value>Righe disponibili</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Salva</value>
+  </data>
+  <data name="Schedules" xml:space="preserve">
+    <value>Orari</value>
+  </data>
+  <data name="SEARCH" xml:space="preserve">
+    <value>Cerca</value>
+  </data>
+  <data name="Search Now" xml:space="preserve">
+    <value>Cerca ora</value>
+  </data>
+  <data name="SeeAll" xml:space="preserve">
+    <value>Vedi tutto</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Seleziona</value>
+  </data>
+  <data name="SelectSocialNetwork" xml:space="preserve">
+    <value>Seleziona SocialNetwork</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Invia</value>
+  </data>
+  <data name="Service1_quote" xml:space="preserve">
+    <value>Siamo prima di ogni cosa dei credenti salvati per grazia da Cristo Gesù. Crediamo nel simbolo Niceno Costantinopolitano (Padre, Figlio, Spirito Santo), nella nuova nascita, nel battesimo nello Spirito Santo e nei suoi doni. Crediamo nelle Sacre Scritture come unica via divina da seguire</value>
+  </data>
+  <data name="Service1_title" xml:space="preserve">
+    <value>Chi Siamo</value>
+  </data>
+  <data name="Service2_quote" xml:space="preserve">
+    <value>Si tratta di pastori e missionari che hanno dedicato la loro vita a servire Dio. Attraverso lo studio approfondito della parola, la preghiera, la meditazione e l'esperienza sul campo hanno ideato i corsi che potrai seguire su questa piattaforma</value>
+  </data>
+  <data name="Service2_title" xml:space="preserve">
+    <value>I nostri relatori</value>
+  </data>
+  <data name="Service3_quote" xml:space="preserve">
+    <value>Senti un forte desiderio di servire di più il Signore? Vuoi approfondire maggiormente le tue conoscenze bibliche per un più efficace servizio nel ministero? Cosa aspetti, iscriviti ai nostri corsi!</value>
+  </data>
+  <data name="Service3_title" xml:space="preserve">
+    <value>Unisciti a noi</value>
+  </data>
+  <data name="Session" xml:space="preserve">
+    <value>Sessione</value>
+  </data>
+  <data name="Sessions" xml:space="preserve">
+    <value>Sessioni</value>
+  </data>
+  <data name="SocialType" xml:space="preserve">
+    <value>Tipo sociale</value>
+  </data>
+  <data name="StartDate" xml:space="preserve">
+    <value>Data d'inizio</value>
+  </data>
+  <data name="StartTime" xml:space="preserve">
+    <value>Ora di inizio</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Stato</value>
+  </data>
+  <data name="Student" xml:space="preserve">
+    <value>Studente</value>
+  </data>
+  <data name="StudentCreateSuccessful" xml:space="preserve">
+    <value>Studente creato con successo</value>
+  </data>
+  <data name="StudentDocuments" xml:space="preserve">
+    <value>Documenti degli studenti</value>
+  </data>
+  <data name="StudentEditSuccessful" xml:space="preserve">
+    <value>Studente modificato con successo</value>
+  </data>
+  <data name="Students" xml:space="preserve">
+    <value>Studenti</value>
+  </data>
+  <data name="Subject" xml:space="preserve">
+    <value>Soggetto</value>
+  </data>
+  <data name="Subjects" xml:space="preserve">
+    <value>Soggetto</value>
+  </data>
+  <data name="SubmitPayment" xml:space="preserve">
+    <value>Inviare pagamento</value>
+  </data>
+  <data name="Surname" xml:space="preserve">
+    <value>Cognome</value>
+  </data>
+  <data name="Teacher" xml:space="preserve">
+    <value>Insegnante</value>
+  </data>
+  <data name="Teacher Materials" xml:space="preserve">
+    <value>Materiali per l'insegnante</value>
+  </data>
+  <data name="Teacher Subject" xml:space="preserve">
+    <value>Soggetto insegnante</value>
+  </data>
+  <data name="TeacherCreateSuccessful" xml:space="preserve">
+    <value>Insegnante creato con successo</value>
+  </data>
+  <data name="TeacherDocuments" xml:space="preserve">
+    <value>Documenti degli insegnanti</value>
+  </data>
+  <data name="TeacherEditSuccessful" xml:space="preserve">
+    <value>Insegnante modificato con successo</value>
+  </data>
+  <data name="Teachers" xml:space="preserve">
+    <value>Relatori</value>
+  </data>
+  <data name="ThankYouForConfirmingEmail" xml:space="preserve">
+    <value>Grazie per aver confermato la tua email</value>
+  </data>
+  <data name="Topic" xml:space="preserve">
+    <value>Tema</value>
+  </data>
+  <data name="UpcomingSessions" xml:space="preserve">
+    <value>Prossime Sessioni</value>
+  </data>
+  <data name="WebexIntegration" xml:space="preserve">
+    <value>WebexIntegrazione</value>
+  </data>
+  <data name="YearsOfExperience" xml:space="preserve">
+    <value>Anni di esperienza</value>
+  </data>
+  <data name="IsRecursive" xml:space="preserve">
+    <value>È ricorsivo?</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Titolo</value>
+  </data>
+  <data name="Every" xml:space="preserve">
+    <value>Ogni</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Data</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>Cominciare</value>
+  </data>
+  <data name="Publish" xml:space="preserve">
+    <value>Pubblicare</value>
+  </data>
+  <data name="Unpublish" xml:space="preserve">
+    <value>Non pubblicato</value>
+  </data>
+  <data name="CourseCreateSuccess" xml:space="preserve">
+    <value>Corso creato con successo</value>
+  </data>
+  <data name="CourseUpdateSuccess" xml:space="preserve">
+    <value>Corso aggiornato con successo</value>
+  </data>
+  <data name="JoinCourseSuccess" xml:space="preserve">
+    <value>Corso iscritto con successo. I pianificatori del calendario sono stati inviati al tuo indirizzo e-mail per ogni sessione.</value>
+  </data>
+  <data name="JoinMeetingSuccess" xml:space="preserve">
+    <value>Riunione partecipata con successo.Un programma di pianificazione del calendario è stato inviato al tuo indirizzo e-mail</value>
+  </data>
+  <data name="MeetingCreateSuccessful" xml:space="preserve">
+    <value>Incontro creato con successo</value>
+  </data>
+  <data name="MeetingNotReady" xml:space="preserve">
+    <value>La riunione non è ancora pronta per iniziare.</value>
+  </data>
+  <data name="MeetingUpdateSuccessful" xml:space="preserve">
+    <value>Incontro modificato con successo</value>
+  </data>
+  <data name="SubjectCreateSuccess" xml:space="preserve">
+    <value>Soggetto creato con successo</value>
+  </data>
+  <data name="SubjectUpdateSuccess" xml:space="preserve">
+    <value>Soggetto aggiornato con successo</value>
+  </data>
+  <data name="AlwaysAllowToJoin" xml:space="preserve">
+    <value>Consenti sempre di partecipare?</value>
+  </data>
+  <data name="AvailableSpots" xml:space="preserve">
+    <value>Posti disponibili</value>
+  </data>
+  <data name="SpotsAvailable" xml:space="preserve">
+    <value>Posti Disponibili</value>
+  </data>
+  <data name="Days" xml:space="preserve">
+    <value>Giorni</value>
+  </data>
+  <data name="InProgress" xml:space="preserve">
+    <value>In corso</value>
+  </data>
+  <data name="MeetingStartsIn" xml:space="preserve">
+    <value>L'incontro inizia tra</value>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+    <value>Minuti</value>
+  </data>
+  <data name="NextSession" xml:space="preserve">
+    <value>La prossima sessione inizia tra</value>
+  </data>
+  <data name="Seconds" xml:space="preserve">
+    <value>Secondi</value>
+  </data>
+  <data name="ManagingTeacher" xml:space="preserve">
+    <value>Insegnante dirigente</value>
+  </data>
+  <data name="NoResourcesUploaded" xml:space="preserve">
+    <value>Nessuna risorsa caricata</value>
+  </data>
+  <data name="NoTeachersAssigned" xml:space="preserve">
+    <value>Nessun insegnante assegnato</value>
+  </data>
+  <data name="NoUpcomingSessions" xml:space="preserve">
+    <value>Nessuna sessione in programma</value>
+  </data>
+  <data name="NoMeetingsAvailable" xml:space="preserve">
+    <value>Nessun incontro disponibile al momento</value>
+  </data>
+  <data name="NewMeeting" xml:space="preserve">
+    <value>Nuovo incontro</value>
+  </data>
+  <data name="NewDocument" xml:space="preserve">
+    <value>Nuovo documento</value>
+  </data>
+  <data name="NewSocial" xml:space="preserve">
+    <value>Nuovo social</value>
+  </data>
+  <data name="NewTeacherSubject" xml:space="preserve">
+    <value>Nuova soggetto insegnante</value>
+  </data>
+  <data name="NewLesson" xml:space="preserve">
+    <value>Nuova lezione</value>
+  </data>
+  <data name="NewMaterial" xml:space="preserve">
+    <value>Nuovo materiale</value>
+  </data>
+  <data name="SoldOut" xml:space="preserve">
+    <value>Venduto</value>
+  </data>
+  <data name="DownloadSelected" xml:space="preserve">
+    <value>Scarica selezionato</value>
+  </data>
+  <data name="NewStudentDocument" xml:space="preserve">
+    <value>Nuovo documento dello studente</value>
+  </data>
+  <data name="NewTeacherDocument" xml:space="preserve">
+    <value>Nuovo documento dell'insegnante</value>
+  </data>
+  <data name="SelectStudent" xml:space="preserve">
+    <value>Seleziona studente</value>
+  </data>
+  <data name="SelectTeacher" xml:space="preserve">
+    <value>Seleziona insegnante</value>
+  </data>
+  <data name="MeetingTitle" xml:space="preserve">
+    <value>Titolo della riunione</value>
+  </data>
+  <data name="DeleteSocial" xml:space="preserve">
+    <value>Elimina social</value>
+  </data>
+  <data name="DetailsForSubject" xml:space="preserve">
+    <value>Dettagli per soggetto</value>
+  </data>
+  <data name="EditSocial" xml:space="preserve">
+    <value>Modifica social</value>
+  </data>
+  <data name="Finished" xml:space="preserve">
+    <value>Finito</value>
+  </data>
+  <data name="MySubjects" xml:space="preserve">
+    <value>I miei soggetti</value>
+  </data>
+  <data name="NotPublished" xml:space="preserve">
+    <value>Non pubblicato</value>
+  </data>
+  <data name="NotPublishedPassedDueDate" xml:space="preserve">
+    <value>Non pubblicato (data di scadenza superata)</value>
+  </data>
+  <data name="Published" xml:space="preserve">
+    <value>Pubblicato</value>
+  </data>
+  <data name="SelectManagingTeacher" xml:space="preserve">
+    <value>Seleziona insegnante responsabile</value>
+  </data>
+  <data name="SocialMediaType" xml:space="preserve">
+    <value>Tipo di social media</value>
+  </data>
+  <data name="AccessToken" xml:space="preserve">
+    <value>Token di Accesso</value>
+  </data>
+  <data name="AddSession" xml:space="preserve">
+    <value>Aggiungi sessione</value>
+  </data>
+  <data name="DaysUntilExpiration" xml:space="preserve">
+    <value>Giorni Fino alla Scadenza</value>
+  </data>
+  <data name="Hour(s)" xml:space="preserve">
+    <value>Ora(e)</value>
+  </data>
+  <data name="NewSession" xml:space="preserve">
+    <value>Nuova sessione</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Ricaricare</value>
+  </data>
+</root>

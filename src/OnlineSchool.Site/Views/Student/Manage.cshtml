@@ -1,0 +1,237 @@
+﻿
+@section Styles {
+    <link rel="stylesheet" href="~/css/grid-style.css" />
+}
+
+<h6 class="page-title"> @SharedResources.Students </h6>
+
+<div class="row mx-0 p-0">
+    <div class="col-12 m-0 py-4 padding-lr bg-grey">
+
+        @(Html.Kendo().Grid<OnlineSchool.Contract.Students.StudentModel>()
+            .Name("students-grid")
+            .NoRecords()
+            .ToolBar(toolbar =>
+            {
+                toolbar.ClientTemplateId("students-grid-toolbar");
+            })
+            .Search(search =>
+            {
+                search.Field(m => m.Name);
+                search.Field(m => m.Email);
+            })
+            .Columns(columns =>
+            {
+                columns.Bound(s => s.Id).Visible(false);
+                columns.Bound(s => s.Name).Title(SharedResources.Student).Width(150)
+                    .ClientTemplate("#= renderStudent(data) #");
+                columns.Bound(s => s.Email).Title(SharedResources.Email).Width(150);
+                columns.Bound(s => s.Gender).Title(SharedResources.Gender).Width(100);
+                columns.Template("#=renderRowActions(data)#")
+                    .Title(SharedResources.Actions)
+                    .Width(120);
+            })
+            .Sortable()
+            .Pageable(pageable => pageable
+                .Refresh(true)
+                .PageSizes(true)
+                .ButtonCount(5)
+            )
+            .Scrollable()
+            //.Editable(editable => editable.Mode(GridEditMode.InLine))
+            .HtmlAttributes(new { style = "height: 600px;" })
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(10)
+                .Read(read => read.Action("GetAllStudents", "Student").Type(HttpVerbs.Get))
+            )
+            .Deferred()
+        )
+
+    </div>
+</div>
+
+<!-- Reset password modal -->
+<div id="reset-pw-modal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="reset-pw-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reset-pw-modal-label"> @SharedResources.ResetPassword </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="reset-password-form" class="my-4">
+
+                    <div class="validation-summary-errors text-danger mb-4">
+                        <ul id="reset-password-errors"></ul>
+                    </div>
+
+                    <input type="hidden" id="email-field" name="email-field" />
+                    <div class="form-group">
+                        <label for="password-field" class="form-control-placeholder"> @SharedResources.NewPassword </label>
+                        <input type="password" class="form-control" id="password-field" name="password-field" required />
+                    </div>
+
+                    <div class="form-group text-right">
+                        <button type="button" class="btn btn-sm btn-light border" data-dismiss="modal"> @SharedResources.Close </button>
+                        <button type="submit" class="btn btn-sm my-btn-primary ml-2"> @SharedResources.Save </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script id="students-grid-toolbar" type="text/x-kendo-template">
+
+        <div class="meetings-grid-actions m-2 ml-0 float-left">
+            <a href="/Student/Create" class="btn btn-active-primary btn-light btn-sm" title="@SharedResources.NewStudent">
+                <i class="k-icon k-i-plus"></i> @SharedResources.NewStudent
+            </a>
+        </div>
+        <span class="k-textbox k-grid-search k-display-flex">
+            <input autocomplete="off" placeholder="@SharedResources.SEARCH..." title="@SharedResources.SEARCH..." class="k-input">
+            <span class="k-input-icon">
+                <span class="k-icon k-i-search"></span>
+            </span>
+        </span>
+
+    </script>
+
+    <script type="text/javascript">
+
+        $(document).ready(() => {
+            // A reference to the modal
+            let resetPasswordModal = $('#reset-pw-modal');
+
+            let successMsg = '@TempData["Success"]';
+            successMsg ? ShowSuccess(successMsg) : null;
+            let errorMsg = '@TempData["Error"]';
+            errorMsg ? ShowError(errorMsg) : null;
+
+            renderStudent = (data) => {
+                let description = data.Description;
+
+                if (description == null) {
+                    description = " ";
+                }
+                else if (description.length > 21) {
+                    description = description.substring(0, 18) + "...";
+                }
+
+                let url = "";
+                if (data.ImagePath != null) {
+                    url = `/uploads/students/${data.Id}/${data.ImagePath}`;
+                }
+                else {
+                    url = '/images/image3.png';
+                }
+
+                let detailsUrl = `/Teacher/${data.Id}/Details`;
+
+                return `<div class="d-flex align-items-center">
+                            <div class="symbol symbol-45px me-5">
+                                <img src="${url}" alt="" />
+                            </div>
+                            <div class="d-flex justify-content-start flex-column">
+                                <a href="${detailsUrl}" class="fw-bolder text-hover-primary fs-6">${data.Name} ${data.Surname}</a>
+                                <span class="text-muted fw-bold d-block fs-7">${description}</span>
+                            </div>
+                        </div>`;
+            }
+
+            renderRowActions = (data) => {
+                return `
+                    <div class='text-center'>
+                        <a href='/student/edit/${data.Id}' class='btn btn-sm btn-light border m-1' title=' @SharedResources.Edit '>
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button class='btn btn-sm btn-secondary m-1' title='@SharedResources.ResetPassword' onclick='onShowResetPasswordModal("${data.Email}");'>
+                            <i class="fas fa-unlock-alt"></i>
+                        </button>
+                        <button class='btn btn-sm btn-danger text-white m-1' onclick='onDeleteStudent(${data.Id});' title='@SharedResources.Delete'>
+                            <i class="far fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+            }
+
+            onDeleteStudent = (data) => {
+                ShowConfirmation(
+                    `Are you sure you want to delete the student?`,
+                    '',
+                    () => {
+                        alert('Deleted')
+                    },
+                    null
+                )
+            }
+
+            onShowResetPasswordModal = (email) => {
+                resetPasswordModal.modal('show');
+                // Set email hidden field value
+                $('#email-field').val(email);
+            }
+
+            closeResetPasswordModal = () => {
+                resetPasswordModal.modal('hide');
+            }
+
+            clearResetPasswordForm = () => {
+                $('#reset-password-errors').html('');
+                $('#email-field').val('');
+                $('#password-field').val('');
+            }
+
+            $('#reset-password-form').submit(e => {
+                e.preventDefault();
+
+                let email = $('#email-field').val();
+                let password = $('#password-field').val();
+
+                // Todo: Ajax call here
+                $.ajax({
+                    type: 'POST',
+                    url: '/Student/ResetPassword',
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify({ email, password }),
+                    success: data => {
+                        // Ok
+                        if (data.HasErrors === false) {
+                            ShowSuccess('@SharedResources.PasswordResetSuccessful');
+                            closeResetPasswordModal();
+                        }
+                        // Errors
+                        else {
+                            let errors = '';
+                            data.Errors.forEach(e => {
+                                errors += `<li> ${e} </li>`;
+                            });
+                            $('#reset-password-errors').html(errors);
+                        }
+                    },
+                    fail: err => {
+                        console.log(err.Errors);
+                        ShowError(err);
+                    }
+                });
+            })
+
+            // Clear reset-password-modal fields on close
+            resetPasswordModal.on('hidden.bs.modal', function (event) {
+                clearResetPasswordForm();
+            });
+
+        });
+    </script>
+}
+
+
+
+

@@ -1,0 +1,69 @@
+﻿@using Microsoft.AspNetCore.Builder
+@using Microsoft.Extensions.Options
+
+@inject IViewLocalizer Localizer
+@inject IOptions<RequestLocalizationOptions> LocOptions
+@inject IOptions<OnlineSchool.Contract.Configuration.StripeSettingKeys> Stripe
+@{
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var cultureItems = LocOptions.Value.SupportedUICultures
+        .Select(c => new SelectListItem { Value = c.Name, Text = Localizer.GetString(c.NativeName) })
+        .OrderBy(s => s.Text)
+        .ToList();
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}{Context.Request.QueryString}";
+
+    var isGuest = !User.Identity.IsAuthenticated;
+    var isAdmin = User.IsInRole("Admin");
+    var isTeacher = User.IsInRole("Teacher");
+    var isStudent = User.IsInRole("Student");
+}
+
+<header class="fixed-top">
+
+    <div class="row m-0 px-1 my-bg-primary">
+
+        <div class="col-6 m-0 p-0">
+            <ul class="nav h-100">
+                <li class="nav-item align-self-center">
+                    <i class="fas fa-globe text-white"></i>
+                    <form id="selectLanguage"
+                          class="d-inline-block small"
+                          asp-controller="Home"
+                          asp-action="SetLanguage"
+                          asp-route-returnUrl="@returnUrl"
+                          method="post"
+                          role="form">
+                        <select class="cursor-pointer" name="culture"
+                                onchange="this.form.submit();"
+                                asp-for="@requestCulture.RequestCulture.UICulture.Name"
+                                asp-items="cultureItems">
+                        </select>
+                    </form>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-6 m-0 p-0">
+            <partial name="_LoginPartial" />
+        </div>
+
+    </div>
+
+    @if (isGuest)
+    {
+        @(await Html.PartialAsync("Header/_GuestMenu"))
+    }
+    @if (isAdmin)
+    {
+        @(await Html.PartialAsync("Header/_AdminMenu"))
+    }
+    @if (isTeacher)
+    {
+        @(await Html.PartialAsync("Header/_TeacherMenu"))
+    }
+    @if (isStudent)
+    {
+        @(await Html.PartialAsync("Header/_StudentMenu"))
+    }
+
+</header>

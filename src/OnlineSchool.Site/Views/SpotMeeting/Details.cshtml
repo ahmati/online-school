@@ -1,0 +1,386 @@
+﻿@model OnlineSchool.Contract.SpotMeeting.SpotMeetingModel
+@using OnlineSchool.Core.Helper_
+
+@{
+    var isAuthenticated = User.Identity.IsAuthenticated;
+    var isAdmin = User.IsInRole("Admin");
+    var isSpotMeetingTeacher = ViewBag.IsSpotMeetingTeacher;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/details.css" />
+    <link rel="stylesheet" href="~/css/animations.css" />
+}
+
+<div class="section top-image" style="height: 315px;">
+    <div class="section align-bottom">
+        <div class="container">
+
+            <div class="section" style="height: 200px;"></div>
+
+            <div class="detail-section-50 float-left">
+                <strong class="first-font color-white font-size-40"> @Model.Title </strong>
+                <div class="section" style="height: 20px;"></div>
+                <div class="table float-left p-0 m-0 align-middle">
+                    <div class="float-left" width="30">
+                        <img class="cell-icon" alt="" src="~/images/Calendar.png" width="30" />
+                    </div>
+                    <div class="float-left">
+                        @if (Model.IsRecursiveSpotMeeting)
+                        {
+                            <h3 class="text-white align-middle margin-left-10 line-height-30">@SharedResources.Every @Model.StartDate.DayOfWeek, @Model.StartTime.ToString(@"hh\:mm")</h3>
+                        }
+                        else
+                        {
+                            <h3 class="text-white align-middle margin-left-10 line-height-30">@Model.StartDate.ToString("dd MMM yyyy"), @Model.StartTime.ToString(@"hh\:mm", CultureInfo.CurrentCulture)</h3>
+                        }
+                    </div>
+                    <div class="float-left">
+                        <img class="cell-icon margin-left-20 margin-right-10" alt="" src="~/images/Clock.png" width="30" />
+                    </div>
+                    <div class="float-left">
+                        <h3 class="text-white align-middle line-height-30"> @Model.Duration @SharedResources.Hours </h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-section-50 float-left align-right">
+                <div class="section" style="height: 34px;"></div>
+                <div class="table float-right fit-content-width m-0">
+                    @if (Model.Price > 0)
+                    {
+                        <div class="table-cell align-bottom fit-content-width">
+                            <h5 class="color-white size-20 margin-5 float-right fit-content-width">@SharedResources.PerPerson / </h5>
+                        </div>
+                        <div class="table-cell align-top fit-content-width">
+                            <h5 class="color-white size-20 margin-5 fit-content-width"> €</h5>
+                        </div>
+                        <div class="table-cell align-bottom fit-content-width">
+                            <h1 class="color-white height-50 m-0  fit-content-width">@Model.Price</h1>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-cell align-bottom fit-content-width">
+                            <h1 class="color-white height-50 m-0  fit-content-width"> @SharedResources.Free.ToUpper() </h1>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="section section-grey">
+    <div class="container">
+        <div class="grid">
+            <a class="link" asp-area="" asp-controller="Home" asp-action="Index"> Home </a>
+            <img class="next-icon" alt="" src="~/images/next.png" />
+            <a class="link" asp-area="" asp-controller="SpotMeeting" asp-action="Index"> Meetings </a>
+            <img class="next-icon" alt="" src="~/images/next.png" />
+            <a class="link" href="#"> @Model.Title </a>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="container">
+        <div class="left-section float-left">
+            <div class="section padding-15 border-box">
+
+                <h1 class="meeting-title"> @Model.Title </h1>
+
+                <div class="section position-relative my-3">
+                    @if (Model.ImagePath != null)
+                    {
+                        <img class="section" alt="" src="~/uploads/spotMeetings/@Model.Id/@Model.ImagePath" />
+                    }
+                    else
+                    {
+                        <img class="section" alt="" src="~/images/image4.jpeg" />
+                    }
+                </div>
+
+                @if (ViewBag.CurrentAvailableSpots == 0)
+                {
+                    <div class="section">
+                        <button disabled class="btn btn-success rounded-0 px-3 float-right">
+                            <i class="fas fa-tag"></i> @SharedResources.SoldOut
+                        </button>
+                    </div>
+                }
+                else if ((isAuthenticated == false || (isAuthenticated && !isAdmin && !isSpotMeetingTeacher)))
+                {
+                    @if (ViewBag.IsBooked)
+                    {
+                        if (Model.Price > 0)
+                        {
+                            <div class="section">
+                                <button disabled class="btn btn-success rounded-0 px-3 float-right">
+                                    <i class="fas fa-shopping-cart"></i> Bought
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="section">
+                                <button disabled class="btn btn-success rounded-0 px-3 float-right">
+                                    <i class="fas fa-handshake"></i> Joined
+                                </button>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        if (Model.Price > 0)
+                        {
+                            <div class="section">
+                                <a class="btn my-btn-primary rounded-0 px-3 float-right" asp-controller="Payment" asp-action="Index" asp-route-id="@Model.Id" asp-route-PurchasableItemType="@ViewBag.PurchasableItemType">
+                                    <i class="fas fa-shopping-cart"></i> Buy now
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="section">
+                                <a class="btn my-btn-primary rounded-0 px-3 float-right" onclick="onJoinSpotMeeting(@Model.Id)">
+                                    <i class="fas fa-handshake"></i> Join
+                                </a>
+                            </div>
+                        }
+                    }
+                }
+
+                <div id="details-section" class="section float-left">
+                    @(Html.Kendo().TabStrip()
+                        .Name("tabStrip")
+                        .SelectedIndex(0)
+                        .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+                        .Items(items =>
+                        {
+                            items.Add().Text(SharedResources.Description)
+                                .Selected(true)
+                                .Content(@<text>
+                                    <div>
+                                        <p class="my-3"> @Model.Description </p>
+                                    </div>
+                                </text>);
+
+                            items.Add().Text(SharedResources.Teachers)
+                                .Content(@<text>
+                                    <div>
+                                        @if (Model.SpotMeetingTeachers.Any())
+                                        {
+                                            foreach (var spotMeetingTeacher in Model.SpotMeetingTeachers)
+                                            {
+                                                var teacher = spotMeetingTeacher.Teacher;
+                                                <div class='section my-3 border-bottom p-3'>
+                                                    <div class='section'>
+                                                        <div class="table float-left align-middle m-0">
+                                                            @if (teacher.ImagePath != null)
+                                                            {
+                                                                <div class="table-cell align-middle" style="width: 120px;">
+                                                                    <img class="round-image-100 margin-right-20" alt='' src="~/uploads/teachers/@teacher.Id/@teacher.ImagePath" width="100" height="100"/>
+                                                                </div>
+                                                            }
+                                                            <div class="table-cell align-middle">
+                                                                @if (teacher.Id == Model.Host.TeacherId)
+                                                                {
+                                                                    <h3>
+                                                                        @teacher.Name @teacher.Surname (@SharedResources.ManagingTeacher)
+                                                                    </h3>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <h3>
+                                                                        @teacher.Name @teacher.Surname
+                                                                    </h3>
+                                                                }
+                                                                <div class='section mt-3'>
+                                                                    @if (teacher.TeacherSocialNetwork != null && teacher.TeacherSocialNetwork.Count > 0)
+                                                                    {
+                                                                        var className = "";
+                                                                        @foreach (var social in teacher.TeacherSocialNetwork)
+                                                                        {
+                                                                            @if (social.SocialNetworkId == 1)
+                                                                            {
+                                                                                className = "fa-facebook";
+                                                                            }
+                                                                            else if (social.SocialNetworkId == 2)
+                                                                            {
+                                                                                className = "fa-linkedin";
+                                                                            }
+                                                                            else if (social.SocialNetworkId == 3)
+                                                                            {
+                                                                                className = "fa-twitter";
+                                                                            }
+                                                                            <a href="@social.Link" target="_blank" class="fab @className fa-lg mx-2"></a>
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <small class="text-muted"> @SharedResources.NoSocialNetworks. </small>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <p class='section mt-3'>
+                                                            @teacher.Description
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p class="my-3"> @SharedResources.NoTeachersAssigned. </p>
+                                        }
+                                    </div>
+                                </text>);
+
+                            items.Add().Text(SharedResources.Resources)
+                                .Content(@<text>
+                                    <div class='row'>
+                                        @if (Model.SpotMeetingMaterials.Any())
+                                        {
+                                            foreach (var spotMeetingMaterial in Model.SpotMeetingMaterials)
+                                            {
+                                                var material = spotMeetingMaterial.Material;
+
+                                                <div class='col-12 border-bottom p-3'>
+
+                                                    <i class="far fa-file-alt text-info">
+                                                        <small class="text-muted ml-1">
+                                                            @material.MimeType.Substring(material.MimeType.IndexOf("/") + 1).ToUpper()
+                                                        </small>
+                                                    </i>
+
+                                                    <span class='text-muted ml-3'>
+                                                        @material.FileName.Substring(0, material.FileName.IndexOf("."))
+                                                    </span>
+
+                                                    @if (ViewBag.IsBooked)
+                                                    {
+                                                        <a class="btn btn-sm btn-outline-info rounded-0 shadow float-right" target="_blank" href="/Spotmeeting/DownloadSpotMeetingMaterial/@Model.Id">
+                                                            <i class="fas fa-download"></i>
+                                                            @SharedResources.Download
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a class="btn btn-sm btn-outline-info rounded-0 shadow float-right" asp-controller="Payment" asp-action="Index" asp-route-courseId="@Model.Id">
+                                                            <i class="fas fa-download"></i>
+                                                            @SharedResources.Download
+                                                        </a>
+                                                    }
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p class="my-3"> @SharedResources.NoResourcesUploaded. </p>
+                                        }
+                                    </div>
+                                </text>);
+                        })
+                        .Deferred()
+                    )
+                </div>
+            </div>
+        </div>
+
+        <div class="right-section float-right">
+            <div class="section" style="height: 69px;"></div>
+
+            <div class="section padding-top-16 align-middle countdown-border justify-content-center" style="height: 145px;">
+                <h2 id="headline" class="color-greydark align-top align-text-center">@SharedResources.MeetingStartsIn:</h2>
+                <div id="countdown" class="color-greydark align-top align-text-center">
+                    <ul class="m-0 p-0">
+                        <li class="countdown"><span id="days"></span>@SharedResources.Days</li>
+                        <li class="countdown"><span id="hours"></span>@SharedResources.Hours</li>
+                        <li class="countdown"><span id="minutes"></span>@SharedResources.Minutes</li>
+                        <li class="countdown"><span id="seconds"></span>@SharedResources.Seconds</li>
+                    </ul>
+                </div>
+                <div id="spinning-dots" class="snippet" style="display: none;">
+                    <div class="snippet" data-title=".dot-spin">
+                        <div class="stage">
+                            <div class="dot-spin"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <table class="section">
+                <tbody>
+                    <tr class="table-row">
+                        <td class="padding-20">
+                            <img style="width: 38px;" alt="" src="~/images/icon-availability.png" />
+                        </td>
+                        <td class="padding-20">
+                            <h4 class="align-right">@ViewBag.CurrentAvailableSpots @SharedResources.RowsAvailable</h4>
+                        </td>
+                    </tr>
+                    <tr class="table-row">
+                        <td class="padding-20">
+                            <img style="width: 38px;" alt="" src="~/images/icon-clock-grey.png" />
+                        </td>
+                        <td class="padding-20">
+                            <h4 class="align-right">@SharedResources.Duration: @Model.Duration @SharedResources.Hours</h4>
+                        </td>
+                    </tr>
+                    <tr class="table-row">
+                        <td class="padding-20">
+                            <img style="width: 38px;" alt="" src="~/images/icon-pin-grey (1).png" />
+                        </td>
+                        <td class="padding-20">
+                            <h4 class="align-right">@SharedResources.Location: @SharedResources.Remote</h4>
+                        </td>
+                    </tr>
+                    <tr class="table-row">
+                        <td class="padding-20">
+                            <img style="width: 38px;" alt="" src="~/images/icon-card-grey (1).png" />
+                        </td>
+                        <td class="padding-20">
+                            @if (Model.Price > 0)
+                            {
+                                <h4 style="text-align: right;">@SharedResources.Price: @Model.Price EURO</h4>
+                            }
+                            else
+                            {
+                                <h4 style="text-align: right;">@SharedResources.Price: @SharedResources.Free.ToUpper()</h4>
+                            }
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        let successMsg = '@TempData["Success"]';
+        successMsg ? ShowSuccess(successMsg) : null;
+        let errorMsg = '@TempData["Error"]';
+        errorMsg ? ShowError(errorMsg) : null;
+
+        onJoinSpotMeeting = (id) => {
+            ShowConfirmation(
+                "You are about to join the meeting. Once joined, you can't unjoin it. Continue?",
+                "",
+                () => {
+                    window.location = `/SpotMeeting/JoinSpotMeeting?id=${id}`;
+                },
+                null
+            );
+        }
+    });
+
+    startCountdown("@Model.StartDate.ToString("MM/dd/yyyy hh:mm:ss")", "@SharedResources.InProgress");
+
+</script>

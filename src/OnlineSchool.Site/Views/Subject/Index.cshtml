@@ -1,0 +1,381 @@
+﻿@model OnlineSchool.Contract.Subject.SubjectModel
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/grid-style.css" />
+}
+
+<h6 class="page-title"> @SharedResources.Subjects </h6>
+
+<div class="row mx-0 p-0">
+    <div class="col-12 m-0 py-4 padding-lr bg-grey">
+
+        @(Html.Kendo().Grid<OnlineSchool.Contract.Subject.SubjectModel>()
+            .Name("subjects-grid")
+            .HtmlAttributes(new { style = "height: 600px;" })
+            .NoRecords()
+            .ToolBar(toolbar =>
+            {
+                toolbar.ClientTemplateId("subjects-grid-toolbar");
+            })
+            .Search(search =>
+            {
+                search.Field(m => m.Name);
+                search.Field(m => m.Description);
+            })
+            .Columns(columns =>
+            {
+                columns.Bound(p => p.Id).Visible(false);
+                columns.Bound(p => p.Name).Title(SharedResources.Name).Width(150)
+                    .ClientTemplate(@"
+                            <span class='text-dark fw-bolder fs-6'>${data.Name}</span>
+                    ");
+                columns.Bound(p => p.Description).Title(SharedResources.Description).Width(150)
+                    .ClientTemplate(@"
+                        <span>#=data.Description.substring(0, 100)#...</span>
+                    ");
+                columns.Bound(p => p.Price).Title(SharedResources.Price).Width(100)
+                    .ClientTemplate("€ #=Price#");
+                columns.Bound(p => p.Color).Title(SharedResources.Color).Width(100)
+                    .ClientTemplate(@"
+                        <div style='width: 20px; height: 20px; background-color: #=Color#'></div>
+                    ");
+                columns.Bound(p => p.Id).Title(SharedResources.Actions).Width(100)
+                    .ClientTemplate(@"
+                        <div class='text-center'>
+                            <a href='/subject/edit/#=Id#' class='btn btn-sm btn-light border m-1' title='" + SharedResources.Edit + @"'>
+                                <i class='fas fa-edit'></i>
+                            </a>
+                            <button class='btn btn-sm btn-danger text-white m-1' title='" + SharedResources.Delete + @"' onclick='onDeleteSubject(#=Id#)'>
+                                <i class='far fa-trash-alt'></i>
+                            </button>
+                        </div>"
+                    );
+            })
+            .Sortable()
+            .Pageable(pg => {
+                pg.Refresh(true);
+                pg.PageSizes(true);
+                pg.ButtonCount(5);
+            })
+            .Scrollable()
+            .ClientDetailTemplateId("teacher-template")
+            //.Editable(editable => editable.Mode(GridEditMode.InLine))
+            .DataSource(ds => ds
+                .Ajax()
+                .Model(model =>
+                {
+                    model.Id(p => p.Id);
+                })
+                .Read(read => read.Action("GetAllSubjects", "Subject").Type(HttpVerbs.Get))
+            )
+            .Events(events => events.DetailExpand("expandDetails"))
+            .Deferred()
+        )
+
+    </div>
+</div>
+
+<!-- Subgrid (Subject teachers) -->
+<script id="teacher-template" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<OnlineSchool.Contract.TeacherSubject.TeacherSubjectModel>()
+        .Name("teacher-subject-grid-#=Id#")
+        .NoRecords()
+        .ToolBar(toolbar =>
+        {
+            toolbar.ClientTemplate(
+                "<button class='btn btn-active-primary btn-light btn-sm' onclick='onShowTeacherSubjectModal(#=Id#)' title='" + SharedResources.NewTeacherSubject + "'>" +
+                    "<i class='k-icon k-i-plus'></i> " + SharedResources.NewTeacherSubject +
+                "</button>" +
+                "<span class='k-textbox k-grid-search k-display-flex'>" +
+                    "<input autocomplete='off' placeholder='" + SharedResources.SEARCH + "...' title='" + SharedResources.SEARCH + "...' class='k-input'>" +
+                    "<span class='k-input-icon'>" +
+                        "<span class='k-icon k-i-search'></span>" +
+                    "</span>" +
+                "</span>");
+        })
+        .Search(search =>
+        {
+            search.Field(m => m.Teacher.Name);
+            search.Field(m => m.Teacher.Surname);
+            search.Field(m => m.Teacher.Email);
+        })
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.Id).Visible(false);
+            columns.Bound(p => p.SubjectId).Visible(false);
+            columns.Bound(p => p.TeacherId).Visible(false);
+            columns.Bound(p => p.Teacher.Name).Title(SharedResources.Name).Width(20);
+            columns.Bound(p => p.Teacher.Surname).Title(SharedResources.Surname).Width(20);
+            columns.Bound(p => p.Teacher.Email).Title(SharedResources.Email).Width(20);
+            columns.Template(
+                "<button class='btn btn-sm btn-danger text-white m-1' id='DeleteTeacherSubject' onclick='onDeleteTeacherSubject(this, #=Id#)'>" +
+                    "<span title='Remove teacher' class='far fa-trash-alt'></span>" +
+                "</button>" +
+                "<button class='btn btn-sm btn-light border m-1' onclick='onShowMaterials(this, #=Id#)'>" +
+                    "<i class='fas fa-clipboard-list'></i> " + @SharedResources.CheckProgram + "" +
+                "</button>")
+                .Title(SharedResources.Actions).Width(20);
+        })
+        //.Editable(editable => editable.Mode(GridEditMode.InLine))
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(3)
+            .Model(model =>
+            {
+                model.Id(p => p.SubjectId);
+
+            })
+            .Read(read => read.Action("GetBySubjectId", "TeacherSubject", new { SubjectId = "#= Id#" }).Type(HttpVerbs.Get))
+        )
+        //.Editable(editing => editing.Mode(GridEditMode.PopUp))
+        .Sortable()
+        .Pageable(pg =>
+        {
+            pg.Refresh(true);
+            pg.PageSizes(true);
+            pg.ButtonCount(5);
+        })
+        .ToClientTemplate()
+    )
+</script>
+
+<div id="teacher-subject-modal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="techer-subject-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="teacher-subject-modal-label"> @SharedResources.AssignNewTeacher </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="teacher-subject-form" class="my-4">
+
+                    <div class="validation-summary-errors text-danger mb-4">
+                        <ul id="teacher-errors"></ul>
+                    </div>
+                    <input type="number" id="subjectId" value="" hidden />
+
+                    <div class="form-group">
+                        <label for="teacher" class="form-control-placeholder"> @SharedResources.Teacher </label>
+                        @(Html.Kendo().ComboBox()
+                            .Name("teacherDropdown")
+                            .Placeholder(SharedResources.SelectTeacher)
+                            .DataTextField("Name")
+                            .DataValueField("Id")
+                            .HtmlAttributes(new { @class = "form-control w-100" })
+                            .Filter(FilterType.Contains)
+                            .AutoBind(false)
+                            .SelectedIndex(0)
+                            .Suggest(true)
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("GetAllTeachers_Dropdown", "Teacher");
+                                });
+                            })
+                            .Deferred()
+                        )
+                    </div>
+                    <div class="form-group text-right">
+                        <button type="button" class="btn btn-sm btn-light border" data-dismiss="modal"> @SharedResources.Close </button>
+                        <button type="submit" class="btn btn-sm my-btn-primary ml-2"> @SharedResources.Save </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    <script id="subjects-grid-toolbar" type="text/x-kendo-template">
+
+        <div class="subjects-grid-actions m-2 ml-0 float-left">
+            <a href="/Subject/Create" class="btn btn-active-primary btn-light btn-sm" title="@SharedResources.NewSubject">
+                <i class="k-icon k-i-plus"></i> @SharedResources.NewSubject
+            </a>
+        </div>
+        <span class="k-textbox k-grid-search k-display-flex">
+            <input autocomplete="off" placeholder="@SharedResources.SEARCH..." title="@SharedResources.SEARCH..." class="k-input">
+            <span class="k-input-icon">
+                <span class="k-icon k-i-search"></span>
+            </span>
+        </span>
+
+    </script>
+
+    <script>
+
+        $(document).ready(function () {
+
+            var successMsg = '@TempData["Success"]';
+            if (successMsg)
+                ShowSuccess(successMsg);
+
+            var errorMsg = '@TempData["Error"]';
+            if (errorMsg)
+                ShowError(errorMsg);
+
+            let teacherModal = $('#teacher-subject-modal');
+
+            onDeleteTeacherSubject = (e, subjectId) => {
+                ShowConfirmation(
+                    `Are you sure you want to remove this teacher?`,
+                    '',
+                    () => {
+                        var grid = $(`#teacher-subject-grid-${subjectId}`).data("kendoGrid");
+                        var dataItem = grid.dataItem($(e).closest("tr"));
+                        console.log(dataItem);
+                        var model = {
+                            SubjectId: dataItem.SubjectId,
+                            TeacherId: dataItem.TeacherId,
+                        };
+                        // Todo: Ajax call here
+                        $.ajax({
+                            type: 'POST',
+                            url: 'TeacherSubject/Delete',
+                            contentType: "application/json",
+                            dataType: "json",
+                            data: JSON.stringify(model),
+                            success: data => {
+                                // Ok
+                                if (data.HasErrors === false) {
+                                    ShowSuccess('Teacher removed successfully.');
+                                    refreshKendoGrid(`teacher-subject-grid-${model.SubjectId}`);
+                                }
+                                // Errors
+                                else {
+                                    let errors = '';
+                                    // Show something
+                                }
+                            },
+                            fail: err => {
+                                console.log(err.Errors);
+                                ShowError(err);
+                            }
+                        });
+                    },
+                    null
+                )
+            }
+
+
+            //Add teacher subject
+            $('#teacher-subject-form').submit(e => {
+                e.preventDefault();
+
+                var model = {
+                    SubjectId: parseInt($("#subjectId").val()),
+                    TeacherId: parseInt($("#teacherDropdown").data('kendoComboBox').value()),
+                };
+
+                console.log(model);
+                // Todo: Ajax call here
+                $.ajax({
+                    type: 'POST',
+                    url: 'TeacherSubject/Create',
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(model),
+                    success: data => {
+                        // Ok
+                        if (data.HasErrors === false) {
+                            ShowSuccess('Teacher assigned successfully.');
+                            closeTeacherModal();
+                            refreshKendoGrid(`teacher-subject-grid-${model.SubjectId}`);
+                        }
+                        // Errors
+                        else {
+                            let errors = '';
+                            data.Errors.forEach(e => {
+                                errors += `<li> ${e} </li>`;
+                            });
+                            $('#teacher-errors').html(errors);
+                        }
+                    },
+                    fail: err => {
+                        console.log(err.Errors);
+                        ShowError(err);
+                    }
+                });
+
+                closeTeacherModal = () => {
+                    teacherModal.modal('hide');
+                }
+                teacherModal.on('hidden.bs.modal', function (event) {
+                    clearTeacherForm();
+                });
+                clearTeacherForm = () => {
+                    $('#teacher-errors').html('');
+                    $('#subjectId').val('');
+                    $("#teacherDropdown").data('kendoComboBox').value('');
+                }
+            });
+
+        });
+
+        function expandDetails(e) {
+            DocumentId = e.masterRow[0].cells[1].innerHTML;
+            var grid = e.sender;
+            var rows = grid.element.find(".k-master-row").not(e.masterRow);
+            rows.each(function (e) {
+                grid.collapseRow(this);
+            });
+        };
+
+        onDeleteSubject = (Id) => {
+            let gridName = "subjects-grid";
+
+            ShowConfirmation(
+                "Are you sure you want to delete this subject?",
+                "",
+                () => {
+                    setKendoGridLoading(gridName, true);
+                    $.ajax({
+                        type: "DELETE",
+                        url: "/subject/delete",
+                        data: { id: Id },
+                        dataType: "json",
+                        success: function (data) {
+                            console.log(data);
+                            // Ok
+                            if (data.HasErrors === false) {
+                                setKendoGridLoading(gridName, false);
+                                ShowSuccess("Subject deleted successfully");
+                                refreshKendoGrid(gridName);
+                            }
+                            // Errors
+                            else {
+                                data.Errors.forEach(err => {
+                                    ShowError(err);
+                                });
+                            }
+                        },
+                        error: function (req, status, error) {
+                            ShowError("Unable to delete this subject.");
+                            console.error(error);
+                        }
+                    });
+                },
+                null
+            );
+
+            return false;
+        }
+
+        onShowTeacherSubjectModal = (id) => {
+            $('#subjectId').val(id);
+            $('#teacher-subject-modal').modal('show');
+        }
+
+        onShowMaterials = (e, subjectId) => {
+            var grid = $(`#teacher-subject-grid-${subjectId}`).data("kendoGrid");
+            var dataItem = grid.dataItem($(e).closest("tr"));
+            window.location.href = '@Url.Action("Index", "TeacherSubject")?id=' + dataItem.Id;
+        }
+
+    </script>
+}

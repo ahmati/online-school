@@ -1,0 +1,56 @@
+﻿@section Styles {
+    <link rel="stylesheet" href="~/css/_ContactPartial.css" />
+}
+
+<div class="container">
+
+    <h1 class="title-nostraforza text-darkred"> Contact Us </h1>
+
+    <div class="row mb-5">
+
+        <div class="col-6 map">
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+                  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+                  crossorigin="" />
+            <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+                    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+                    crossorigin=""></script>
+            <div id="mapid" style="height:350px;margin-bottom:20px"></div>
+
+            <script>
+                var mymap = L.map('mapid').setView([45.464664, 9.188540], 16);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    //attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                    maxZoom: 10,
+                    tileSize: 512,
+                    zoomOffset: -1,
+                }).addTo(mymap);
+                var marker = L.marker([45.464664, 9.188540]).addTo(mymap)
+            </script>
+        </div>
+
+        <div class="col-6 float-right registration">
+            <h6 class="mb-4">Leave us your data and you will be contacted by us</h6>
+            <form id="formContact" method="post">
+                <div class="form-group">
+                    <label for="FullName">Name and Surname</label>
+                    <input type="text" class="form-control no-border col-12" name="FullName" placeholder="Your Name" id="fullName" required />
+                    <h5 class="text-danger" id="FullNameValidation" hidden>Nome deve essere minimo 6 caractero lungho</h5>
+                </div>
+                <div class="form-group">
+                    <label for="Email">Email</label>
+                    <input type="email" class="form-control no-border col-12" name="Email" placeholder="Email" id="email" required />
+                    <h5 class="text-danger" id="EmailValidation" hidden>Email notvalido</h5>
+                </div>
+                <div class="form-group">
+                    <label for="Note">Message</label>
+                    <textarea class="form-control no-border col-12" name="Note" id="Note" placeholder="Your Message"></textarea>
+                </div>
+
+                <button type="button" onclick="ContactForm()" id="submitBtn" class="btn float-right btn-contact mt-3">SEND</button>
+            </form>
+        </div>
+
+    </div>
+
+</div>

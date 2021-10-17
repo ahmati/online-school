@@ -1,0 +1,53 @@
+@import "./../../../../css/variables.css";
+
+#meeting-initialization-overlay {
+    position: fixed;
+    background-color: white;
+    top: var(--header-height);
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - var(--header-height));
+    z-index: var(--meeting-initialization-overlay-zIndex);
+}
+
+#meeting-streams {
+    position: relative;
+    width: 100% !important;
+    height: calc(100% - var(--meeting-controls-height)) !important;
+    overflow: hidden;
+}
+
+#local-video {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 180px;
+    height: 200px;
+    z-index: 2;
+    cursor: -webkit-grab;
+    cursor: grab;
+    overflow: hidden !important
+}
+@media only screen and (max-width: 400px) {
+    #local-video {
+        width: 140px !important;
+        height: 170px !important;
+    }
+}
+    #local-video .video-player > video {
+        -o-object-fit: cover !important;
+        object-fit: cover !important;
+    }
+#remote-video, #screenshare-video {
+    width: 100%;
+}
+#screenshare-video {
+    height: 50%;
+}
+#participants-menu::after, #participant-menu::after {
+    display: none !important;
+}
+
+#participants-drawer, #chat-drawer {
+    height: calc(100% - var(--header-height)) !important;
+}

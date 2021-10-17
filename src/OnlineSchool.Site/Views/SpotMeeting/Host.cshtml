@@ -1,0 +1,13 @@
+﻿@{
+    Layout = null;
+    var culture = CultureInfo.CurrentCulture.ToString();
+}
+
+<script>
+    localStorage.setItem('ciscoAuthToken', '@ViewBag.Token');
+    localStorage.setItem('meetingSipAddress', '@ViewBag.MeetingSipAddress');
+    localStorage.setItem('meetingPassword', '@ViewBag.MeetingPassword');
+    localStorage.setItem('webex-app-language', '@culture');
+</script>
+
+@Html.Raw(System.IO.File.ReadAllText("wwwroot/react-app/index.html"));

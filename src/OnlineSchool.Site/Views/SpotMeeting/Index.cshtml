@@ -1,0 +1,183 @@
+﻿@using X.PagedList.Mvc.Core;
+@using OnlineSchool.Contract.SpotMeeting
+@using OnlineSchool.Core.Helper_
+
+@model X.PagedList.IPagedList<OnlineSchool.Contract.SpotMeeting.SpotMeetingModel>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/details.css" />
+    <link rel="stylesheet" href="~/css/animations.css" />
+}
+
+<div class="section top-image" style="height: 315px;">
+    <div class="section align-bottom">
+        <div class="container">
+            <div class="section" style="height: 220px;"></div>
+            <div class="detail-section-50 float-left">
+                <strong class="first-font color-white font-size-60 jumbotron-title"> @SharedResources.Meetings </strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section section-grey">
+    <div class="container">
+        <div class="grid">
+            <a class="link" asp-area="" asp-controller="Home" asp-action="Index"> Home </a>
+            <img class="next-icon" alt="" src="~/images/next.png" />
+            <a class="link" href="#"> @SharedResources.Meetings </a>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="container">
+
+        @if (Model.Any())
+        {
+            <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3">
+                @foreach (var meeting in Model)
+                {
+                    <div class="col my-4">
+                        <div class="section border shadow-sm">
+
+                            <div class="section position-relative">
+                                @if (meeting.ImagePath != null)
+                                {
+                                    <img class="section" alt="" src="~/uploads/spotMeetings/@meeting.Id/@meeting.ImagePath" />
+                                }
+                                else
+                                {
+                                    <img class="section" alt="" src="~/images/image4.jpeg" />
+                                }
+
+                                <div class="bg-alpha-gradient position-absolute w-100 h-100">
+
+                                    <div class="position-absolute bottom w-100 text-white font-size-13 p-2">
+                                        @if (meeting.IsRecursiveSpotMeeting)
+                                        {
+                                            <span class="float-left">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                @SharedResources.Every @meeting.StartDate.DayOfWeek
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="float-left">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                @meeting.StartDate.ToString("dd MMM yyyy")
+                                            </span>
+                                        }
+                                        <span class="float-right">
+                                            <i class="far fa-clock"></i> @meeting.Duration @SharedResources.Hours
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="section p-3 ring-container">
+                                @if (meeting.IsLive)
+                                {
+                                    <div class="ringring"></div>
+                                    <div class="circle" title=@SharedResources.LiveEvent></div>
+                                }
+                                <h3>@meeting.Title </h3>
+                                <div class="section" style="height: 20px;"></div>
+                                @{ var description = meeting.Description.Length > 100 ? meeting.Description.Substring(0, 97) + "..." : meeting.Description; }
+                                <p style="height: 72px;"> @description </p>
+                            </div>
+
+                            <div class="section border-box padding-20 border-top-1-solid-grey background-grey">
+
+                                <div class="width-50 float-right text-align-right color-white">
+                                    <a class="btn btn-sm my-btn-primary" href="/SpotMeeting/@meeting.Id/Details"> @SharedResources.Details </a>
+                                </div>
+
+                                <div class="width-33 float-left">
+                                    <div class="table m-0 float-left">
+                                        <img alt="" class="margin-left-10 table-cell align-middle" width="25" height="25" src="~/images/icon-clock-grey.png" />
+                                        <p class="table-cell align-middle font-size-15">
+                                            <a href="/SpotMeeting/@meeting.Id/Details">
+                                                @meeting.StartDate.ConvertTimeFromUtc().TimeOfDay.ToString(@"hh\:mm", CultureInfo.CurrentCulture)
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            }
+            </div>
+        }
+        else
+        {
+            <div class="row col-12 m-0 alert alert-warning border shadow-sm" role="alert">
+                <span>
+                    <i class="fa fa-info"></i>
+                    @SharedResources.NoMeetingsAvailable.
+                </span>
+            </div>
+        }
+
+        @Html.PagedListPager(Model, page => Url.Action("Index", new { page }))
+
+    </div>
+</div>
+
+<style>
+    .jumbotron-title {
+        text-shadow: -3px 3px 7px black;
+    }
+
+    p a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+        p a:hover {
+            text-decoration: none;
+            color: inherit;
+        }
+
+    div a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+        div a:hover {
+            text-decoration: none;
+            color: inherit;
+        }
+
+    .pagination-container {
+        text-align: center;
+    }
+
+        .pagination-container li {
+            display: inline-block;
+            padding: 10px;
+            font-size: 20px;
+            line-height: 20px;
+            color: #a3a3a3;
+            font-family: 'Montserrat',sans-serif;
+        }
+
+        .pagination-container a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+            .pagination-container a:hover {
+                text-decoration: none;
+                color: inherit;
+            }
+
+    .pagination {
+        display: flow-root;
+    }
+
+    .pagination-container .active {
+        color: #727475;
+    }
+</style>

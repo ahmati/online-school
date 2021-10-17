@@ -1,0 +1,54 @@
+﻿
+@section Styles {
+    <link rel="stylesheet" href="~/css/grid-style.css" />
+}
+
+<div class="row mx-0 p-0">
+    <div class="col-12 m-0 p-0 py-4">
+
+        @(Html.Kendo().Grid<OnlineSchool.Contract.Webex.WebexIntegrationModel>()
+            .Name("webex-integration-grid")
+            .HtmlAttributes(new { style = "height: 600px;" })
+            .NoRecords()
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.AccessToken).Title(SharedResources.AccessToken).ClientTemplate("#= AccessToken.substring(0, 3).concat('****************') #");
+                columns.Bound(c => c.DaysUntilExpiration).Title(SharedResources.DaysUntilExpiration);
+                columns.Template(@"
+                    <div class='text-center'>
+                        <a href='/LiveSession/StartOAuthFlow' class='btn btn-sm my-btn-primary'> " + SharedResources.Refresh + @" </a>
+                    </div>
+                ");
+            })
+            //.Resizable(c => c.Columns(true))
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(10)
+                .Read(read => read.Action("GetWebexIntegration", "LiveSession").Type(HttpVerbs.Get))
+            )
+            .Deferred()
+        )
+
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+
+            var successMsg = '@TempData["Success"]';
+            var errorMsg = '@TempData["Error"]';
+            if (successMsg)
+                ShowSuccess(successMsg);
+            if (errorMsg)
+                ShowError(errorMsg);
+
+            setInterval(function () {
+                refreshKendoGrid('webex-integration-grid');
+            }, 60000);
+
+        });
+    </script>
+
+}

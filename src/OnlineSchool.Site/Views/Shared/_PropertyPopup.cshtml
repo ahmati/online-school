@@ -1,0 +1,60 @@
+﻿
+@(Html.Kendo().Window()
+     .Name("PropertyPopup")
+     .Title("Attribute Definition")
+     .Visible(false)
+     .Modal(true)
+     .Draggable(true)
+     .Content(
+         Html.Kendo().Grid<OnlineSchool.Contract.Teachers.TeacherModel>
+    ()
+    .Name("propertyGridPopup")
+
+
+    .Events(events => events.Change("getSelectedProperties"))
+    .Columns(columns =>
+    {
+        columns.Select().Width(40);
+        columns.Bound(p => p.Id).Visible(false);
+        columns.Bound(p => p.Name).Title("Teacher Name").Width(50);
+        columns.Bound(p => p.Surname).Title("Teacher Surname").Width(50);
+        columns.Bound(p => p.Description).Title("Description").Width(110);
+        columns.Bound(p => p.ImagePath).Width(70);
+        columns.Bound(p => p.AuthDate).Width(50);
+    })
+    .Pageable()
+    .ToolBar(toolbar =>
+    {
+        toolbar.Custom().Text("Save").HtmlAttributes(new { onclick = "saveDocumentPropertyAssociation();", @style = "background-color: darkred;color: #fff !important;padding: 6px 50px;border-radius: 0px;" });
+        toolbar.Custom().Text("Close").HtmlAttributes(new { href = "/Document/Index", @style = "background-color:darkred;color: #fff !important;padding: 6px 50px;border-radius: 0px;" });
+        toolbar.Search();
+    })
+    .PersistSelection()
+    .Scrollable()
+    .Sortable()
+    .HtmlAttributes(new { style = "height:400px;" })
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    .PageSize(20)
+    .Batch(true)
+    //.Events(ev => ev.Change("onChange"))
+    .Events(events => events.Error("error_handler"))
+    .Model(model =>
+    {
+        model.Id(p => p.Id);
+        model.Field(x => x.Id).Editable(true);
+
+    })
+    .Read(read => read.Action("GetAllTeacher", "Teacher", new { Id = "#= Id#" }).Type(HttpVerbs.Get))
+    //.Update(update => update.Action("UpdateProperty", "Property").Type(HttpVerbs.Post))
+    //.Destroy(destroy => destroy.Action("Delete_Property", "Property").Type(HttpVerbs.Post))
+    )
+
+    .ToHtmlString()
+    )
+    .Width(1000)
+    .Height(500)
+    .Deferred()
+)
+
+<link rel="stylesheet" href="~/css/documenti.css" />

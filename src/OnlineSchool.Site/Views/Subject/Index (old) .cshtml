@@ -1,0 +1,156 @@
+﻿@using Microsoft.Extensions.Options
+@inject IOptions<OnlineSchool.Contract.Configuration.StripeSettingKeys> Stripe
+@model IEnumerable<OnlineSchool.Contract.Subject.SubjectModel>
+@using Kendo.Mvc.UI
+@{
+    ViewData["Title"] = "Subject";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <img src="~/images/BackgroundImage.jpeg" height="550" style="width:100%" />
+    <h2 style="top:470px;left:70px;position:absolute;color:white">Courses</h2>
+</div>
+<div class="row" style="height:55px;background-color:#f9f9f9">
+    <h4 style="font-family: 'Varela Round',sans-serif;color:#a3a3a3;padding: 15px 0px 15px 55px;">Home</h4>
+    <img src="~/images/next.png" width="10" style="margin:25px 10px;height: 10px;" />
+</div>
+
+@*<div class="row">
+    <div class="col-12">
+        <h4 style="margin:35px;"><strong>Showing Lessons</strong></h4>
+    </div>
+    <div class="col-5">
+        <img src="~/images/icon-pen.png" width="10" style="margin-top:10px;margin-left: 45px;height: 15px" />
+        <input type="text" placeholder="Keyword" style="margin-top: -30px;margin-left: 42px;" />
+    </div>
+    <button asp-controller="Subject" asp-action="SearchCourses" style="font-family: 'Montserrat',sans-serif;float:right;background-color:#90cbde;border-radius: 3px;color: #fff;border: 2px solid #90cbde;margin-left: 45px;">Button</button>
+</div>*@
+<div class="container">
+    <div class="row" style="margin-right:unset !important;margin-left:unset !important">
+        @foreach (var item in Model)
+        {
+            <div class="col-4">
+                <div class="card" style="margin-bottom:15px">
+                    @*<input type="hidden" class="subject_id" value="@item.SubjectId" />*@
+                    <img src="~/images/image4.jpeg" style="width:100%;height:215px" />
+                    <img src="~/images/Heart.png" width="25" style="top:20px;right:60px;position:absolute" />
+                    <img src="~/images/Book.png" width="25" style="top:20px;right:20px;position:absolute" />
+                    <img src="~/images/Calendar.png" width="25" style="top:170px;left:20px;position:absolute" />
+                    @*<label id="startDate" style="top:175px;left:50px;position:absolute;color:white">@item.StartDate.Value.ToString("dd/MM/yyyy") </label>
+                    <label id="endDate" style="top:190px;  left:50px;position:absolute;color:white"> @item.EndDate.Value.ToString("dd/MM/yyyy") </label>*@
+                    <br />
+                    <img src="~/images/Clock.png" width="25" style="top:170px;left:160px;position:absolute" />
+
+                    @*<label id="startTime" style="top:175px;left:200px;position:absolute;color:white">@item.StartTime </label>
+                    <label id="endTime" style="top:190px;  left:200px;position:absolute;color:white"> @item.EndTime </label>*@
+
+                    @*<p style="top:170px;left:160px;position:absolute;color:white">@item.StartTime.Value.ToString("h:mm tt")  @item.EndDate</p>*@
+                    <h4 class="u-custom-font u-font-oswald u-text u-text-default u-text-3" style="font-family: 'Montserrat',sans-serif;color: #727475;font-weight:unset !important;padding:10px;">@item.Name</h4>
+                    <p class="u-text u-text-4" style="font-family: 'Varela Round',sans-serif;font-size: 16px;line-height: 30px;color: #a3a3a3;padding:10px">@item.Description</p>
+                    <div style="border-top: 1px solid #f1f1f1;padding:25px;">
+                        @*<a class="u-text" style="font-family: 'Varela Round',sans-serif;font-size: 16px;line-height: 30px;color: #a3a3a3;">Teacher @item.TeacherName</a>*@
+                        @*@if (item.IsBought == false)
+                        {
+                            <form asp-controller="Payment" asp-action="Index" asp-route-subjectId="@item.SubjectId">
+                                <button style="font-family: 'Montserrat',sans-serif;float:right;background-color:deepskyblue;border-radius: 3px;color: #fff;border: 2px solid #90cbde;">Buy Course</button>
+                            </form>
+
+                        }
+                        else
+                        {
+                            <form asp-controller="Subject" asp-action="BookedSubjectDetails" asp-route-subjectId="@item.SubjectId">
+                                <button  title="Click this button for course details" style="font-family: 'Montserrat',sans-serif;float:right;background-color:limegreen;border-radius: 3px;color: #fff;border: 2px solid #90cbde;">Course bought </button>
+                            </form>
+                        }*@
+                    </div>
+                </div>
+            </div>          
+
+        }
+
+
+    </div>
+</div>
+<script src="~/js/jquery.js"></script>
+
+<script>
+
+    //function checkAlreadyBought(subjectId) {
+    //    $.ajax({
+    //        type: 'GET',
+    //        url: '/Lesson/BookedCourseExists',
+    //        data: { subjectId },
+    //        cache: false,
+    //        success: function (result) {
+    //            if (result == Ok) {
+    //                $(".boughtBtn").removeAttr("disabled");
+    //            } else {
+    //                $(".buyBtn").removeAttr("disabled");
+    //            }
+
+    //        }
+    //    });
+    //}
+        
+
+    $(document).ready(function () {
+        var start = $("#startDate").text();
+        var end = $("#endDate").text();
+
+        //let subjectIds = $('.subject_id')
+        //console.log(subjectIds)
+
+        //subjectIds.each(i => {
+        //    console.log($(subjectIds[i]).attr('value'))
+
+        })
+
+
+
+
+
+        //var startDateVal = new Date(start);
+        //var month = startDateVal.getMonth() + 1; //months from 1-12
+        //var day = startDateVal.getDate();
+        //var year = startDateVal.getFullYear();
+        //if (month < 10) month = '0' + month;
+        //if (day < 10) day = '0' + day;
+        //startDateVal = year + "-" + month + "-" + day;
+        //console.log(startDateVal);
+        //$("#startDate").text(startDateVal);
+        //var endDateVal = new Date(end);
+        //var month = endDateVal.getMonth() + 1; //months from 1-12
+        //var day = endDateVal.getDate();
+        //var year = endDateVal.getFullYear();
+        //if (month < 10) month = '0' + month;
+        //if (day < 10) day = '0' + day;
+        //endDateVal = year + "-" + month + "-" + day;
+        //console.log(endDateVal);
+        //$("#startDate").text(endDateVal);
+
+</script>
+
+<style>
+    .no-click {
+        pointer-events: none;
+    }
+
+    input {
+        border-right-width: 0;
+        border-left-width: 0;
+        border-top-width: 0;
+        color: #a3a3a3;
+        border-color: #f1f1f1;
+        padding: 10px 20px;
+        float: left;
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 15px
+    }
+
+    
+</style>
+
+
+

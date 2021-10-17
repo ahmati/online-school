@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="PovaContext\**" />
+    <EmbeddedResource Remove="PovaContext\**" />
+    <None Remove="PovaContext\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20210825125521_Current.cs" />
+    <Compile Remove="Migrations\20210825125521_Current.Designer.cs" />
+    <Compile Remove="Migrations\20210826152024_AddedProperty_Course_IsPublished.cs" />
+    <Compile Remove="Migrations\20210826152024_AddedProperty_Course_IsPublished.Designer.cs" />
+    <Compile Remove="Migrations\20210830132016_BookedCourse_TeacherSubject_relationship.cs" />
+    <Compile Remove="Migrations\20210830132016_BookedCourse_TeacherSubject_relationship.Designer.cs" />
+    <Compile Remove="Migrations\20210830132343_BookedCourse_TeacherSubject_relationship.cs" />
+    <Compile Remove="Migrations\20210830132343_BookedCourse_TeacherSubject_relationship.Designer.cs" />
+    <Compile Remove="Migrations\20210830132532_BookedCourse_TeacherSubject_relationship.cs" />
+    <Compile Remove="Migrations\20210830132532_BookedCourse_TeacherSubject_relationship.Designer.cs" />
+    <Compile Remove="Migrations\20210915095420_AlterColumn_BookedSpotMeeting_StudentId.cs" />
+    <Compile Remove="Migrations\20210915095420_AlterColumn_BookedSpotMeeting_StudentId.Designer.cs" />
+    <Compile Remove="Migrations\20210915100310_AlterColumn_BookedSpotMeeting_StudentId.cs" />
+    <Compile Remove="Migrations\20210915100310_AlterColumn_BookedSpotMeeting_StudentId.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="EntityFrameworkCore.Scaffolding.Handlebars" Version="3.8.3" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.3" />
+    <PackageReference Include="Ical.Net" Version="4.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="3.1.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Localization" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Localization.Routing" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Localization" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.8" />
+    <PackageReference Include="System.Globalization" Version="4.3.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+   
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ItalWebConsulting.Infrastructure\ItalWebConsulting.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

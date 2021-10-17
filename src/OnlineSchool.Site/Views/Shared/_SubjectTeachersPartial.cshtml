@@ -1,0 +1,63 @@
+﻿@model IEnumerable<OnlineSchool.Contract.Material.MaterialModel>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!DOCTYPE html>
+<html style="font-size: 16px;">
+<head>
+
+</head>
+
+<body>
+    <div id="Teachers" class="tabcontent">
+        <h4 style="font-weight: bold;color: #727475;margin-top:25px;">
+            Our Main Teachers for this Subject
+        </h4>
+        <hr style="margin-top:1rem !important" />
+
+        @foreach (var item in Model)
+        {
+            <div class="row">
+                <img src="~/images/image11.png" width="25" style="border-radius:50%;width:95px;height:95px;margin-left:25px;" />
+                <h3 class="u-text u-text-4" style="font-family: 'Varela Round',sans-serif;font-size: 14px;color: #a3a3a3;margin-left: 17px;">
+                    @*<strong> @item.TeacherName  @item.TeacherSurName </strong>*@
+                </h3>
+                @*<p class="u-text u-text-4" style="font-family: 'Varela Round',sans-serif;font-size: 14px;color: #a3a3a3;float:left;margin-left: -50px;margin-top: 36px;">@item.SubjectTitle</p>*@
+                <p style="font-family: 'Varela Round',sans-serif;font-size: 16px;line-height: 30px;margin-top:25px">
+                    @*@item.TeacherDescription*@
+                </p>
+
+                @*<div class="row" style="display:block;margin-top:75px;margin-left:-50px;">
+                        @if (item.SocialNetworkId == 1)
+                        {
+                            <a class="u-social-url" target="_blank" href="@item.SocialLink">
+                                <img src="~/images/icon-facebook-color.png" width="35" />
+                                <img src="~/images/Facebook.png" width="20" style="margin-top:10px; margin-left:-20px" />
+                            </a>
+                        }
+                        <img src="~/images/icon-google-color.png" width="35" />
+                        @if (item.SocialNetworkId == 2)
+                        {
+                            <a class="u-social-url" target="_blank" href="@item.SocialLink">
+                                <img src="~/images/Twiter.png" width="20" style="margin-top:10px" />
+                            </a>
+                        }
+                        <img src="~/images/icon-twitter-color.png" width="35" />
+                        <img src="~/images/icon-pinterest-color.png" width="35" />
+                        @if (item.SocialNetworkId == 3)
+                        {
+                            <a class="u-social-url" target="_blank" href="@item.SocialLink">
+                                <img src="~/images/Linkedin.png" width="20" style="margin-top:10px" />
+                            </a>
+                        }
+                    </div>*@
+            </div>
+
+        }
+
+    </div>
+
+</body>
+</html>
+
+

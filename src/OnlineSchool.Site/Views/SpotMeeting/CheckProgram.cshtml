@@ -1,0 +1,559 @@
+﻿@model OnlineSchool.Contract.SpotMeeting.SpotMeetingModel
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/grid-style.css" />
+}
+
+@{
+    var isAdmin = User.IsInRole("Admin");
+    var isSpotMeetingTeacher = ViewBag.IsSpotMeetingTeacher;
+}
+
+<h6 class="page-title"> @SharedResources.MeetingTitle: @Model.Title </h6>
+
+<div>
+    @(Html.Kendo().TabStrip()
+                    .Name("tabStrip")
+                    .SelectedIndex(0)
+                    .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+                    .Items(items =>
+                    {
+                        items.Add().Text(SharedResources.Teachers)
+                                .Selected(true)
+                                .Content(@<text>
+                                    <!-- SpotMeeting Teachers tab -->
+                                    <div class="row mx-0 p-0">
+                                        <div class="col-12 m-0 py-4 padding-lr bg-grey">
+                                            @(Html.Kendo().Grid<OnlineSchool.Contract.SpotMeeting.SpotMeetingTeacherModel>()
+                                                .Name("teachers-grid")
+                                                .HtmlAttributes(new { id = "teachers-grid", style = "height: 500px" })
+                                                .NoRecords()
+                                                .ToolBar(toolbar =>
+                                                {
+                                                    toolbar.ClientTemplateId("teachers-grid-toolbar");
+                                                })
+                                                .Search(search =>
+                                                {
+                                                    search.Field(m => m.Teacher.Name);
+                                                    search.Field(m => m.Teacher.Description);
+                                                })
+                                                .Columns(columns =>
+                                                {
+                                                    columns.Bound(m => m.TeacherId).Visible(false);
+                                                    columns.Bound(m => m.Teacher.Name).Title(SharedResources.Teacher).Width(150)
+                                                        .ClientTemplate("#= renderTeacherName(data.Teacher) #");
+                                                    columns.Bound(m => m.Teacher.Description).Title(SharedResources.Description).Width(150);
+                                                    if ((Model.Status.GetDescription() == "Not published" || Model.Status.GetDescription() == "Published") && (isAdmin || isSpotMeetingTeacher))
+                                                    {
+                                                        columns.Bound(p => p.Id).Title(SharedResources.Actions).Width(120)
+                                                        .ClientTemplate(@"
+                                                            <div class='text-center'>
+                                                                #= renderSpotMeetingTeacherActions(data) #
+                                                            </div>"
+                                                        );
+                                                    }
+                                                })
+                                                .Sortable()
+                                                .Pageable(pg => {
+                                                    pg.Refresh(true);
+                                                    pg.PageSizes(true);
+                                                    pg.ButtonCount(5);
+                                                })
+                                                .Scrollable()
+                                                .DataSource(ds => ds
+                                                    .Ajax()
+                                                    .PageSize(10)
+                                                    .Read(read => read.Action("GetTeachers", "SpotMeeting" , new { id = Model.Id }).Type(HttpVerbs.Get))
+                                                )
+                                                .Deferred()
+                                            )
+
+                                        </div>
+                                    </div>
+                                </text>);
+
+                        items.Add().Text(SharedResources.Materials)
+                                .Content(@<text>
+                                    <!-- SpotMeeting Materials tab -->
+                                    <div class="row mx-0 p-0">
+                                        <div class="col-12 m-0 py-4 padding-lr bg-grey">
+                                            @(Html.Kendo().Grid<OnlineSchool.Contract.SpotMeeting.SpotMeetingMaterialModel>()
+                                                .Name("materials-grid")
+                                                .HtmlAttributes(new { id = "materials-grid", style = "height: 500px" })
+                                                .NoRecords()
+                                                .ToolBar(toolbar =>
+                                                {
+                                                    toolbar.ClientTemplateId("materials-grid-toolbar");
+                                                })
+                                                .Search(search =>
+                                                {
+                                                    search.Field(m => m.Material.FileName);
+                                                    search.Field(m => m.Material.MimeType);
+                                                })
+                                                .Columns(columns =>
+                                                {
+                                                    columns.Bound(p => p.Id).Visible(false);
+                                                    columns.Select().Width(50);
+                                                    columns.Bound(p => p.Material.FileName).Title(SharedResources.FileName).Width(250)
+                                                       .ClientTemplate(@"
+                                                            <a class='text-primary' target='_blank' href='/SpotMeeting/DownloadSpotMeetingMaterial/#=Id#' title='Download'>
+                                                                <span style='white-space: nowrap;'>
+                                                                    <i class='fas fa-file-download'></i> #=Material.FileName#
+                                                                </span>
+                                                            </a>
+                                                    ");
+                                                    columns.Bound(p => p.Material.MimeType).Title(SharedResources.FileType).Width(120);
+                                                    columns.Bound(p => p.Material.FileSize).Title(SharedResources.FileSize).Width(120).ClientTemplate("#=formatBytes(Material.FileSize)#");
+                                                    if ((Model.Status.GetDescription() == "Not published" || Model.Status.GetDescription() == "Published") && (isAdmin || isSpotMeetingTeacher))
+                                                    {
+                                                        columns.Bound(p => p.Id).Title(SharedResources.Actions).Width(120)
+                                                        .ClientTemplate(@"
+                                                            <div class='text-center'>
+                                                                <button class='btn btn-sm btn-danger text-white m-1' title='" + SharedResources.Delete + @"' onclick='onDeleteMaterial(#=Id#)'>
+                                                                    <i class='far fa-trash-alt'></i>
+                                                                </button>
+                                                            </div>"
+                                                        );
+                                                    }
+                                                })
+                                                .Sortable()
+                                                .Pageable(pg =>
+                                                {
+                                                    pg.Refresh(true);
+                                                    pg.PageSizes(true);
+                                                    pg.ButtonCount(5);
+                                                })
+                                                .Scrollable()
+                                                .Events(e =>
+                                                {
+                                                    e.Change("onChange");
+                                                    e.DataBound("onDataBound");
+                                                })
+                                                .DataSource(ds => ds
+                                                    .Ajax()
+                                                    .PageSize(10)
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+                                                    })
+                                                    .Read(read => read.Action("GetMaterials", "SpotMeeting", new { id = Model.Id }).Type(HttpVerbs.Get))
+                                                )
+                                                .Deferred()
+                                            )
+
+                                        </div>
+                                    </div>
+                                </text>);
+                    })
+                    .Deferred()
+    )
+</div>
+
+<!-- SpotMeeting Teacher modal -->
+<div id="teacher-modal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="teacher-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="teacher-modal-label"> @SharedResources.AssignNewTeacher </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="teacher-form" class="my-4">
+
+                    <div class="validation-summary-errors text-danger mb-4">
+                        <ul id="teacher-errors"></ul>
+                    </div>
+                    <input type="number" id="spotMeetingId" value="" hidden />
+
+                    <div class="form-group">
+                        <label for="teacher" class="form-control-placeholder"> @SharedResources.Teacher </label>
+                        @(Html.Kendo().ComboBox()
+                            .Name("teacherDropdown")
+                            .Placeholder(SharedResources.SelectTeacher)
+                            .DataTextField("Name")
+                            .DataValueField("Id")
+                            .HtmlAttributes(new { @class = "form-control w-100" })
+                            .Filter(FilterType.Contains)
+                            .AutoBind(false)
+                            .SelectedIndex(0)
+                            .Suggest(true)
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("GetAllTeachers_Dropdown", "Teacher");
+                                });
+                            })
+                            .Deferred()
+                        )
+                    </div>
+                    <div class="form-group text-right">
+                        <button type="button" class="btn btn-sm btn-light border" data-dismiss="modal"> @SharedResources.Close </button>
+                        <button type="submit" class="btn btn-sm my-btn-primary ml-2"> @SharedResources.Save </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SpotMeeting Material modal -->
+<div id="material-modal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="material-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="material-modal-label"> @SharedResources.AddFile </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="material-form" class="my-4">
+
+                    <div class="validation-summary-errors text-danger mb-4">
+                        <ul id="material-errors"></ul>
+                    </div>
+                    <input type="number" id="spotMeetingId" value="" hidden />
+
+                    <div class="form-group">
+                        <label for="materials" class="form-control-placeholder"> @SharedResources.Materials </label>
+                        @(Html.Kendo().Upload()
+                            .Name("files")
+                            .HtmlAttributes(new { @class = "form-control w-100", id = "material-upload" })
+                            .Multiple(true)
+                            .Directory(false)
+                            .Validation(validation =>
+                            {
+                                validation.MinFileSize(0);
+                                validation.MaxFileSize(104857600); // 100MB limit
+                            })
+                            .Async(a =>
+                            {
+                                a.Save("SpotMeetingMaterial_ChunkUpload", "SpotMeeting");
+                                a.AutoUpload(false);
+                                a.ChunkSize(20480); // 3MB chunk
+                            })
+                            .Events(e => {
+                                e.Upload("onUpload");
+                                e.Success("onUploadSuccess");
+                                e.Error("onUploadError");
+                            })
+                            .Deferred()
+                        )
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script id="teachers-grid-toolbar" type="text/x-kendo-template">
+
+        @if (Model.Status.GetDescription() == "Not published" && ViewBag.CurrentAvailableSpots > 0 && isAdmin)
+        {
+            <div class='teachers-grid-actions m-2 ml-0 float-left'>
+                <a class='btn btn-active-primary btn-light btn-sm' onclick='onShowTeacherModal(@Model.Id)' title='@SharedResources.NewTeacher'>
+                    <i class="k-icon k-i-plus"></i> @SharedResources.NewTeacher
+                </a>
+            </div>
+        }
+        <span class="k-textbox k-grid-search k-display-flex">
+            <input autocomplete="off" placeholder="@SharedResources.SEARCH..." title="@SharedResources.SEARCH..." class="k-input">
+            <span class="k-input-icon">
+                <span class="k-icon k-i-search"></span>
+            </span>
+        </span>
+
+    </script>
+
+    <script id="materials-grid-toolbar" type="text/x-kendo-template">
+
+        <div class='materials-grid-actions'>
+            @if (Model.Status.GetDescription() == "Not published" && (isSpotMeetingTeacher || isAdmin))
+            {
+                <div class='m-2 ml-0 float-left'>
+                    <a class='btn btn-active-primary btn-light btn-sm' onclick='onShowMaterialModal(@Model.Id)' title='@SharedResources.NewMaterial'>
+                        <i class="k-icon k-i-plus"></i> @SharedResources.NewMaterial
+                    </a>
+                </div>
+            }
+            <button disabled id="downloadSelected" class='btn btn-sm btn-outline-primary float-right m-2' style='width: 38px; height: 38px;' onclick='onDownloadSelectedMaterials();' title='@SharedResources.DownloadSelected'>
+                <i class="fas fa-download"> </i>
+            </button>
+            <span class="k-textbox k-grid-search k-display-flex align-middle float-right m-2 ml-0">
+                <input autocomplete="off" placeholder="@SharedResources.SEARCH..." title="@SharedResources.SEARCH..." class="k-input">
+                <span class="k-input-icon">
+                    <span class="k-icon k-i-search"></span>
+                </span>
+            </span>
+        </div>
+
+    </script>
+
+    <script>
+        beforeUnloadListener = (e) => {
+            e.preventDefault();
+            e.returnValue = "";
+        }
+
+        $(document).ready(() => {
+            let selectedIds = [];
+
+            let materialModal = $('#material-modal');
+
+            let teacherModal = $('#teacher-modal');
+
+            let successMsg = '@TempData["Success"]';
+            successMsg ? ShowSuccess(successMsg) : null;
+            let errorMsg = '@TempData["Error"]';
+            errorMsg ? ShowError(errorMsg) : null;
+
+            onChange = (e) => {
+                selectedIds = []; // First, reset this
+                Object.keys(e.sender._selectedIds).forEach(k => selectedIds.push(parseInt(k)));
+
+                let downloadSelectedBtn = $('#downloadSelected');
+                (selectedIds.length > 0) ?
+                    downloadSelectedBtn.removeAttr('disabled') :
+                    downloadSelectedBtn.attr('disabled', true);
+            }
+
+            onDataBound = (e) => {
+                selectedIds = [];
+                let downloadSelectedBtn = $('#downloadSelected');
+                downloadSelectedBtn.attr('disabled', true);
+            }
+
+            // Material actions
+
+            onShowMaterialModal = (spotMeetingId) => {
+                $("#spotMeetingId").val(spotMeetingId);
+                materialModal.modal('show');
+            }
+
+            materialModal.on('hide.bs.modal', (e) => {
+                if (isMaterialUploading()) {
+                    e.preventDefault();
+                    ShowWarning('Upload is still in progress.');
+                    window.addEventListener("beforeunload", beforeUnloadListener);
+                }
+                else {
+                    window.removeEventListener("beforeunload", beforeUnloadListener);
+                }
+            });
+
+            materialModal.on('hidden.bs.modal', (e) => {
+                clearMaterialModal();
+            });
+
+            clearMaterialModal = () => {
+                let materialUpload = $('#material-upload').data("kendoUpload");
+
+                materialUpload.clearAllFiles();
+                materialUpload.options.async.saveUrl = "/SpotMeeting/SpotMeetingMaterial_ChunkUpload";
+            }
+
+            onUpload = (e) => {
+                let materialUpload = $('#material-upload').data("kendoUpload");
+                let spotMeetingId = $("#spotMeetingId").val();
+
+                materialUpload.options.async.saveUrl = `/SpotMeeting/SpotMeetingMaterial_ChunkUpload/${spotMeetingId}`;
+                materialUpload.upload();
+            }
+
+            onUploadSuccess = (e) => {
+                if (e.operation === 'upload' && e.response.uploaded === true) {
+                    ShowSuccess(`${e.files[0].name} uploaded successfully.`);
+                    refreshKendoGrid('materials-grid');
+                }
+            }
+
+            onUploadError = (e) => {
+                console.error(e);
+                let response = JSON.parse(e.XMLHttpRequest.response);
+                ShowError(response.error);
+            }
+
+            isMaterialUploading = () => {
+                return $('#material-upload').parents('.k-upload').find('.k-file-progress').length > 0;
+            }
+
+            onDeleteMaterial = (id) => {
+                ShowConfirmation(
+                    `Are you sure you want to remove this material?`,
+                    '',
+                    () => {
+
+                        // Todo: Ajax call here
+                        $.ajax({
+                            type: 'POST',
+                            url: `/SpotMeeting/DeleteSpotMeetingMaterial/${id}`,
+                            contentType: "application/json",
+                            dataType: "json",
+                            success: data => {
+                                // Ok
+                                if (data.HasErrors === false) {
+                                    ShowSuccess('Material deleted successfully.');
+                                    refreshKendoGrid("materials-grid");
+                                }
+                                // Errors
+                                else {
+                                    let errors = '';
+                                    // Show something
+                                }
+                            },
+                            fail: err => {
+                                console.log(err.Errors);
+                                ShowError(err);
+                            }
+                        });
+                    },
+                    null
+                )
+            }
+
+            onDownloadSelectedMaterials = () => {
+                if (selectedIds.length > 0) {
+
+                    let api = `/SpotMeeting/DownloadSpotMeetingMaterials?`;
+                    selectedIds.forEach((id, i) => {
+                        api += `ids=${id}`;
+                        if (i < (selectedIds.length - 1))
+                            api += '&';
+                    });
+
+                    downloadURI(api);
+                    $('#materials-grid').data('kendoGrid').clearSelection();
+                }
+            }
+
+            // Teacher actions
+
+            onShowTeacherModal = (id) => {
+                $('#spotMeetingId').val(id);
+                teacherModal.modal('show');
+            }
+
+            $('#teacher-form').submit(e => {
+                e.preventDefault();
+
+                var model = {
+                    SpotMeetingId: parseInt($("#spotMeetingId").val()),
+                    TeacherId: parseInt($("#teacherDropdown").data('kendoComboBox').value()),
+                };
+
+                console.log(model);
+                // Todo: Ajax call here
+                $.ajax({
+                    type: 'POST',
+                    url: '/SpotMeeting/AssignTeacher',
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(model),
+                    success: data => {
+                        // Ok
+                        if (data.HasErrors === false) {
+                            ShowSuccess('Teacher assigned successfully.');
+                            closeTeacherModal();
+                            refreshKendoGrid(`teachers-grid`);
+                        }
+                        // Errors
+                        else {
+                            let errors = '';
+                            data.Errors.forEach(e => {
+                                errors += `<li> ${e} </li>`;
+                            });
+                            $('#teacher-errors').html(errors);
+                        }
+                    },
+                    fail: err => {
+                        console.log(err.Errors);
+                        ShowError(err);
+                    }
+                });
+
+                closeTeacherModal = () => {
+                    teacherModal.modal('hide');
+                }
+
+                teacherModal.on('hidden.bs.modal', function (event) {
+                    clearTeacherForm();
+                });
+
+                clearTeacherForm = () => {
+                    $('#teacher-errors').html('');
+                    $('#spotMeetingId').val('');
+                    $("#teacherDropdown").data('kendoComboBox').value('');
+                }
+            });
+
+            onDeleteTeacher = (id) => {
+                ShowConfirmation(
+                    `Are you sure you want to unassign this teacher?`,
+                    '',
+                    () => {
+
+                        // Todo: Ajax call here
+                        $.ajax({
+                            type: 'POST',
+                            url: `/SpotMeeting/UnAssignTeacher/${id}`,
+                            contentType: "application/json",
+                            dataType: "json",
+                            success: data => {
+                                // Ok
+                                if (data.HasErrors === false) {
+                                    ShowSuccess('Teacher unassigned successfully.');
+                                    refreshKendoGrid("teachers-grid");
+                                }
+                                // Errors
+                                else {
+                                    let errors = '';
+                                    // Show something
+                                }
+                            },
+                            fail: err => {
+                                console.log(err.Errors);
+                                ShowError(err);
+                            }
+                        });
+                    },
+                    null
+                )
+            }
+
+            renderTeacherName = (data) => {
+                let url = "";
+                if (data.ImagePath != null) {
+                    url = `/uploads/teachers/${data.Id}/${data.ImagePath}`;
+                }
+                else {
+                    url = '/images/image3.png';
+                }
+
+                let detailsUrl = `/Teacher/${data.Id}/Details`;
+
+                return `<div class="d-flex align-items-center">
+                            <div class="symbol symbol-45px me-5">
+                                <img src="${url}" alt="" />
+                            </div>
+                            <div class="d-flex justify-content-start flex-column">
+                                <a href="${detailsUrl}" class="fw-bolder text-hover-primary fs-6">${data.Name} ${data.Surname}</a>
+                            </div>
+                        </div>`;
+            }
+
+            renderSpotMeetingTeacherActions = (data) => {
+                if (!data.IsHost) {
+                    return `<button class='btn btn-sm btn-danger text-white m-1' title='@SharedResources.Delete' onclick='onDeleteTeacher(${data.Id})'>
+                                <i class='far fa-trash-alt'></i>
+                            </button>`;
+                }
+                return ``;
+            }
+        });
+    </script>
+}

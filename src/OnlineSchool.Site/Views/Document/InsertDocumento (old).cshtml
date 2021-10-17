@@ -1,0 +1,110 @@
+﻿@model OnlineSchool.Contract.Documents.DocumentModel
+
+@*<div class="text-center">
+    <h6 class="title-nostraforza">New Document</h6>
+</div>*@
+
+<div class="container">
+    <div class="text-center mb-3">
+        @if (Model.Id > 0)
+        {
+            <div style="margin-bottom:70px" class="text-center">
+                <h6 class="title-nostraforza">Modifica documento</h6>
+            </div>
+        }
+        else
+        {
+            <div style="margin-bottom:70px" class="text-center">
+                <h6 class="title-nostraforza">Nuovo documento</h6>
+            </div>
+        }
+    </div>
+    <form method="post">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="row mb-4">
+            <div class="col-6">
+                <div class="form-group">
+                    @*<label asp-for="@Model.Description"></label>
+                    <input asp-for="@Model.Description" class="form-control no-border col-12" />
+                    <span asp-validation-for="@Model.Description" class="text-danger"></span>*@
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group">
+                    <label asp-for="@Model.DocumentTypeId"></label>
+                    <div>
+                        @(Html.Kendo().DropDownListFor(m => m.DocumentTypeId)
+                        .OptionLabel("seleziona")
+                        .DataTextField("Value")
+                        .DataValueField("Id")
+                        .DataSource(source =>
+                        {
+                            source.Read(read =>
+                            {
+                                read.Action("Read_AllDocumentType", "Documenti");
+                            });
+                        })
+                          .HtmlAttributes(new { style = "width: 100%" })
+                        )
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-6">
+                <div class="form-group ">
+                    @*<label asp-for="@Model.InsertedDate"></label>*@
+                    @*@(Html.Kendo().DatePickerFor(m => m.InsertedDate)
+                    .Value(Model.InsertedDate)
+                    .HtmlAttributes(new { style = "width: 100%" })
+                    )*@
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group ">
+                    @*<label asp-for="@Model.ExpiredDate"></label>*@
+                    @*@(Html.Kendo().DatePickerFor(m => m.ExpiredDate)
+                     .Value(Model.ExpiredDate)
+                     .HtmlAttributes(new { style = "width: 100%" })
+                    )*@
+                </div>
+            </div>
+        </div>
+        <div style="margin-bottom:50px" class="text-right mb-5">
+            @if (Model.Id > 0)
+            {
+                <button type="submit" class='btn float-right btn-contact mt-3 ' asp-area="" asp-controller="Documenti" asp-route-Id="@Model.Id" asp-action="Update_Document" >Avanti</button>
+            }
+            else
+            {
+                <button type="submit" class='btn btn-s float-right btn-contact mt-3 ' asp-area="" asp-controller="Documenti" asp-action="CreateDocument" >Avanti</button>
+            }
+            <button type="submit" class='btn float-right btn-contact mt-3 mr-3' asp-area="" asp-controller="Documenti" asp-action="Index">Cancel</button>
+        </div>
+    </form>
+</div>
+
+
+<style>
+    .title-nostraforza {
+        margin: 10px 0px 10px 0px;
+        /* font-weight: bold; */
+        text-align: center;
+        color: white;
+        text-transform: uppercase;
+        background-color: lightgrey;
+        height: 50px;
+        padding-top: 15px;
+    }
+
+    btn-contact {
+        background-color: mediumblue;
+        color: #fff !important;
+        padding: 6px 50px;
+        border-radius: 0px;
+        margin-bottom: 270px;
+    }
+</style>
+
+

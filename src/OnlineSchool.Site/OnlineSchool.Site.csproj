@@ -1,0 +1,96 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20210825124055_Current.cs" />
+    <Compile Remove="Migrations\20210825124055_Current.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\react-app\index.html" />
+  </ItemGroup>
+  <ItemGroup>
+  <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
+  <PackageReference Include="FluentEmail.Core" Version="3.0.0" />
+  <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.3" />
+  <PackageReference Include="Ical.Net" Version="4.2.0" />
+  <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+  <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.2.0" />
+  <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="3.1.8" />
+  <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.8" />
+  <PackageReference Include="Microsoft.AspNetCore.Localization" Version="2.2.0" />
+  <PackageReference Include="Microsoft.AspNetCore.Localization.Routing" Version="2.2.0" />
+  <PackageReference Include="Microsoft.AspNetCore.Mvc.Localization" Version="2.2.0" />
+  <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.8" />
+  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.8">
+    <PrivateAssets>all</PrivateAssets>
+    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+  </PackageReference>
+  <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="3.1.8" />
+  <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.8" />
+  <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
+  <PackageReference Include="MimeKit" Version="2.13.0" />
+  <PackageReference Include="NodaTime" Version="3.0.5" />
+  <PackageReference Include="PusherServer" Version="4.4.0" />
+  <PackageReference Include="Quartz" Version="3.3.3" />
+  <PackageReference Include="Quartz.Extensions.Hosting" Version="3.3.3" />
+  <PackageReference Include="Serilog" Version="2.10.0" />
+  <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
+  <PackageReference Include="Stripe.net" Version="39.4.0" />
+  <PackageReference Include="System.Globalization" Version="4.3.0" />
+  <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  <PackageReference Include="Telerik.UI.for.AspNet.Core" Version="2020.1.114" />
+  <PackageReference Include="X.PagedList.Mvc.Core" Version="8.1.0" />
+    
+
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ItalWebConsulting.Infrastructure.Mvc\ItalWebConsulting.Infrastructure.Mvc.csproj" />
+    <ProjectReference Include="..\ItalWebConsulting.Infrastructure\ItalWebConsulting.Infrastructure.csproj" />
+    <ProjectReference Include="..\OnlineSchool.Core\OnlineSchool.Core.csproj" />
+    <ProjectReference Include="..\OnlineSchool.Domain\OnlineSchool.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="nlog.config" CopyToOutputDirectory="PreserveNewest" />
+    <Content Update="wwwroot\images\icon-linkedin-color.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\icon-linkedin.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\image3.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="logs\" />
+    <Folder Include="private_uploads\" />
+    <Folder Include="Views\Admin\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\react-app\index.html" />
+    <None Include="wwwroot\react-app\static\css\2.6ab58604.chunk.css" />
+    <None Include="wwwroot\react-app\static\css\2.6ab58604.chunk.css.map" />
+    <None Include="wwwroot\react-app\static\css\main.79b22915.chunk.css" />
+    <None Include="wwwroot\react-app\static\css\main.79b22915.chunk.css.map" />
+    <None Include="wwwroot\react-app\static\js\2.b2afb29b.chunk.js" />
+    <None Include="wwwroot\react-app\static\js\2.b2afb29b.chunk.js.map" />
+    <None Include="wwwroot\react-app\static\js\2.c3b52a3e.chunk.js" />
+    <None Include="wwwroot\react-app\static\js\2.c3b52a3e.chunk.js.LICENSE.txt" />
+    <None Include="wwwroot\react-app\static\js\2.c3b52a3e.chunk.js.map" />
+    <None Include="wwwroot\react-app\static\js\main.bbd71a4f.chunk.js" />
+    <None Include="wwwroot\react-app\static\js\main.bbd71a4f.chunk.js.map" />
+    <None Include="wwwroot\react-app\static\js\main.f057a2fc.chunk.js" />
+    <None Include="wwwroot\react-app\static\js\main.f057a2fc.chunk.js.map" />
+    <None Include="wwwroot\react-app\static\js\runtime-main.47fde732.js" />
+    <None Include="wwwroot\react-app\static\js\runtime-main.47fde732.js.map" />
+  </ItemGroup>
+
+</Project>

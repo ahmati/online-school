@@ -1,0 +1,7 @@
+@import "../../../../css/variables.css";
+
+#recording-indicator {
+    position: fixed;
+    top: var(--header-height);
+    right: 5px;
+}

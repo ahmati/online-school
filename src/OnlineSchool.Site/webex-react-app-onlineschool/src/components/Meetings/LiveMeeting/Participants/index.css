@@ -1,0 +1,39 @@
+.slide-drawer-header .dropdown button {
+    margin: 0 !important;
+}
+
+.list-group-item {
+    padding: 7px;
+}
+.list-group-item > * {
+    vertical-align: middle !important;
+}
+#raise-hand {
+    display: inline-block;
+    width: 20px;
+    height: 100%;
+    overflow: hidden;
+}
+
+#participants-section-title {
+    background: #6c6c6c17 !important;
+}
+
+#handRaised-section, #guests-section {
+    max-height: 40% !important;
+}
+    #handRaised-section > .list-container, 
+    #guests-section > .list-container {
+        height: calc(100% - 30px);
+        overflow: auto !important;
+    }
+    .list-container::-webkit-scrollbar-thumb {
+        background: #28a745 !important;
+    }
+
+.search-input {
+    width: 100%;
+    font-size: 14px;
+    padding-top: 4px;
+    -webkit-appearance: auto !important;
+}

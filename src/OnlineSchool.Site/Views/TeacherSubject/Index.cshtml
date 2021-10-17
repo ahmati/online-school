@@ -1,0 +1,876 @@
+﻿@model OnlineSchool.Contract.TeacherSubject.TeacherSubjectModel
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/grid-style.css" />
+}
+
+@{
+    var teacherName = Model.Teacher.Name;
+    var subjectName = Model.Subject.Name;
+    var teacherSubjectId = Model.Id;
+}
+
+<h6 class="page-title"> @SharedResources.Teacher: @teacherName | @SharedResources.Subject: @subjectName </h6>
+
+<div>
+    @(Html.Kendo().TabStrip()
+                    .Name("tabStrip")
+                    .SelectedIndex(0)
+                    .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+                    .Items(items =>
+                    {
+                        items.Add().Text(SharedResources.Materials)
+                                .Selected(true)
+                                .Content(@<text>
+                                    <!-- TeacherSubject Materials tab -->
+                                    <div class="row mx-0 p-0">
+                                        <div class="col-12 m-0 py-4 padding-lr bg-grey">
+
+                                            @(Html.Kendo().Grid<OnlineSchool.Contract.TeacherSubject.TeacherSubjectMaterialModel>()
+                                                .Name("subject-materials-grid")
+                                                .HtmlAttributes(new { id = "subject-materials-grid", style = "height: 500px" })
+                                                .NoRecords()
+                                                .ToolBar(toolbar =>
+                                                {
+                                                    toolbar.ClientTemplateId("teacher-subject-materials-grid-toolbar");
+                                                })
+                                                .Search(search =>
+                                                {
+                                                    search.Field(m => m.Material.FileName);
+                                                    search.Field(m => m.Material.MimeType);
+                                                })
+                                                .Columns(columns =>
+                                                {
+                                                    columns.Bound(p => p.Id).Visible(false);
+                                                    columns.Select().Width(50);
+                                                    columns.Bound(p => p.Material.FileName).Title(SharedResources.FileName).Width(250)
+                                                        .ClientTemplate(@"
+                                                            <a class='text-primary' target='_blank' href='/TeacherSubject/DownloadTeacherSubjectMaterial/#=Id#' title='" + @SharedResources.Download + @"'>
+                                                                <span style='white-space: nowrap;'>
+                                                                    <i class='fas fa-file-download'></i> #=Material.FileName#
+                                                                </span>
+                                                            </a>
+                                                    ");
+                                                    columns.Bound(p => p.Material.MimeType).Title(SharedResources.FileType).Width(120);
+                                                    columns.Bound(p => p.Material.FileSize).Title(SharedResources.FileSize).Width(120).ClientTemplate("#=formatBytes(Material.FileSize)#");
+                                                    columns.Bound(p => p.Id).Title(SharedResources.Actions).Width(120)
+                                                        .ClientTemplate(@"
+                                                            <div class='text-center'>
+                                                                <button class='btn btn-sm btn-danger text-white m-1' title='" + SharedResources.Delete + @"' onclick='onDeleteSubjectMaterial(#=Id#)'>
+                                                                    <i class='far fa-trash-alt'></i>
+                                                                </button>
+                                                            </div>"
+                                                        );
+                                                })
+                                                .Sortable()
+                                                .Pageable(pg => {
+                                                    pg.Refresh(true);
+                                                    pg.PageSizes(true);
+                                                    pg.ButtonCount(5);
+                                                })
+                                                .Scrollable()
+                                                .Events(e =>
+                                                {
+                                                    e.Change("onChange");
+                                                    e.DataBound("onDataBound");
+                                                })
+                                                .DataSource(ds => ds
+                                                    .Ajax()
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+                                                    })
+                                                    .Read(read => read.Action("GetMaterials", "TeacherSubject" , new { id = teacherSubjectId }).Type(HttpVerbs.Get))
+                                                )
+                                                .Deferred()
+                                            )
+
+                                        </div>
+                                    </div>
+                                </text>);
+
+                        items.Add().Text(SharedResources.Lessons)
+                                .Content(@<text>
+                                    <!-- TeacherSubject Lessons tab -->
+                                    <div class="row mx-0 p-0">
+                                        <div class="col-12 m-0 py-4 padding-lr bg-grey">
+
+                                            @(Html.Kendo().Grid<OnlineSchool.Contract.Lessons.LessonModel>()
+                                                .Name("lesson-grid")
+                                                .HtmlAttributes(new { id = "lesson-grid", style = "height: 500px" })
+                                                .NoRecords()
+                                                .ToolBar(toolbar =>
+                                                {
+                                                    toolbar.ClientTemplate(@"
+                                                        <div class='lesson-grid-actions'>
+                                                            <button class='btn btn-active-primary btn-light btn-sm m-2 ml-0' onclick='onAddLessonModal(" + teacherSubjectId + @")' title='" + SharedResources.NewLesson + @"'>
+                                                                <i class='k-icon k-i-plus'></i> " + SharedResources.NewLesson + @"
+                                                            </button>
+                                                            <span class='k-textbox k-grid-search k-display-flex'>
+                                                                <input autocomplete='off' placeholder='" + SharedResources.SEARCH + @"...' title='" + SharedResources.SEARCH + @"...' class='k-input'>
+                                                                <span class='k-input-icon'>
+                                                                    <span class='k-icon k-i-search'></span>
+                                                                </span>
+                                                            </span>
+                                                        </div>
+                                                        ");
+                                                })
+                                                .Search(search =>
+                                                {
+                                                    search.Field(m => m.Name);
+                                                    search.Field(m => m.Description);
+                                                })
+                                                .Columns(columns =>
+                                                {
+                                                    columns.Bound(p => p.Id).Visible(false);
+                                                    columns.Bound(p => p.Name).Title(SharedResources.Name).Width(250);
+                                                    columns.Bound(p => p.Description).Title(SharedResources.Description).Width(250);
+                                                    columns.Bound(p => p.Id).Title(SharedResources.Actions).Width(120)
+                                                        .ClientTemplate(@"
+                                                            <div class='text-center'>
+                                                                <button class='btn btn-sm btn-light border m-1' onclick='onEditLesson(this, #=Id#," + teacherSubjectId + @")' title='" + SharedResources.Edit + @"'>
+                                                                    <i class='fas fa-edit'></i>
+                                                                </button>
+                                                                <button class='btn btn-sm btn-danger text-white m-1' title='" + SharedResources.Delete + @"' onclick='onDeleteLesson(#=Id#)'>
+                                                                    <i class='far fa-trash-alt'></i>
+                                                                </button>
+                                                            </div>"
+                                                        );
+                                                })
+                                                .Sortable()
+                                                .Pageable(pg =>
+                                                {
+                                                    pg.Refresh(true);
+                                                    pg.PageSizes(true);
+                                                    pg.ButtonCount(5);
+                                                })
+                                                .Scrollable()
+                                                .ClientDetailTemplateId("lesson-template")
+                                                .DataSource(ds => ds
+                                                    .Ajax()
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+                                                    })
+                                                    .Read(read => read.Action("GetLessonsByTeacherSubject", "TeacherSubject" ,new { id = teacherSubjectId }).Type(HttpVerbs.Get))
+                                                )
+                                                .Events(e =>
+                                                {
+                                                    e.DetailExpand("expandDetails");
+                                                })
+                                                .Deferred()
+                                            )
+
+                                        </div>
+                                    </div>
+                                </text>);
+
+                    })
+                    .Deferred()
+    )
+</div>
+
+<script id="lesson-template" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<OnlineSchool.Contract.Lessons.LessonMaterialModel>()
+        .Name("lesson-material-grid-#=Id#")
+        .NoRecords()
+        .ToolBar(toolbar =>
+        {
+            toolbar.ClientTemplate("" +
+                "<div class='lesson-material-grid-#=Id#-actions'>" +
+                    "<button class='btn btn-active-primary btn-light btn-sm float-left m-2 ml-0' onclick='onShowLessonMaterialModal(#=Id#, " + teacherSubjectId + @")' title='" + SharedResources.NewMaterial + "'>" +
+                        "<i class='k-icon k-i-plus'></i> " + SharedResources.NewMaterial +
+                    "</button> " +
+                    "<button disabled id='downloadSelectedLessons' class='btn btn-sm btn-outline-primary float-right m-2' style='width: 38px; height: 38px;' onclick='onDownloadSelectedLessonMaterials(#=Id#)' title='" + SharedResources.DownloadSelected + "'>" +
+                        "<i class='fas fa-download'> </i>" +
+                    "</button>" +
+                    "<span class='k-textbox k-grid-search k-display-flex align-middle float-right m-2 ml-0'>" +
+                        "<input autocomplete='off' placeholder='" + SharedResources.SEARCH + "...' title='" + SharedResources.SEARCH + "...' class='k-input'>" +
+                        "<span class='k-input-icon'>" +
+                            "<span class='k-icon k-i-search'></span>" +
+                        "</span>" +
+                    "</span>" +
+                "</div> " +
+            "");
+        })
+        .Search(search =>
+        {
+            search.Field(m => m.Material.FileName);
+            search.Field(m => m.Material.MimeType);
+        })
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.Id).Visible(false);
+            columns.Select().Width(50);
+            columns.Bound(p => p.Material.FileName).Title(SharedResources.FileName).Width(250)
+            .ClientTemplate(
+                "<a class='text-primary' target='_blank' href='/TeacherSubject/DownloadLessonMaterial/\\#=Id\\#' title='Download'>" +
+                    "<span style='white-space: nowrap;'>" +
+                        "<i class='fas fa-file-download'></i>  \\#:Material.FileName\\# " +
+                    "</span>" +
+                "</a>");
+            columns.Bound(p => p.Material.MimeType).Title(SharedResources.FileType).Width(120);
+            columns.Bound(p => p.Material.FileSize).Title(SharedResources.FileSize).Width(120).ClientTemplate("\\#=formatBytes(Material.FileSize)\\#");
+            columns.Bound(p => p.Id).Title(SharedResources.Actions).Width(120)
+                   .ClientTemplate("" +
+                       "<div class='text-center'>" +
+                            "<button class='btn btn-sm btn-danger text-white m-1' title='" + SharedResources.Delete + @"' onclick='onDeleteLessonMaterial(this, #=Id#)'>" +
+                                "<i class='far fa-trash-alt'></i>" +
+                            "</button>" +
+                        "</div>");
+        })
+        .Sortable()
+        .Pageable(pg =>
+        {
+            pg.Refresh(true);
+            pg.PageSizes(true);
+            pg.ButtonCount(5);
+        })
+        .Events(e =>
+        {
+            e.Change("onChangeLessonMaterial");
+            e.DataBound("onDataBoundLessonMaterial");
+        })
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(3)
+            .Model(model =>
+            {
+                model.Id(p => p.Id);
+            })
+            .Read(read => read.Action("GetLessonMaterials", "TeacherSubject", new { id = "#=Id#" }).Type(HttpVerbs.Get))
+        )
+        //.Editable(editing => editing.Mode(GridEditMode.PopUp))
+        .ToClientTemplate()
+    )
+</script>
+
+<!-- TeacherSubject Material modal -->
+<div id="subject-material-modal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="techer-subject-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="teacher-subject-modal-label">@SharedResources.AddFile</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="teacher-subject-form" class="my-4">
+
+                    <div class="validation-summary-errors text-danger mb-4">
+                        <ul id="subject-errors"></ul>
+                    </div>
+                    <input type="number" id="tacherSubjectId" value="" hidden />
+
+                    <div class="form-group">
+                        <label for="teacher-subject-materials" class="form-control-placeholder"> @SharedResources.Materials </label>
+                        @(Html.Kendo().Upload()
+                            .Name("files")
+                            .HtmlAttributes(new { @class = "form-control w-100", id = "subject-material-upload" })
+                            .Multiple(true)
+                            .Directory(false)
+                            .Validation(validation =>
+                            {
+                                validation.MinFileSize(0);
+                                validation.MaxFileSize(104857600); // 100MB limit
+                            })
+                            .Async(a =>
+                            {
+                                a.Save("SubjectMaterial_ChunkUpload", "TeacherSubject");
+                                a.AutoUpload(false);
+                                a.ChunkSize(20480); // 3MB chunk
+                            })
+                            .Events(e => {
+                                e.Upload("onUpload");
+                                e.Success("onUploadSuccess");
+                                e.Error("onUploadError");
+                            })
+                            .Deferred()
+                        )
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lesson modal -->
+<div id="lesson-modal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="lesson-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="lesson-modal-label"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="lesson-form" class="my-4">
+                    <div class="validation-summary-errors text-danger mb-4">
+                        <ul id="lesson-errors"></ul>
+                    </div>
+
+                    <input type="number" id="teacherSubjectId" value="" hidden />
+                    <input type="number" id="lessonId" value="" hidden />
+
+                    <div class="form-group">
+                        <label asp-for="@Model.Lesson.Name" class="form-control-placeholder"> @SharedResources.Name </label>
+                        <input asp-for="@Model.Lesson.Name" id="lesson-name" class="form-control" required />
+                        <span asp-validation-for="@Model.Lesson.Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="@Model.Lesson.Description" class="form-control-placeholder"> @SharedResources.Description </label>
+                        <textarea rows="3" asp-for="@Model.Lesson.Description" id="lesson-description" class="form-control" required></textarea>
+                        <span asp-validation-for="@Model.Lesson.Description" class="text-danger"></span>
+                    </div>
+                    <div class="form-group text-right">
+                        <button type="button" class="btn btn-sm btn-light border" data-dismiss="modal"> @SharedResources.Close </button>
+                        <button type="submit" class="btn btn-sm my-btn-primary ml-2"> @SharedResources.Save </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lesson Material modal -->
+<div id="lesson-material-modal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="lesson-material-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="lesson-material-label">@SharedResources.AddFile</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="lesson-material-form" class="my-4">
+
+                    <div class="validation-summary-errors text-danger mb-4">
+                        <ul id="lesson-material-errors"></ul>
+                    </div>
+
+                    <input type="number" id="teacherSubjectLessonId" value="" hidden />
+                    <input type="number" id="lesson-Id" value="" hidden />
+
+                    <div class="form-group">
+                        <label for="lesson-materials" class="form-control-placeholder"> @SharedResources.Materials </label>
+                        @(Html.Kendo().Upload()
+                            .Name("files")
+                            .HtmlAttributes(new { @class = "form-control w-100", id = "lesson-material-upload" })
+                            .Multiple(true)
+                            .Directory(false)
+                            .Validation(validation =>
+                            {
+                                validation.MinFileSize(0);
+                                validation.MaxFileSize(104857600); // 100MB limit
+                            })
+                            .Async(a =>
+                            {
+                                a.Save("LessonMaterial_ChunkUpload", "TeacherSubject");
+                                a.AutoUpload(false);
+                                a.ChunkSize(20480); // 3MB chunk
+                            })
+                            .Events(e => {
+                                e.Upload("onUploadLesson");
+                                e.Success("onUploadSuccess2");
+                                e.Error("onUploadError2");
+                            })
+                            .Deferred()
+                        )
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    <script id="teacher-subject-materials-grid-toolbar" type="text/x-kendo-template">
+
+        <div class='teacher-subject-materials-grid-actions'>
+            <button class="btn btn-active-primary btn-light btn-sm float-left m-2 ml-0" onclick='onShowSubjectMaterialModal(@teacherSubjectId)' title='@SharedResources.NewMaterial'>
+                <i class="k-icon k-i-plus"></i> @SharedResources.NewMaterial
+            </button>
+            <button disabled id="downloadSelected" class='btn btn-sm btn-outline-primary float-right m-2' style='width: 38px; height: 38px;' onclick='onDownloadSelectedMaterials();' title='@SharedResources.DownloadSelected'>
+                <i class="fas fa-download"> </i>
+            </button>
+            <span class="k-textbox k-grid-search k-display-flex align-middle float-right m-2 ml-0">
+                <input autocomplete="off" placeholder="@SharedResources.SEARCH..." title="@SharedResources.SEARCH..." class="k-input">
+                <span class="k-input-icon">
+                    <span class="k-icon k-i-search"></span>
+                </span>
+            </span>
+        </div>
+
+    </script>
+
+    <script>
+
+        beforeUnloadListener = (e) => {
+            e.preventDefault();
+            e.returnValue = "";
+        }
+
+        $(document).ready(() => {
+            let selectedIds = [];
+
+            // A reference to the modal
+            let subjectMaterialModal = $('#subject-material-modal');
+            let subjectMaterialModalErrorsRef = $('#subject-errors');
+
+            let lessonMaterialModal = $('#lesson-material-modal');
+            let lessonMaterialModalErrorsRef = $('#lesson-material-errors');
+
+            let lessonEdit;
+            let lessonModal = $('#lesson-modal');
+            let lessonModalErrorsRef = $('#lesson-errors');
+
+            let successMsg = '@TempData["Success"]';
+            successMsg ? ShowSuccess(successMsg) : null;
+            let errorMsg = '@TempData["Error"]';
+            errorMsg ? ShowError(errorMsg) : null;
+
+            //#region Grid events
+
+            onChange = (e) => {
+                selectedIds = []; // First, reset this
+                Object.keys(e.sender._selectedIds).forEach(k => selectedIds.push(parseInt(k)));
+
+                let downloadSelectedBtn = $('#downloadSelected');
+                (selectedIds.length > 0) ?
+                    downloadSelectedBtn.removeAttr('disabled') :
+                    downloadSelectedBtn.attr('disabled', true);
+            }
+
+            onDataBound = (e) => {
+                selectedIds = [];
+                let downloadSelectedBtn = $('#downloadSelected');
+                downloadSelectedBtn.attr('disabled', true);
+            }
+
+            onChangeLessonMaterial = (e) => {
+                selectedIds = []; // First, reset this
+                Object.keys(e.sender._selectedIds).forEach(k => selectedIds.push(parseInt(k)));
+
+                let downloadSelectedBtn = $('#downloadSelectedLessons');
+                (selectedIds.length > 0) ?
+                    downloadSelectedBtn.removeAttr('disabled') :
+                    downloadSelectedBtn.attr('disabled', true);
+            }
+
+            onDataBoundLessonMaterial = (e) => {
+                selectedIds = [];
+                let downloadSelectedBtn = $('#downloadSelectedLessons');
+                downloadSelectedBtn.attr('disabled', true);
+            }
+
+            //#endregion
+
+            //#region TeacherSubject Material actions
+
+            onShowSubjectMaterialModal = (teacherSubjectId) => {
+                $("#tacherSubjectId").val(teacherSubjectId);
+                subjectMaterialModal.modal('show');
+            }
+
+            subjectMaterialModal.on('hide.bs.modal', (e) => {
+                if (isTsMaterialUploading()) {
+                    e.preventDefault();
+                    ShowWarning('Upload is still in progress.');
+                    window.addEventListener("beforeunload", beforeUnloadListener);
+                }
+                else {
+                    window.removeEventListener("beforeunload", beforeUnloadListener);
+                }
+            });
+
+            subjectMaterialModal.on('hidden.bs.modal', (e) => {
+                clearSubjectMaterialModal();
+            });
+
+            clearSubjectMaterialModal = () => {
+                let subjectMaterialUpload = $('#subject-material-upload').data("kendoUpload");
+
+                subjectMaterialModalErrorsRef.html('');
+                subjectMaterialUpload.clearAllFiles();
+                subjectMaterialUpload.options.async.saveUrl = "/TeacherSubject/SubjectMaterial_ChunkUpload";
+            }
+
+            onUpload = (e) => {
+                let subjectMaterialUpload = $('#subject-material-upload').data("kendoUpload");
+                let teacherSubjectId = $("#tacherSubjectId").val();
+
+                subjectMaterialUpload.options.async.saveUrl = `/TeacherSubject/SubjectMaterial_ChunkUpload/${teacherSubjectId}`;
+                subjectMaterialUpload.upload();
+            }
+
+            onUploadSuccess = (e) => {
+                if (e.operation === 'upload' && e.response.uploaded === true) {
+                    ShowSuccess(`${e.files[0].name} uploaded successfully.`);
+                    refreshKendoGrid('subject-materials-grid');
+                }
+            }
+
+            onUploadError = (e) => {
+                console.error(e);
+                let response = JSON.parse(e.XMLHttpRequest.response);
+                ShowError(response.error);
+            }
+
+            isTsMaterialUploading = () => {
+                return $('#subject-material-upload').parents('.k-upload').find('.k-file-progress').length > 0;
+            }
+
+            onDeleteSubjectMaterial = (id) => {
+                 ShowConfirmation(
+                     `Are you sure you want to remove this material?`,
+                     '',
+                     () => {
+
+                         // Todo: Ajax call here
+                         $.ajax({
+                             type: 'POST',
+                             url: `/TeacherSubject/DeleteMaterial/${id}`,
+                             contentType: "application/json",
+                             dataType: "json",
+                             success: data => {
+                                 // Ok
+                                 if (data.HasErrors === false) {
+                                     ShowSuccess('Material deleted successfully.');
+                                     refreshKendoGrid("subject-materials-grid");
+                                 }
+                                 // Errors
+                                 else {
+                                     let errors = '';
+                                     // Show something
+                                 }
+                             },
+                             fail: err => {
+                                 console.log(err.Errors);
+                                 ShowError(err);
+                             }
+                         });
+                     },
+                     null
+                 )
+             }
+
+            onDownloadSelectedMaterials = () => {
+                if (selectedIds.length > 0) {
+
+                    let api = `/TeacherSubject/DownloadTeacherSubjectMaterials?`;
+                    selectedIds.forEach((id, i) => {
+                        api += `ids=${id}`;
+                        if (i < (selectedIds.length - 1))
+                            api += '&';
+                    });
+
+                    downloadURI(api);
+                    $('#subject-materials-grid').data('kendoGrid').clearSelection();
+                }
+            }
+
+            //#endregion
+
+            //#region Lesson actions
+
+            onAddLessonModal = (teacherSubjectId) => {
+                lessonEdit = false;
+                $("#teacherSubjectId").val(teacherSubjectId);
+
+                $('#lesson-modal-label').text('Add Lesson');
+
+                lessonModal.modal('show');
+            }
+
+            lessonModal.on('hidden.bs.modal', (e) => {
+                clearLessonModal();
+            });
+
+            clearLessonModal = () => {
+                $('#lesson-modal #lesson-name').val("");
+                $('#lesson-modal #lesson-description').val("");
+                lessonModalErrorsRef.html('');
+            }
+
+            $('#lesson-form').submit(e => {
+                e.preventDefault();
+
+                var model = {
+                    TeacherSubjectId: parseInt($("#teacherSubjectId").val()),
+                    Name: $('#lesson-name').val(),
+                    Description: $('#lesson-description').val(),
+                };
+
+                if (lessonEdit === false) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/Lesson/Create',
+                        contentType: "application/json",
+                        dataType: "json",
+                        data: JSON.stringify(model),
+                        success: data => {
+                            // Ok
+                            if (data.HasErrors === false) {
+                                ShowSuccess('Lesson added successfully.');
+                                closeLessonModal();
+                                refreshKendoGrid("lesson-grid");
+                            }
+                            // Errors
+                            else {
+                                let errors = '';
+                                data.Errors.forEach(e => {
+                                    errors += `<li> ${e} </li>`;
+                                });
+                                $('#lesson-errors').html(errors);
+                            }
+                        },
+                        fail: err => {
+                            console.log(err.Errors);
+                            ShowError(err);
+                        }
+                    });
+                }
+                else if (lessonEdit === true) {
+                    var model2 = {
+                        TeacherSubjectId: parseInt($("#teacherSubjectId").val()),
+                        Id: parseInt($("#lessonId").val()),
+                        Name: $('#lesson-name').val(),
+                        Description: $('#lesson-description').val(),
+                    };
+                    $.ajax({
+                        type: 'POST',
+                        url: '/Lesson/Edit',
+                        contentType: "application/json",
+                        dataType: "json",
+                        data: JSON.stringify(model2),
+                        success: data => {
+                            // Ok
+                            if (data.HasErrors === false) {
+                                ShowSuccess('Lesson updated successfully.');
+                                closeLessonModal();
+                                refreshKendoGrid("lesson-grid");
+                            }
+                            // Errors
+                            else {
+                                let errors = '';
+                                data.Errors.forEach(e => {
+                                    errors += `<li> ${e} </li>`;
+                                });
+                                $('#lesson-errors').html(errors);
+                            }
+                        },
+                        fail: err => {
+                            console.log(err.Errors);
+                            ShowError(err);
+                        }
+                    });
+                }
+
+                closeLessonModal = () => {
+                lessonModal.modal('hide');
+                }
+                lessonModal.on('hidden.bs.modal', function (event) {
+                    clearLessonForm();
+                });
+                clearLessonForm = () => {
+                    lessonMaterialModalErrorsRef.html('');
+                    $('#teacherSubjectId').val('');
+                    $('#lesson-name').val('');
+                    $('#lesson-description').val('');
+                }
+            });
+
+            onEditLesson = (e, lessonId, teacherSubjectId) => {
+                lessonEdit = true;
+                var grid = $("#lesson-grid").data("kendoGrid");
+                var dataItem = grid.dataItem($(e).closest("tr"));
+
+                $('#lesson-modal-label').text('Edit Lesson');
+
+                $("#teacherSubjectId").val(teacherSubjectId);
+                $("#lessonId").val(lessonId);
+                $("#lesson-name").val(dataItem.Name);
+                $("#lesson-description").val(dataItem.Description);
+
+                lessonModal.modal('show');
+            };
+
+            onDeleteLesson = (Id) => {
+                let gridName = "lesson-grid";
+
+                ShowConfirmation(
+                    "Are you sure you want to delete this lesson?",
+                    "",
+                    () => {
+                        setKendoGridLoading(gridName, true);
+                        $.ajax({
+                            type: "DELETE",
+                            url: "/Lesson/Delete",
+                            data: { id: Id },
+                            dataType: "json",
+                            success: function (data) {
+                                console.log(data);
+                                // Ok
+                                if (data.HasErrors === false) {
+                                    setKendoGridLoading(gridName, false);
+                                    ShowSuccess("Lesson deleted successfully");
+                                    refreshKendoGrid(gridName);
+                                }
+                                // Errors
+                                else {
+                                    data.Errors.forEach(err => {
+                                        ShowError(err);
+                                    });
+                                }
+                            },
+                            error: function (req, status, error) {
+                                ShowError("Unable to delete this lesson.");
+                                console.error(error);
+                            }
+                        });
+                    },
+                    null
+                );
+
+                return false;
+            }
+
+            //#endregion
+
+            //#region Lesson Material actions
+
+            onShowLessonMaterialModal = (lessonId, teacherSubjectId) => {
+                $("#teacherSubjectLessonId").val(teacherSubjectId);
+                $("#lesson-Id").val(lessonId);
+
+                lessonMaterialModal.modal('show');
+            }
+
+            lessonMaterialModal.on('hide.bs.modal', (e) => {
+                if (isLessonMaterialUploading()) {
+                    e.preventDefault();
+                    ShowWarning('Upload is still in progress.');
+                    window.addEventListener("beforeunload", beforeUnloadListener);
+                }
+                else {
+                    window.removeEventListener("beforeunload", beforeUnloadListener);
+                }
+            });
+
+            lessonMaterialModal.on('hidden.bs.modal', (e) => {
+                clearLessonMaterialModal();
+            });
+
+            clearLessonMaterialModal = () => {
+                let lessonMaterialUpload = $('#lesson-material-upload').data("kendoUpload");
+
+                lessonMaterialModalErrorsRef.html('');
+                lessonMaterialUpload.clearAllFiles();
+                lessonMaterialUpload.options.async.saveUrl = "/TeacherSubject/LessonMaterial_ChunkUpload";
+            }
+
+            onUploadLesson = (e) => {
+                console.log(e);
+
+                let lessonMaterialUpload = $('#lesson-material-upload').data("kendoUpload");
+                let teacherSubjectLessonId = $("#teacherSubjectLessonId").val();
+                let lessonId = $("#lesson-Id").val();
+
+                lessonMaterialUpload.options.async.saveUrl = `/TeacherSubject/LessonMaterial_ChunkUpload/${teacherSubjectLessonId}/${lessonId}`;
+                lessonMaterialUpload.upload();
+            }
+
+            onUploadSuccess2 = (e) => {
+                if (e.operation === 'upload' && e.response.uploaded === true) {
+                    ShowSuccess(`${e.files[0].name} uploaded successfully.`);
+
+                    let lessonId = $("#lesson-Id").val();
+                    refreshKendoGrid(`lesson-material-grid-${lessonId}`);
+                }
+            }
+
+            onUploadError2 = (e) => {
+                console.error(e);
+                let response = JSON.parse(e.XMLHttpRequest.response);
+                ShowError(response.error);
+            }
+
+            isLessonMaterialUploading = () => {
+                return $('#lesson-material-upload').parents('.k-upload').find('.k-file-progress').length > 0;
+            }
+
+            onDeleteLessonMaterial = (e, lessonId) => {
+                ShowConfirmation(
+                    `Are you sure you want to remove this lesson material?`,
+                    '',
+                    () => {
+                        var grid = $(`#lesson-material-grid-${lessonId}`).data("kendoGrid");
+                        var dataItem = grid.dataItem($(e).closest("tr"));
+                        id = dataItem.Id;
+                        // Todo: Ajax call here
+                        $.ajax({
+                            type: 'POST',
+                            url: `/TeacherSubject/DeleteLessonMaterial/${id}`,
+                            contentType: "application/json",
+                            dataType: "json",
+                            success: data => {
+                                // Ok
+                                if (data.HasErrors === false) {
+                                    ShowSuccess("This lesson's material deleted successfully.");
+                                    refreshKendoGrid(`lesson-material-grid-${lessonId}`);
+
+                                }
+                                // Errors
+                                else {
+                                    let errors = '';
+                                    // Show something
+                                }
+                            },
+                            fail: err => {
+                                console.log(err.Errors);
+                                ShowError(err);
+                            }
+                        });
+                    },
+                    null
+                )
+            }
+
+            onDownloadSelectedLessonMaterials = (lessonId) => {
+                if (selectedIds.length > 0) {
+
+                    let api = `/TeacherSubject/DownloadLessonMaterials?`;
+                    selectedIds.forEach((id, i) => {
+                        api += `ids=${id}`;
+                        if (i < (selectedIds.length - 1))
+                            api += '&';
+                    });
+
+                    downloadURI(api);
+                    $(`#lesson-material-grid-${lessonId}`).data('kendoGrid').clearSelection();
+                }
+            }
+
+            //#endregion
+
+         });
+
+        function expandDetails(e) {
+            DocumentId = e.masterRow[0].cells[1].innerHTML;
+            var grid = e.sender;
+            var rows = grid.element.find(".k-master-row").not(e.masterRow);
+            rows.each(function (e) {
+                grid.collapseRow(this);
+            });
+        };
+
+    </script>
+
+}

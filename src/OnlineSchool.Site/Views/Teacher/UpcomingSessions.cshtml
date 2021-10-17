@@ -1,0 +1,150 @@
+﻿@model OnlineSchool.Contract.Session.SessionModel
+@using OnlineSchool.Core.Helper_
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/grid-style.css" />
+}
+
+@{
+    var culture = System.Globalization.CultureInfo.CurrentCulture.ToString();
+}
+
+<h6 class="page-title"> @SharedResources.UpcomingSessions </h6>
+
+<div class="row mx-0 p-0">
+    <div class="col-12 m-0 py-4 padding-lr bg-grey">
+
+        @(Html.Kendo().Grid<OnlineSchool.Contract.Session.SessionModel>()
+            .Name("session-grid")
+            .HtmlAttributes(new { style = "height: 600px;" })
+            .NoRecords()
+            .ToolBar(toolbar =>
+            {
+                toolbar.ClientTemplate(
+                        "<span class='k-textbox k-grid-search k-display-flex'>" +
+                            "<input autocomplete='off' placeholder='" + SharedResources.SEARCH + "...' title='" + SharedResources.SEARCH + "...' class='k-input'>" +
+                            "<span class='k-input-icon'>" +
+                                "<span class='k-icon k-i-search'></span>" +
+                            "</span>" +
+                        "</span>");
+            })
+            .Search(search =>
+            {
+                search.Field(m => m.Course.TeacherSubject.Subject.Name);
+                search.Field(m => m.Course.TeacherSubject.Subject.Description);
+                search.Field(m => m.Topic);
+            })
+            .Columns(columns =>
+            {
+                columns.Bound(p => p.Id).Visible(false);
+                columns.Bound(p => p.Course.TeacherSubject.Subject.Name).Title(SharedResources.Subject).Width(150)
+                    .ClientTemplate("#= renderCourseSubject(data.Course.TeacherSubject.Subject) #");
+                columns.Bound(p => p.Topic).Title(SharedResources.Topic).Width(150)
+                    .ClientTemplate(@"
+                        <div style='max-height:100px;overflow: auto;'>#=Topic#</div>
+                    ");
+                columns.Bound(p => p.Date).Title(SharedResources.Date).Width(100)
+                    .ClientTemplate("#= renderDateDetails(data) #");
+                columns.Template("#= renderStartSessionBtn(data) #")
+                    .Title(SharedResources.Actions).Width(100);
+            })
+            .Sortable(x => x.SortMode(GridSortMode.MultipleColumn))
+            .Pageable(pg =>
+            {
+                pg.Refresh(true);
+                pg.PageSizes(true);
+                pg.ButtonCount(5);
+            })
+            .Scrollable()
+            .DataSource(ds => ds
+                .Ajax()
+                .PageSize(10)
+                .Model(model =>
+                {
+                    model.Id(p => p.Id);
+                })
+                .Read(read => read.Action("GetUpcomingSessions", "Teacher").Type(HttpVerbs.Get))
+                .Sort(s => {
+                    s.Add(m => m.Date);
+                    s.Add(m => m.StartTime);
+                })
+            )
+            .Deferred()
+        )
+
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+
+            setInterval(function () {
+                refreshKendoGrid('session-grid')
+            }, 60000);
+
+            renderCourseSubject = (data) => {
+                let description = data.Description;
+
+                if (description == null) {
+                    description = " ";
+                }
+                else if (description.length > 21) {
+                    description = description.substring(0, 18) + "...";
+                }
+
+                return `<div class="d-flex align-items-center">
+                            <div class="d-flex justify-content-start flex-column">
+                                <span class="text-dark fw-bolder fs-6">${data.Name}</span>
+                                <span class="text-muted fw-bold d-block fs-7">${description}</span>
+                            </div>
+                        </div>`;
+            }
+
+            renderDateDetails = (data) => {
+                let date = formatDate(data.Date, "@culture");
+                let startTime = formatTime(data.StartDate, "@culture");
+                let endTime = formatTime(data.EndDate, "@culture");
+                return `<div class="d-flex align-items-center">
+                            <div class="d-flex justify-content-start flex-column">
+                                <span class="text-dark fw-bolder fs-6">${date}</span>
+                                <span class="text-muted fw-bold d-block fs-7">${startTime} - ${endTime}</span>
+                            </div>
+                        </div>`;
+            }
+
+            renderStartSessionBtn = (data) => {
+                let extraAttr = 'disabled';
+
+                let startTime = data.StartTime.split(":");
+                let startDate = new Date(data.Date.valueOf());
+                startDate.setHours(startTime[0], startTime[1], 0);
+
+                let endTime = data.EndTime.split(":");
+                let endDate = new Date(data.Date.valueOf());
+                endDate.setHours(endTime[0], endTime[1], 0);
+
+                let now = new Date();
+                now.setMinutes(now.getMinutes() + 10);
+
+                if (now >= startDate && now <= endDate)
+                    extraAttr = '';
+
+                return `
+                        <div class='text-center'>
+                            <button ${extraAttr} class='btn btn-sm btn-success shadow' onclick='startSession(${data.Id})'> Start </button>
+                        </div>
+                    `;
+            }
+
+            startSession = (sessionId) => {
+                ShowConfirmation('You are about to start the live session. Continue?', '', () => {
+                    window.location.href = `/LiveSession/${sessionId}/Host`;
+                }, null)
+            }
+
+        });
+    </script>
+
+}

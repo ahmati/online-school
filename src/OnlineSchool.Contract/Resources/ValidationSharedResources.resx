@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CardNumber" xml:space="preserve">
+    <value>Il numero della tua carta è incompleto.</value>
+  </data>
+  <data name="CheckEmailError" xml:space="preserve">
+    <value>Si è verificato un errore. Controlla il tuo indirizzo email e riprova.</value>
+  </data>
+  <data name="ColorLength" xml:space="preserve">
+    <value>Il colore deve essere lungo al massimo 50 caratteri.</value>
+  </data>
+  <data name="ConfirmEmailSuccess" xml:space="preserve">
+    <value>Your email has been confirmed successfully.</value>
+  </data>
+  <data name="CVC" xml:space="preserve">
+    <value>CVC è incompleto.</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>La descrizione è obbligatoria.</value>
+  </data>
+  <data name="DescriptionLength" xml:space="preserve">
+    <value>La descrizione deve contenere un massimo di 500 caratteri.</value>
+  </data>
+  <data name="EmailConfirmedOnce" xml:space="preserve">
+    <value>Il tuo account e-mail è stato confermato una volta.</value>
+  </data>
+  <data name="EmailRequired" xml:space="preserve">
+    <value>L'e-mail è obbligatoria.</value>
+  </data>
+  <data name="ExpireDate" xml:space="preserve">
+    <value>La data di scadenza è incompleta.</value>
+  </data>
+  <data name="FullName" xml:space="preserve">
+    <value>Inserisci il tuo nome completo (Nome/spazio/Cognome).</value>
+  </data>
+  <data name="GenderRequired" xml:space="preserve">
+    <value>Il sesso è obbligatorio.</value>
+  </data>
+  <data name="ImagePathLength" xml:space="preserve">
+    <value>Il nome dell'immagine non può essere lungo più di 500 caratteri.</value>
+  </data>
+  <data name="InvalidEmail" xml:space="preserve">
+    <value>Email non valido.</value>
+  </data>
+  <data name="InvalidLogin" xml:space="preserve">
+    <value>Tentativo di accesso non valido.</value>
+  </data>
+  <data name="InvalidPassword" xml:space="preserve">
+    <value>Password non valida.</value>
+  </data>
+  <data name="LoadUserError" xml:space="preserve">
+    <value>Impossibile caricare l'utente con ID userId!</value>
+  </data>
+  <data name="MustConfirmEmailError" xml:space="preserve">
+    <value>Devi confermare la tua email per poter accedere.</value>
+  </data>
+  <data name="NameLength" xml:space="preserve">
+    <value>Il nome deve essere lungo almeno 2 e massimo 100 caratteri.</value>
+  </data>
+  <data name="NameRequired" xml:space="preserve">
+    <value>Il campo nome  è obbligatorio .</value>
+  </data>
+  <data name="PasswordLength" xml:space="preserve">
+    <value>La password deve contenere almeno 6 caratteri e una lunghezza massima di 100 caratteri.</value>
+  </data>
+  <data name="PasswordMatch" xml:space="preserve">
+    <value>La password e la password di conferma non corrispondono.</value>
+  </data>
+  <data name="PasswordRequired" xml:space="preserve">
+    <value>La password  è obbligatoria.</value>
+  </data>
+  <data name="Price" xml:space="preserve">
+    <value>Il prezzo è obbligatorio.</value>
+  </data>
+  <data name="PriceFormat" xml:space="preserve">
+    <value>Prezzo non valido. Punti decimali massimi: 2</value>
+  </data>
+  <data name="PriceLength" xml:space="preserve">
+    <value>Prezzo non valido. Lunghezza massima: 10.</value>
+  </data>
+  <data name="ResetPasswordEmailSent" xml:space="preserve">
+    <value>È stata inviata un'e-mail a questo indirizzo e-mail. Controlla il tuo indirizzo email.</value>
+  </data>
+  <data name="ResetPasswordSuccess" xml:space="preserve">
+    <value>La tua password è stata reimpostata con successo.</value>
+  </data>
+  <data name="SubjectNameLength" xml:space="preserve">
+    <value>Il nome deve essere lungo almeno 2 e massimo 50 caratteri.</value>
+  </data>
+  <data name="SurnameLength" xml:space="preserve">
+    <value>Il cognome deve essere di almeno 2 e massimo 100 caratteri.</value>
+  </data>
+  <data name="SurnameRequired" xml:space="preserve">
+    <value>Il campo Cognome è obbligatorio.</value>
+  </data>
+  <data name="TryAgainEmailConfirmation" xml:space="preserve">
+    <value>Si è verificato un errore. Per favore, riprova a confermare la tua email!</value>
+  </data>
+  <data name="TryAgainError" xml:space="preserve">
+    <value>Si è verificato un errore. Per favore, riprova.</value>
+  </data>
+  <data name="UserCreationSucces" xml:space="preserve">
+    <value>Utente creato con successo. Controlla la tua email per la verifica.</value>
+  </data>
+  <data name="UserNotFoundError" xml:space="preserve">
+    <value>Si è verificato un errore. Utente non trovato.</value>
+  </data>
+  <data name="UserNotRegistredOrEmailNotConfirmed" xml:space="preserve">
+    <value>Si è verificato un errore. L'utente non è registrato o non ha confermato l'e-mail.</value>
+  </data>
+  <data name="UserWithEmailNotFound" xml:space="preserve">
+    <value>Utente con e-mail E-mail non trovata.</value>
+  </data>
+  <data name="ValidEmail" xml:space="preserve">
+    <value>Devi fornire un indirizzo email valido.</value>
+  </data>
+  <data name="ValidPassword" xml:space="preserve">
+    <value>Minimo otto caratteri, almeno una lettera maiuscola, una lettera minuscola e un numero.</value>
+  </data>
+</root>
